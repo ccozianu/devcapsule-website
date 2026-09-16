@@ -1,51 +1,92 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import os from 'node:os';
-import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
-import { root, contentRoot } from './content.mjs';
-const sandbox = fs.mkdtempSync(path.join(os.tmpdir(),'devcapsule-site-acceptance-'));
-const site = path.join(sandbox,'website');
+import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { root, contentRoot } from "./content.mjs";
+const sandbox = fs.mkdtempSync(
+  path.join(os.tmpdir(), "devcapsule-site-acceptance-"),
+);
+const site = path.join(sandbox, "website");
 const env = { ...process.env };
-delete env.CONTENT_DIR; delete env.SITE_MODE; delete env.SITE_ORIGIN; delete env.SITE_BASE_PATH;
-const run = (cmd,args,cwd=site,extra={}) => execFileSync(cmd,args,{cwd,env:{...env,...extra},encoding:'utf8',stdio:['ignore','pipe','pipe']});
+delete env.CONTENT_DIR;
+delete env.SITE_MODE;
+delete env.SITE_ORIGIN;
+delete env.SITE_BASE_PATH;
+const run = (cmd, args, cwd = site, extra = {}) =>
+  execFileSync(cmd, args, {
+    cwd,
+    env: { ...env, ...extra },
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
 try {
-  run('git',['clone','--no-hardlinks','--no-recurse-submodules',root,site],sandbox);
-  run('git',['clone','--no-hardlinks','--no-recurse-submodules',contentRoot(),path.join(site,'.content')]);
-  run('npm',['ci']);
-  const build = extra => run('npm',['run','build'],site,extra);
-  const read = file => fs.readFileSync(path.join(site,'_site',file),'utf8');
-  const info = () => JSON.parse(read('build-info.json'));
-  build(); run('npm',['run','check']);
-  const before=info();
-  const readme=path.join(site,'.content','README.md');
-  const original=fs.readFileSync(readme,'utf8');
-  const marker='Website acceptance paragraph update.';
-  fs.writeFileSync(readme,original.replace('Gone are the days',marker+' Gone are the days'));
+  run(
+    "git",
+    ["clone", "--no-hardlinks", "--no-recurse-submodules", root, site],
+    sandbox,
+  );
+  run("git", [
+    "clone",
+    "--no-hardlinks",
+    "--no-recurse-submodules",
+    contentRoot(),
+    path.join(site, ".content"),
+  ]);
+  run("npm", ["ci"]);
+  const build = (extra) => run("npm", ["run", "build"], site, extra);
+  const read = (file) =>
+    fs.readFileSync(path.join(site, "_site", file), "utf8");
+  const info = () => JSON.parse(read("build-info.json"));
   build();
-  assert.ok(read('index.html').includes(marker));
-  assert.notEqual(info().content.sha256,before.content.sha256);
-  assert.equal(info().content.dirty,true);
-  fs.writeFileSync(readme,original);
-  const css=path.join(site,'src/assets/site.css');
-  fs.appendFileSync(css,'\nbody { --website-acceptance-style: 1; }\n');
+  run("npm", ["run", "check"]);
+  const before = info();
+  const readme = path.join(site, ".content", "README.md");
+  const original = fs.readFileSync(readme, "utf8");
+  const marker = "Website acceptance paragraph update.";
+  fs.writeFileSync(
+    readme,
+    original.replace("Gone are the days", marker + " Gone are the days"),
+  );
   build();
-  assert.ok(read('assets/site.css').includes('--website-acceptance-style: 1'));
-  assert.equal(info().content.sha256,before.content.sha256);
-  assert.equal(info().content.dirty,false);
-  assert.equal(info().implementation.dirty,true);
-  build({SITE_BASE_PATH:'/devcapsule/'}); run('npm',['run','check']);
-  assert.ok(read('index.html').includes('href="/devcapsule/docs/guides/first-session/"'));
-  run('git',['checkout','--','src/assets/site.css']);
-  build({SITE_MODE:'production',SITE_ORIGIN:'https://devcapsule.mycodespace.ai',SITE_BASE_PATH:'/'});
-  run('npm',['run','check']);
-  assert.ok(read('robots.txt').includes('Allow: /'));
-  assert.ok(!read('index.html').includes('noindex'));
-  assert.ok(read('index.html').includes('href="https://devcapsule.mycodespace.ai/"'));
-  assert.equal(info().implementation.dirty,false);
-  console.log('Passed: clean standalone npm ci/build, paragraph update, independent styling update, unchanged content digest for styling, subdirectory links, and production metadata. No parent submodules initialized.');
+  assert.ok(read("index.html").includes(marker));
+  assert.notEqual(info().content.sha256, before.content.sha256);
+  assert.equal(info().content.dirty, true);
+  fs.writeFileSync(readme, original);
+  const css = path.join(site, "src/assets/site.css");
+  fs.appendFileSync(css, "\nbody { --website-acceptance-style: 1; }\n");
+  build();
+  assert.ok(read("assets/site.css").includes("--website-acceptance-style: 1"));
+  assert.equal(info().content.sha256, before.content.sha256);
+  assert.equal(info().content.dirty, false);
+  assert.equal(info().implementation.dirty, true);
+  build({ SITE_BASE_PATH: "/devcapsule/" });
+  run("npm", ["run", "check"]);
+  assert.ok(
+    read("index.html").includes(
+      'href="/devcapsule/docs/guides/first-session/"',
+    ),
+  );
+  run("git", ["checkout", "--", "src/assets/site.css"]);
+  build({
+    SITE_MODE: "production",
+    SITE_ORIGIN: "https://devcapsule.mycodespace.ai",
+    SITE_BASE_PATH: "/",
+  });
+  run("npm", ["run", "check"]);
+  assert.ok(read("robots.txt").includes("Allow: /"));
+  assert.ok(!read("index.html").includes("noindex"));
+  assert.ok(
+    read("index.html").includes('href="https://devcapsule.mycodespace.ai/"'),
+  );
+  assert.equal(info().implementation.dirty, false);
+  console.log(
+    "Passed: clean standalone npm ci/build, paragraph update, independent styling update, unchanged content digest for styling, subdirectory links, and production metadata. No parent submodules initialized.",
+  );
 } catch (error) {
   if (error.stdout) console.error(error.stdout.toString());
   if (error.stderr) console.error(error.stderr.toString());
   throw error;
-} finally { fs.rmSync(sandbox,{recursive:true,force:true}); }
+} finally {
+  fs.rmSync(sandbox, { recursive: true, force: true });
+}

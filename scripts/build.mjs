@@ -1,17 +1,28 @@
-import { execFileSync } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
-import { root } from './content.mjs';
+import { execFileSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+import { root } from "./content.mjs";
 process.chdir(root);
-const mode = process.env.SITE_MODE || 'preview';
-if (!['preview','production'].includes(mode)) throw new Error('SITE_MODE must be preview or production.');
-if (mode === 'production' && !/^https:\/\/[^/]+$/.test(process.env.SITE_ORIGIN || '')) throw new Error('Production requires SITE_ORIGIN=https://your-domain (no trailing slash).');
-const next = path.join(root,'.site-next');
-const previous = path.join(root,'.site-previous');
-const output = path.join(root,'_site');
-fs.rmSync(next,{recursive:true,force:true});
-execFileSync(process.execPath, ['node_modules/@11ty/eleventy/cmd.cjs','--output=.site-next'], { stdio:'inherit' });
-fs.rmSync(previous,{recursive:true,force:true});
-if (fs.existsSync(output)) fs.renameSync(output,previous);
-fs.renameSync(next,output);
-fs.rmSync(previous,{recursive:true,force:true});
+const mode = process.env.SITE_MODE || "preview";
+if (!["preview", "production"].includes(mode))
+  throw new Error("SITE_MODE must be preview or production.");
+if (
+  mode === "production" &&
+  !/^https:\/\/[^/]+$/.test(process.env.SITE_ORIGIN || "")
+)
+  throw new Error(
+    "Production requires SITE_ORIGIN=https://your-domain (no trailing slash).",
+  );
+const next = path.join(root, ".site-next");
+const previous = path.join(root, ".site-previous");
+const output = path.join(root, "_site");
+fs.rmSync(next, { recursive: true, force: true });
+execFileSync(
+  process.execPath,
+  ["node_modules/@11ty/eleventy/cmd.cjs", "--output=.site-next"],
+  { stdio: "inherit" },
+);
+fs.rmSync(previous, { recursive: true, force: true });
+if (fs.existsSync(output)) fs.renameSync(output, previous);
+fs.renameSync(next, output);
+fs.rmSync(previous, { recursive: true, force: true });
