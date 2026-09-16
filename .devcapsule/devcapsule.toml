@@ -1,0 +1,16 @@
+devcapsule-schema-version = 1
+workflow-type = "single-stream"
+
+[capabilities]
+need = ["frontend-ide", "node"]
+
+[project]
+name = "DevCapsule Website"
+slug = "devcapsule-website"
+creator = "https://github.com/ccozianu"
+mount = "/workspace/devcapsule-website"
+
+[host.network.mode.recommended]
+value = "host"
+justification = "Allows the host browser to reach the loopback website preview. Optional if previewing from a browser inside the capsule."
+enables = ["host-browser-local-preview"]
