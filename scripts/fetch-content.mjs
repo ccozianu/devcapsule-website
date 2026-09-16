@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { root } from './content.mjs';
+const dir = path.join(root,'.content');
+const ref = process.env.CONTENT_REF || 'main';
+if (!/^[a-zA-Z0-9][a-zA-Z0-9_./-]*$/.test(ref)) throw new Error('Invalid CONTENT_REF.');
+const git = args => execFileSync('git', args, {stdio:'inherit'});
+if (!fs.existsSync(dir)) git(['clone','--no-recurse-submodules','https://github.com/ccozianu/devcapsule.git',dir]);
+const dirty = execFileSync('git',['-C',dir,'status','--porcelain'],{encoding:'utf8'}).trim();
+if (dirty) throw new Error('The cached content checkout has edits; preserve them before fetching.');
+git(['-C',dir,'fetch','origin',ref]);
+git(['-C',dir,'checkout','--detach','FETCH_HEAD']);
+console.log('Content ready. npm run dev will use .content in a standalone checkout.');

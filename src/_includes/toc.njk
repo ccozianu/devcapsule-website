@@ -1,0 +1,1 @@
+<ul class="toc-list">{% for item in entry.toc %}<li {% if item.sub %}class="toc-sub"{% endif %}><a href="#{{ item.id }}">{{ item.title }}</a></li>{% endfor %}</ul>

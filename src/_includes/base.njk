@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{{ title }}{% if title != 'DevCapsule' %} · DevCapsule{% endif %}</title>
+  <meta name="description" content="{{ entry.excerpt if entry else 'Development notes, decisions, and conversations from building DevCapsule.' }}">
+  {% if preview %}<meta name="robots" content="noindex, nofollow">{% endif %}
+  {% if origin %}<link rel="canonical" href="{{ origin }}{{ page.url | url }}">{% endif %}
+  <meta property="og:title" content="{{ title }} · DevCapsule">
+  <meta property="og:type" content="{{ 'article' if entry.kind == 'post' else 'website' }}">
+  <link rel="icon" href="{{ '/assets/favicon.svg' | url }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ '/assets/site.css' | url }}">
+  <script src="{{ '/assets/site.js' | url }}" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <a class="brand" href="{{ '/' | url }}" aria-label="DevCapsule home"><span class="brand-mark" aria-hidden="true"><span></span></span>DevCapsule<span class="brand-dot">.</span></a>
+  <nav aria-label="Main navigation">
+    <a href="{{ '/docs/' | url }}" {% if entry.kind == 'doc' %}aria-current="true"{% endif %}>Docs</a>
+    <a href="{{ '/blog/' | url }}" {% if entry.kind == 'post' or page.url == '/blog/' %}aria-current="true"{% endif %}>Journal</a>
+    <a class="github-link" href="https://github.com/ccozianu/devcapsule">GitHub <span aria-hidden="true">↗</span></a>
+    <a class="nav-cta" href="{{ '/docs/guides/first-session/' | url }}">Get started <span aria-hidden="true">→</span></a>
+  </nav>
+</header>
+<main id="main" tabindex="-1">{{ content | safe }}</main>
+<footer class="site-footer">
+  <div><a class="brand" href="{{ '/' | url }}">DevCapsule<span class="brand-dot">.</span></a><p>A project worth coming back to.</p></div>
+  <nav aria-label="Footer"><a href="{{ '/docs/' | url }}">Documentation</a><a href="{{ '/blog/' | url }}">Development journal</a><a href="https://github.com/ccozianu/devcapsule/blob/main/DEVELOPING.md">For developers ↗</a><a href="https://github.com/ccozianu/devcapsule/blob/main/LICENSE">Apache-2.0 ↗</a></nav>
+  <div class="footer-bottom"><span>Built in the open. Built with DevCapsule.</span><a href="{{ '/build-info.json' | url }}">{{ 'Local preview' if preview else 'Build information' }} · {{ site.manifest.content.revision | shortsha }}</a></div>
+</footer>
+<div class="sr-only" role="status" id="copy-status"></div>
+</body>
+</html>
