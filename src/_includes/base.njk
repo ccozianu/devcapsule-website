@@ -29,7 +29,13 @@
 <footer class="site-footer">
   <div><a class="brand" href="{{ '/' | url }}">DevCapsule<span class="brand-dot">.</span></a><p>A project worth coming back to.</p></div>
   <nav aria-label="Footer"><a href="{{ '/docs/' | url }}">Documentation</a><a href="{{ '/blog/' | url }}">Development journal</a><a href="https://github.com/ccozianu/devcapsule/blob/main/DEVELOPING.md">For developers ↗</a><a href="https://github.com/ccozianu/devcapsule/blob/main/LICENSE">Apache-2.0 ↗</a></nav>
-  <div class="footer-bottom"><span>Built in the open. Built with DevCapsule.</span><a href="{{ '/build-info.json' | url }}">{{ 'Local preview' if preview else 'Build information' }} · {{ site.manifest.content.revision | shortsha }}</a></div>
+  <div class="footer-bottom">
+    <span>Built in the open. Built with DevCapsule.</span>
+    <div class="build-details">
+      <span>Site built <time datetime="{{ site.manifest.builtAt }}">{{ site.manifest.builtAt | buildtime }}</time></span>
+      <a href="{{ '/build-info.json' | url }}">{{ 'Local preview' if preview else 'Build information' }} · {{ site.manifest.content.revision | shortsha }}</a>
+    </div>
+  </div>
 </footer>
 <div class="sr-only" role="status" id="copy-status"></div>
 </body>

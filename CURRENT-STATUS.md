@@ -1,7 +1,8 @@
 # Website current status
 
-State: test site working; production promotion prepared as part of DevCapsule's
-`website` workstream. Branch: `production-pages`. Delivery: owner merges PR to `main`.
+State: test site and public candidates working; visible build timestamp prepared
+as part of DevCapsule's `website` workstream. Branch: `build-timestamp`.
+Delivery: owner merges PR to `main`.
 Independent future development: `single-stream`; transition not yet performed.
 
 ## Current result
@@ -56,29 +57,44 @@ and unsafe-path rejection, byte preservation and invalid candidate metadata.
 A clean build of the deployed source revisions passed packaging, simulated
 anonymous asset download, promotion and all 582 local links across 16 pages.
 Both workflows pass actionlint 1.7.12. No visual changes were made, so browser
-audits were not repeated. Hosted release
-creation and production deployment remain unverified until owner merges and runs
-the workflows. Local validation does not publish a release or deploy a site.
+audits were not repeated for that slice. Those workflow PRs are now merged.
+Public candidate website-candidate-35286734496-1 is fetched; the test site
+serves content a99ca28 and implementation ff1a987 over HTTPS. Production
+publication is owner-reported; HTTPS verification from this environment still
+reports a hostname mismatch, so production is not independently verified.
 
 The required parent `nox -s build` gate passed again, including all nine
 packaging integration checks. Its dirty-tree policy skipped the public revision
 PEX; the local PEX build and smoke checks passed.
 
+## Visible build timestamp
+
+The owner requested a visible indication of when the website was updated.
+All pages now show “Site built” with a UTC date/time in the footer, next to the
+existing build-information link. `builtAt` in the manifest records the same
+instant. Promotion and rollback preserve the original candidate timestamp;
+this is build time, not deployment completion or per-article modification time.
+The footer text is larger and wraps on narrow screens. No JavaScript is needed.
+Older candidates remain promotable without fabricated timestamps.
+
+Timestamp validation: all 11 unit tests, the build and 582 local links pass.
+Twelve desktop/mobile browser audits pass without overflow or automated WCAG
+A/AA violations. Additional desktop/mobile/320px checks without JavaScript
+confirm that the visible timestamp matches the manifest; footer screenshots
+were visually inspected. Existing promotion tests confirm builtAt is preserved.
+
+
 ## Next step
 
-Merge website `production-pages`, then parent `website/initial-cut` with the new
-website pin and test workflow. If the website PR is squash-merged, update the
-parent pin to its merged revision first. Follow [PUBLISHING.md](PUBLISHING.md)
-for production Pages/DNS/HTTPS and manual publishing; no new secret is needed.
-Start a new parent Website run from updated main (production mode, test origin,
-root base path); review the test site, then use its candidate tag in this repo's
-Publish production website action. Old run `35187865183` has no release assets;
-rerunning it uses the old workflow and does not create candidates.
-Do not dispatch production on the owner's behalf during this delivery.
+Merge website `build-timestamp`, then parent `website/initial-cut` with its new
+website pin. Select the merged website revision first if squash-merging.
+Run a fresh parent Website deployment (`production`, test domain, `/`) to get
+the timestamp into the test site and a new release candidate; promote that tag
+when reviewed. Existing published files do not update merely by merging code.
 
 ## Open threads
 
-- Owner handles both PR merges, production Pages/DNS/TLS and initial dispatches.
+- Owner handles both timestamp PR merges and new test/production workflow runs.
 - The current test deployment allows indexing because the parent workflow uses
   production mode to publish; separate noindex support is outside this slice.
 - Formal autonomy-experiment acceptance/finalization remains with the owner.

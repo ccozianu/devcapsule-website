@@ -118,10 +118,14 @@ Blog titles, dates, excerpts, and reading times are derived during the build.
 New guide pages appear in navigation automatically; background pages are grouped
 separately. No authored Markdown is copied into this repository.
 
-Every output includes `build-info.json`: content and implementation Git SHAs,
-dirty indicators, a digest of consumed content/assets, base path, and build mode.
+Every page footer shows when the site version was built, in UTC. The same
+ISO timestamp appears as `builtAt` in `build-info.json`, alongside content and
+implementation Git SHAs, dirty indicators, a digest of consumed content/assets,
+base path, and build mode. Promotion preserves that original build time; it is
+not a deployment completion time or a claim that every article changed then.
 No local paths or credentials appear there. Content must be a Git checkout;
-a dirty preview is supported and identified. Reproduce a published build from
-its two clean revisions, committed dependency lock, and publication parameters.
+a dirty preview is supported and identified. Reproduce the published content
+and presentation from its two clean revisions, dependency lock, and publication
+parameters; rebuilding generates a new build timestamp.
 
 [Development brief](DEVELOPING.md) · [Requirements](REQUIREMENTS.md) · [Index](index.md)

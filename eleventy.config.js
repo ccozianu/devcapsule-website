@@ -6,6 +6,12 @@ export default function (config) {
   config.addGlobalData("origin", process.env.SITE_ORIGIN || "");
   config.addFilter("url", siteUrl);
   config.addFilter("shortsha", (value) => value.slice(0, 7));
+  config.addFilter("buildtime", (value) =>
+    new Date(value).toLocaleString("en-GB", {
+      day: "2-digit", month: "short", year: "numeric",
+      hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC",
+    }) + " UTC",
+  );
   config.addFilter("json", (value) => JSON.stringify(value, null, 2));
   config.addPassthroughCopy({ "src/assets": "assets" });
   for (const asset of site.assets)
