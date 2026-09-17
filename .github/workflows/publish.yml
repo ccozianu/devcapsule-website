@@ -1,0 +1,54 @@
+name: Publish production website
+run-name: Promote ${{ inputs.candidate_tag }} to production
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_tag:
+        description: 'Public candidate release tag: website-candidate-RUN_ID-ATTEMPT'
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-pages
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Download and verify the public candidate, then prepare production
+        env:
+          CANDIDATE_TAG: ${{ inputs.candidate_tag }}
+        run: node scripts/candidate.mjs download
+      - run: npm run check
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish to devcapsule.mycodespace.ai
+        id: deployment
+        uses: actions/deploy-pages@v4

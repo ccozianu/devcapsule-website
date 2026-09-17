@@ -1,7 +1,7 @@
 # Website current status
 
-State: initial cut ready for owner review; part of DevCapsule's `website` workstream.
-Branch: `initial-cut`. Delivery: owner review, then pull request to `main`.
+State: test site working; production promotion prepared as part of DevCapsule's
+`website` workstream. Branch: `production-pages`. Delivery: owner merges PR to `main`.
 Independent future development: `single-stream`; transition not yet performed.
 
 ## Current result
@@ -9,7 +9,9 @@ Independent future development: `single-stream`; transition not yet performed.
 Eleventy renders the parent README, guides and development blog. The custom
 responsive presentation, navigation, code highlighting/copying, local preview,
 source-link conversion and build identities are implemented. Content stays in
-DevCapsule. No website, cloud infrastructure, or production DNS has been published.
+DevCapsule. The owner reports the test deployment works well; HTTPS and its
+manifest were independently checked on 2026-09-17. Initial website and parent
+PRs are merged. Production publication remains an owner action.
 
 The parent owns the current experiment budget and interruption arrangements.
 SSH clone/push is the delivery path; GitHub app access is unavailable. The owner
@@ -33,19 +35,53 @@ The parent DevCapsule Nox build gate also passed; no backend source changed.
 The manifest and Linux lock were generated/validated using DevCapsule's current
 resolver; a separate capsule launch has not been performed.
 
+## Production promotion slice (2026-09-17)
+
+The owner requested a publishing action here for `devcapsule.mycodespace.ai`.
+Only `mycodespace.ai` is owned; other domain spellings in conversation were typos.
+The owner selected public GitHub Release assets to avoid personal tokens and
+credential renewal. The parent test workflow now publishes a prerelease candidate
+only after successful test deployment, using its built-in GITHUB_TOKEN. Candidate
+tags are `website-candidate-RUN_ID-ATTEMPT`, and do not become the latest CLI
+release. The website production workflow downloads candidate.json and the tar.gz
+anonymously, validates the checksum, safe archive paths, source revisions and
+metadata, then changes canonical origins and adds promotion provenance.
+It does not rebuild tested content/assets. No CANDIDATE_READ_TOKEN is used.
+Release assets remain available until deleted; Actions retention no longer limits
+promotion/rollback. Downloads trust the repository's published release assets;
+no enforced immutable-release setting is claimed.
+
+Eleven unit tests pass, including anonymous-download behavior, archive corruption
+and unsafe-path rejection, byte preservation and invalid candidate metadata.
+A clean build of the deployed source revisions passed packaging, simulated
+anonymous asset download, promotion and all 582 local links across 16 pages.
+Both workflows pass actionlint 1.7.12. No visual changes were made, so browser
+audits were not repeated. Hosted release
+creation and production deployment remain unverified until owner merges and runs
+the workflows. Local validation does not publish a release or deploy a site.
+
+The required parent `nox -s build` gate passed again, including all nine
+packaging integration checks. Its dirty-tree policy skipped the public revision
+PEX; the local PEX build and smoke checks passed.
+
 ## Next step
 
-The owner reviews http://127.0.0.1:8080/ in the current parent environment.
-Restart with the parent `scripts/website.sh preview`, or `npm run dev` here.
-Review and merge this branch, then the parent gitlink/integration PR; handle
-GitHub backend wiring and production DNS/TLS using PUBLISHING.md after acceptance.
-No production deployment or hosted workflow run has occurred. Future presentation
-work and website media belong here.
+Merge website `production-pages`, then parent `website/initial-cut` with the new
+website pin and test workflow. If the website PR is squash-merged, update the
+parent pin to its merged revision first. Follow [PUBLISHING.md](PUBLISHING.md)
+for production Pages/DNS/HTTPS and manual publishing; no new secret is needed.
+Start a new parent Website run from updated main (production mode, test origin,
+root base path); review the test site, then use its candidate tag in this repo's
+Publish production website action. Old run `35187865183` has no release assets;
+rerunning it uses the old workflow and does not create candidates.
+Do not dispatch production on the owner's behalf during this delivery.
 
 ## Open threads
 
-- Awaiting owner review; no interim design approval needed.
-- Final GitHub Actions, PR merges, Pages and DNS/TLS wiring are deliberately deferred.
+- Owner handles both PR merges, production Pages/DNS/TLS and initial dispatches.
+- The current test deployment allows indexing because the parent workflow uses
+  production mode to publish; separate noindex support is outside this slice.
+- Formal autonomy-experiment acceptance/finalization remains with the owner.
 - Full graphical launch of this project's own capsule remains untested; Node-based
   standalone preview is the practical acceptance path for this cut.
 - No separate content copy, database, cloud account, or full chat record is preserved.
