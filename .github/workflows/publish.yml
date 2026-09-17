@@ -1,0 +1,106 @@
+name: Publish production website
+run-name: Promote test run ${{ inputs.test_run_id }} to production
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_run_id:
+        description: 'Successful Website run ID from ccozianu/devcapsule (not the run number)'
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-pages
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Verify the test deployment and locate its artifact
+        id: candidate
+        uses: actions/github-script@v8
+        env:
+          TEST_RUN_ID: ${{ inputs.test_run_id }}
+        with:
+          github-token: ${{ secrets.CANDIDATE_READ_TOKEN }}
+          script: |
+            const id = process.env.TEST_RUN_ID;
+            if (!/^[1-9][0-9]*$/.test(id) || !Number.isSafeInteger(Number(id))) {
+              throw new Error('Provide the numeric run ID from the test workflow URL.');
+            }
+            const source = {owner: 'ccozianu', repo: 'devcapsule'};
+            const {data: run} = await github.rest.actions.getWorkflowRun({...source, run_id: id});
+            if (run.path !== '.github/workflows/website.yml' || run.head_branch !== 'main' ||
+                run.event !== 'workflow_dispatch' || run.status !== 'completed' || run.conclusion !== 'success') {
+              throw new Error('Candidate must be a successful manual Website run on devcapsule main.');
+            }
+            const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
+              ...source, run_id: id, filter: 'latest', per_page: 100
+            });
+            if (!jobs.some(job => job.name === 'deploy' && job.conclusion === 'success')) {
+              throw new Error('This run did not successfully deploy to the test site.');
+            }
+            const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
+              ...source, run_id: id, per_page: 100
+            });
+            const candidates = artifacts.filter(a => a.name === 'website-preview' && !a.expired);
+            if (candidates.length !== 1 || !/^sha256:[a-f0-9]{64}$/.test(candidates[0].digest || '')) {
+              throw new Error('Expected one unexpired website-preview artifact with a SHA-256 digest.');
+            }
+            // Public content needs no extra token permission beyond Actions: read.
+            const {data: tree} = await github.rest.git.getTree({...source, tree_sha: run.head_sha});
+            const website = tree.tree.find(item => item.path === 'website' && item.mode === '160000');
+            if (!website) throw new Error('Candidate content commit has no website submodule.');
+            core.setOutput('artifact_id', String(candidates[0].id));
+            core.setOutput('content_sha', run.head_sha);
+            core.setOutput('website_sha', website.sha);
+            core.setOutput('digest', candidates[0].digest);
+      - name: Download the tested files (fail on digest mismatch)
+        uses: actions/download-artifact@v8
+        with:
+          github-token: ${{ secrets.CANDIDATE_READ_TOKEN }}
+          repository: ccozianu/devcapsule
+          run-id: ${{ inputs.test_run_id }}
+          artifact-ids: ${{ steps.candidate.outputs.artifact_id }}
+          path: _site
+          digest-mismatch: error
+      - name: Prepare production metadata without rebuilding
+        env:
+          CANDIDATE_CONTENT_SHA: ${{ steps.candidate.outputs.content_sha }}
+          CANDIDATE_WEBSITE_SHA: ${{ steps.candidate.outputs.website_sha }}
+          CANDIDATE_RUN_ID: ${{ inputs.test_run_id }}
+          CANDIDATE_ARTIFACT_ID: ${{ steps.candidate.outputs.artifact_id }}
+          CANDIDATE_DIGEST: ${{ steps.candidate.outputs.digest }}
+        run: node scripts/promote.mjs
+      - run: npm run check
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish to devcapsule.mycodespace.ai
+        id: deployment
+        uses: actions/deploy-pages@v4

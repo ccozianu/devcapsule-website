@@ -1,7 +1,7 @@
 # Website current status
 
-State: initial cut ready for owner review; part of DevCapsule's `website` workstream.
-Branch: `initial-cut`. Delivery: owner review, then pull request to `main`.
+State: test site working; production promotion prepared as part of DevCapsule's
+`website` workstream. Branch: `production-pages`. Delivery: owner merges PR to `main`.
 Independent future development: `single-stream`; transition not yet performed.
 
 ## Current result
@@ -9,7 +9,9 @@ Independent future development: `single-stream`; transition not yet performed.
 Eleventy renders the parent README, guides and development blog. The custom
 responsive presentation, navigation, code highlighting/copying, local preview,
 source-link conversion and build identities are implemented. Content stays in
-DevCapsule. No website, cloud infrastructure, or production DNS has been published.
+DevCapsule. The owner reports the test deployment works well; HTTPS and its
+manifest were independently checked on 2026-09-17. Initial website and parent
+PRs are merged. Production publication remains an owner action.
 
 The parent owns the current experiment budget and interruption arrangements.
 SSH clone/push is the delivery path; GitHub app access is unavailable. The owner
@@ -33,19 +35,41 @@ The parent DevCapsule Nox build gate also passed; no backend source changed.
 The manifest and Linux lock were generated/validated using DevCapsule's current
 resolver; a separate capsule launch has not been performed.
 
+## Production promotion slice (2026-09-17)
+
+The owner requested a publishing action here for `devcapsule.mycodespace.ai`.
+Only `mycodespace.ai` is owned; other domain spellings in conversation were typos.
+`.github/workflows/publish.yml` manually promotes a retained parent test run.
+It verifies workflow success including deployment, artifact digest, source
+revisions and metadata, then changes canonical origins and adds provenance.
+It does not rebuild the tested content/assets. The parent workflow is unchanged.
+
+Seven unit tests pass, including byte preservation and rejection of mismatched,
+dirty, preview-mode, subpath and unexpected-origin candidates. A clean temporary
+checkout of the exact deployed content and implementation built successfully;
+promotion of that local fixture and all 582 links across 16 HTML pages passed.
+This fixture was rebuilt locally, not downloaded using the owner's token.
+The workflow passes actionlint 1.7.12. No visual changes were made, so browser
+audits were not repeated.
+Authenticated cross-repository artifact download and the production Actions
+run remain unverified until owner setup and dispatch. The reviewed source
+artifact expires after seven days; there is no permanent rollback archive.
+
 ## Next step
 
-The owner reviews http://127.0.0.1:8080/ in the current parent environment.
-Restart with the parent `scripts/website.sh preview`, or `npm run dev` here.
-Review and merge this branch, then the parent gitlink/integration PR; handle
-GitHub backend wiring and production DNS/TLS using PUBLISHING.md after acceptance.
-No production deployment or hosted workflow run has occurred. Future presentation
-work and website media belong here.
+Merge `production-pages`, then follow [PUBLISHING.md](PUBLISHING.md): configure
+this repository's Pages custom domain and DNS, add repository secret
+`CANDIDATE_READ_TOKEN` with Actions: read on `ccozianu/devcapsule`, and run
+**Publish production website** from `main` with the reviewed test run ID.
+Known successful test run: `35187865183`, artifact expires 2026-09-24.
+Do not dispatch production on the owner's behalf during this delivery.
 
 ## Open threads
 
-- Awaiting owner review; no interim design approval needed.
-- Final GitHub Actions, PR merges, Pages and DNS/TLS wiring are deliberately deferred.
+- Owner handles production PR merge, Pages/DNS/TLS, secret and initial dispatch.
+- The current test deployment allows indexing because the parent workflow uses
+  production mode to publish; separate noindex support is outside this slice.
+- Formal autonomy-experiment acceptance/finalization remains with the owner.
 - Full graphical launch of this project's own capsule remains untested; Node-based
   standalone preview is the practical acceptance path for this cut.
 - No separate content copy, database, cloud account, or full chat record is preserved.
