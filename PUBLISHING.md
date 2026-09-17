@@ -30,90 +30,105 @@ domain use `/`. `SITE_ORIGIN` is only the HTTPS origin, without a path or traili
 slash. Production builds require it. To return to local preview, unset the
 production variables and run the preview command again.
 
-## Test site: DevCapsule repository
+## Test site and public candidates: DevCapsule repository
 
-The parent repository publishes `test-devcapsule.mycodespace.ai`. Its manual
+The parent publishes `test-devcapsule.mycodespace.ai`. Its manual
 **Actions → Website → Run workflow** uses branch `main`, mode `production`,
-origin `https://test-devcapsule.mycodespace.ai`, and base path `/`. In this
-existing workflow, `production` means a public Pages deployment; `preview`
-only uploads an artifact. The test site's current production-mode build allows
-indexing. Separate test-site noindex support is not part of this change.
+origin `https://test-devcapsule.mycodespace.ai`, and base path `/`. The current
+`production` label means a public Pages deployment; `preview` only uploads an
+artifact. The test site's production-mode build currently allows indexing.
+Separate test-site noindex support is outside this publishing change.
 
-Content and styling changes reach the test site through the parent content
-commit and its website submodule pin. Review that deployment before promoting.
-Record the run ID from its URL, for example `35187865183` in
-`https://github.com/ccozianu/devcapsule/actions/runs/35187865183`.
-The small run number displayed beside the workflow title is not the run ID.
+After the test deployment succeeds, the `candidate` job packages the same saved
+build into a public GitHub prerelease named `website-candidate-RUN_ID-ATTEMPT`.
+It uploads `website.tar.gz` and `candidate.json` (source revisions, source run
+and attempt, and the archive SHA-256). A draft becomes public only after both
+assets upload. The workflow summary links to the candidate release.
+
+Website candidates use their own tag prefix and `latest=false`; they do not
+replace the latest CLI release or trigger the `v*` CLI release workflow.
+Each attempt gets a new tag; the workflow does not overwrite prior candidates.
+The release job alone gets `contents: write`, through GitHub's automatically
+issued `GITHUB_TOKEN`. There is no personal token to create, store or renew.
+
+Review the test deployment and record its candidate tag. Content and styling
+changes reach the test site through the parent content commit and website pin.
+The release retains that tested output even after the test site moves forward.
 
 ## Production site: this repository
 
 [`.github/workflows/publish.yml`](.github/workflows/publish.yml) provides
-**Publish production website**. It runs manually from `main` and promotes a
-successful test deployment by run ID. It downloads the saved `website-preview`
-artifact, verifies its digest and its two source revisions, changes only HTML
-canonical origins from the test hostname to `https://devcapsule.mycodespace.ai`,
-and records promotion provenance in `build-info.json`. It checks links before
-uploading the result to this repository's Pages site. No content or assets are
-rebuilt, and no code from the downloaded artifact is executed.
+**Publish production website**. Run it manually on `main` and enter the reviewed
+candidate release tag. It downloads the two public release assets anonymously,
+checks the archive SHA-256 and source metadata, rejects unsafe archive paths or
+links, and checks the resulting site's local links before deploying.
 
-The source must be a successful manual parent `Website` run on `main`, including
-a successful `deploy` job. Its manifest must identify clean content and website
-revisions matching that run's commit and submodule pin. The source must be a
-production-mode build at `/` with the test site's canonical origin. An expired
-artifact, preview-only run, or mismatched candidate fails before deployment.
+Promotion changes only HTML canonical origins from the test hostname to
+`https://devcapsule.mycodespace.ai` and adds release/run/checksum provenance to
+`build-info.json`. It does not rebuild content, styles, scripts or images.
+The source must be a clean production-mode build at `/` with the test site's
+canonical origin. The publishing workflow is trusted to create candidates only
+after successful test deployment. Promotion reads the retained release, so it
+does not depend on Actions logs or artifacts still being available.
 
 ### One-time owner setup
 
-1. Merge the website `production-pages` branch into this repository's `main`.
-   The owner handles PR creation/merge; SSH delivery does not require app access.
+1. Merge website `production-pages` into this repository's `main`, then merge
+   DevCapsule `website/initial-cut`, which includes the updated test workflow
+   and website submodule pin. With a squash merge, select the merged website
+   revision in the parent before merging it. The owner creates/merges PRs;
+   SSH delivery does not require GitHub app access.
 2. In **ccozianu/devcapsule-website → Settings → Pages**, select source
-   **GitHub Actions**. Skip the suggested templates: this workflow already exists.
-3. Set its custom domain to **devcapsule.mycodespace.ai**. In the `mycodespace.ai`
-   DNS zone, create **CNAME `devcapsule` → `ccozianu.github.io`**. Keep the parent's
-   test domain and its CNAME intact. Both hostnames point to the same GitHub
-   hostname but belong to separate repositories' Pages sites. Enable **Enforce
-   HTTPS** once GitHub finishes provisioning the production certificate.
-4. Create a fine-grained personal access token owned by `ccozianu`, selecting
-   only the **devcapsule** repository and repository permission **Actions: read**
-   (GitHub also grants the required basic metadata access). In
-   **devcapsule-website → Settings → Secrets and variables → Actions**, add a
-   repository secret named **CANDIDATE_READ_TOKEN** with that value. Enter it
-   directly in GitHub, never in chat or source. Choose an expiry and renew it
-   when needed. It reads candidate artifacts; production deployment uses this
-   repository's own short-lived `GITHUB_TOKEN`, with `pages: write` and
-   `id-token: write`. No cross-repository write token is needed.
-5. In **Settings → Environments → github-pages**, restrict deployment to `main`.
-   An owner review gate is optional; if enabled, ensure its self-review policy
-   permits the owner's intended solo workflow. The workflow itself already
-   requires a manual dispatch and only prepares deployments from `main`.
+   **GitHub Actions**. Skip suggested workflow templates; our workflow exists.
+3. Set the custom domain to **devcapsule.mycodespace.ai**. Create DNS
+   **CNAME `devcapsule` → `ccozianu.github.io`** in the `mycodespace.ai` zone.
+   Keep the parent's test domain and CNAME. Enable **Enforce HTTPS** after
+   GitHub provisions the production certificate.
+4. In **Settings → Environments → github-pages**, restrict deployment to `main`.
+   A review gate is optional; if enabled, its self-review policy must permit
+   the owner's intended solo workflow. The workflow already requires manual
+   dispatch and only prepares deployments from `main`.
+
+No repository secret or personal token is required. If you created
+`CANDIDATE_READ_TOKEN` for the earlier proposal, it is unused by these workflows
+and may be deleted; its personal token can also be revoked if unused elsewhere.
 
 ### Publish or roll back
 
-Open **Actions → Publish production website → Run workflow**, select `main`,
-and enter the reviewed test run ID. Approve an environment gate if configured.
-Wait for both `prepare` and `deploy` jobs to succeed. Check production HTTPS,
-navigation, and `/build-info.json`: original content/implementation revisions
-remain, and `promotion` identifies the source run, artifact ID/digest and target
-origin. A newer workflow revision may promote an older tested implementation.
+1. Run the updated parent **Website** workflow on `main` with the test-domain
+   settings above. Wait for `build`, `deploy` and `candidate` to succeed.
+2. Review the test site. Copy the **candidate tag** from the run summary or
+   [DevCapsule releases](https://github.com/ccozianu/devcapsule/releases).
+3. In this repository, run **Publish production website** on `main` with that
+   tag. Approve an environment gate if configured. Wait for `prepare` and
+   `deploy` to succeed.
+4. Check production HTTPS, navigation and `/build-info.json`. The original
+   source revisions remain; `promotion` records the source release, run,
+   attempt, archive checksum and production origin.
+
+The old test run `35187865183` predates release publication. Start a **new run
+from updated main**; rerunning that old run executes its old workflow definition
+and cannot create a release candidate.
+
+To roll back, select an older candidate tag in the same production action.
+Release assets have no Actions artifact expiration schedule; keep candidate
+releases and their assets for as long as rollback is needed. Repository owners
+can still delete or modify releases, so these are retained candidates, not a
+claim of enforced immutable storage. Missing assets or checksum failures stop
+promotion before deployment. Failed preparation leaves existing production up.
 
 Content merges, CLI releases and website merges do not automatically publish.
-Production promotion does not change the test site's deployment.
-To roll back, run the same action with a previous successfully tested run ID
-**while its source artifact is still retained**. The current parent workflow
-retains `website-preview` for seven days. Deleted or expired artifacts cannot be
-promoted; prepare and review another test deployment instead. This initial
-mechanism is not a permanent release archive. Failed preparation leaves the
-previous production deployment in place.
+Production promotion does not change the test deployment. The seven-day Actions
+artifact remains a temporary bridge between jobs in the test workflow; it is
+no longer the production download or rollback source.
 
-The first known candidate is run `35187865183`, verified on 2026-09-17 with
-content `8233dab98bf85710bb73ebd3e66ef0b29880eaf4` and website
-`b55ea0a378725080bc7cf13b2c78844b2d225c52`. Its source artifact expires on
-2026-09-24 unless deleted earlier. Always select the run you actually reviewed.
-
-The standalone repository remains independently buildable. It does not dispatch
-a parent workflow or write content into DevCapsule. The parent integration is
-only the gitlink, one shell entry point, and one workflow.
+Packaging and extraction use Node 22 and GNU tar on the Ubuntu Actions runner.
+The archive itself is ordinary static output, usable on other static hosts.
+GitHub CLI is used only by the hosted release job; local development needs no
+GitHub credentials. The standalone repository does not dispatch parent workflows
+or write authored content into DevCapsule.
 
 GitHub references: [Pages workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages),
-[artifact downloads across repositories](https://github.com/actions/download-artifact#download-artifacts-from-other-workflow-runs-or-repositories),
+[public release assets](https://docs.github.com/en/rest/releases/assets#get-a-release-asset),
+[creating releases](https://cli.github.com/manual/gh_release_create),
 [custom domains and HTTPS](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site).

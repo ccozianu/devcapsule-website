@@ -16,7 +16,9 @@ Use the existing Node dependency lock. Run `npm test`, `npm run build`, and
 `npm run check` for build/routing changes. For layout or interaction changes,
 inspect desktop/mobile screenshots and run the browser checks against the
 preview. Run the update acceptance check when changing content consumption.
-Stop testing when the relevant evidence is sufficient. No Docker build is
+Candidate packaging/promotion tests also use GNU tar, as provided by the Linux
+capsule and Ubuntu Actions runner. Stop testing when the relevant evidence is
+sufficient. No Docker build is
 needed to work on the site; the committed DevCapsule setup is an optional
 reproducible development environment.
 

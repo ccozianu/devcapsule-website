@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
 
 const testOrigin = "https://test-devcapsule.mycodespace.ai";
 const productionOrigin = "https://devcapsule.mycodespace.ai";
@@ -24,7 +23,8 @@ export function promote(directory, candidate) {
   }
   assert.match(info.content.sha256, /^[a-f0-9]{64}$/);
   assert.match(candidate.runId, /^[1-9][0-9]*$/);
-  assert.match(candidate.artifactId, /^[1-9][0-9]*$/);
+  assert.match(candidate.runAttempt, /^[1-9][0-9]*$/);
+  assert.equal(candidate.tag, `website-candidate-${candidate.runId}-${candidate.runAttempt}`);
   assert.match(candidate.digest, /^sha256:[a-f0-9]{64}$/);
   assert.equal(fs.readFileSync(path.join(directory, "robots.txt"), "utf8").trim(),
     "User-agent: *\nAllow: /", "Unexpected indexing policy");
@@ -52,29 +52,12 @@ export function promote(directory, candidate) {
   for (const [file, html] of changes) fs.writeFileSync(file, html);
   info.promotion = {
     sourceRun: `https://github.com/ccozianu/devcapsule/actions/runs/${candidate.runId}`,
-    artifactId: candidate.artifactId,
-    artifactDigest: candidate.digest,
+    sourceRunAttempt: candidate.runAttempt,
+    release: `https://github.com/ccozianu/devcapsule/releases/tag/${candidate.tag}`,
+    archiveDigest: candidate.digest,
     origin: productionOrigin,
     transformation: "canonical-origin-only",
   };
   fs.writeFileSync(infoPath, JSON.stringify(info, null, 2) + "\n");
   return changes.length;
-}
-
-if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
-  const count = promote(path.resolve("_site"), {
-    contentSha: process.env.CANDIDATE_CONTENT_SHA,
-    websiteSha: process.env.CANDIDATE_WEBSITE_SHA,
-    runId: process.env.CANDIDATE_RUN_ID,
-    artifactId: process.env.CANDIDATE_ARTIFACT_ID,
-    digest: process.env.CANDIDATE_DIGEST,
-  });
-  console.log(`Prepared ${count} pages for ${productionOrigin}; no content or assets rebuilt.`);
-  if (process.env.GITHUB_STEP_SUMMARY) {
-    fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,
-      `Promoting test run ${process.env.CANDIDATE_RUN_ID} to ${productionOrigin}.\n\n` +
-      `Content: \`${process.env.CANDIDATE_CONTENT_SHA}\`\n\n` +
-      `Website: \`${process.env.CANDIDATE_WEBSITE_SHA}\`\n\n` +
-      "Only canonical origins and promotion provenance change.\n");
-  }
 }

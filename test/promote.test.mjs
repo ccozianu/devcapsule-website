@@ -7,7 +7,7 @@ import { promote } from "../scripts/promote.mjs";
 
 const candidate = {
   contentSha: "1".repeat(40), websiteSha: "2".repeat(40),
-  runId: "123", artifactId: "456", digest: "sha256:" + "3".repeat(64),
+  runId: "123", runAttempt: "1", tag: "website-candidate-123-1", digest: "sha256:" + "3".repeat(64),
 };
 const page = '<!doctype html><link rel="canonical" href="https://test-devcapsule.mycodespace.ai/docs/">\n' +
   '<a href="/docs/">Guide</a><p>Literal test-devcapsule.mycodespace.ai in authored content.</p>\n';
@@ -35,7 +35,7 @@ test("promotion preserves page bytes outside the canonical URL and leaves assets
   const output = JSON.parse(fs.readFileSync(path.join(dir, "build-info.json")));
   assert.deepEqual(output.content, manifest.content);
   assert.deepEqual(output.implementation, manifest.implementation);
-  assert.equal(output.promotion.artifactDigest, candidate.digest);
+  assert.equal(output.promotion.archiveDigest, candidate.digest);
 });
 
 test("wrong source revision, dirty sources, preview mode and subpath candidates are rejected", t => {

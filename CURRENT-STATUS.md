@@ -39,34 +39,46 @@ resolver; a separate capsule launch has not been performed.
 
 The owner requested a publishing action here for `devcapsule.mycodespace.ai`.
 Only `mycodespace.ai` is owned; other domain spellings in conversation were typos.
-`.github/workflows/publish.yml` manually promotes a retained parent test run.
-It verifies workflow success including deployment, artifact digest, source
-revisions and metadata, then changes canonical origins and adds provenance.
-It does not rebuild the tested content/assets. The parent workflow is unchanged.
+The owner selected public GitHub Release assets to avoid personal tokens and
+credential renewal. The parent test workflow now publishes a prerelease candidate
+only after successful test deployment, using its built-in GITHUB_TOKEN. Candidate
+tags are `website-candidate-RUN_ID-ATTEMPT`, and do not become the latest CLI
+release. The website production workflow downloads candidate.json and the tar.gz
+anonymously, validates the checksum, safe archive paths, source revisions and
+metadata, then changes canonical origins and adds promotion provenance.
+It does not rebuild tested content/assets. No CANDIDATE_READ_TOKEN is used.
+Release assets remain available until deleted; Actions retention no longer limits
+promotion/rollback. Downloads trust the repository's published release assets;
+no enforced immutable-release setting is claimed.
 
-Seven unit tests pass, including byte preservation and rejection of mismatched,
-dirty, preview-mode, subpath and unexpected-origin candidates. A clean temporary
-checkout of the exact deployed content and implementation built successfully;
-promotion of that local fixture and all 582 links across 16 HTML pages passed.
-This fixture was rebuilt locally, not downloaded using the owner's token.
-The workflow passes actionlint 1.7.12. No visual changes were made, so browser
-audits were not repeated.
-Authenticated cross-repository artifact download and the production Actions
-run remain unverified until owner setup and dispatch. The reviewed source
-artifact expires after seven days; there is no permanent rollback archive.
+Eleven unit tests pass, including anonymous-download behavior, archive corruption
+and unsafe-path rejection, byte preservation and invalid candidate metadata.
+A clean build of the deployed source revisions passed packaging, simulated
+anonymous asset download, promotion and all 582 local links across 16 pages.
+Both workflows pass actionlint 1.7.12. No visual changes were made, so browser
+audits were not repeated. Hosted release
+creation and production deployment remain unverified until owner merges and runs
+the workflows. Local validation does not publish a release or deploy a site.
+
+The required parent `nox -s build` gate passed again, including all nine
+packaging integration checks. Its dirty-tree policy skipped the public revision
+PEX; the local PEX build and smoke checks passed.
 
 ## Next step
 
-Merge `production-pages`, then follow [PUBLISHING.md](PUBLISHING.md): configure
-this repository's Pages custom domain and DNS, add repository secret
-`CANDIDATE_READ_TOKEN` with Actions: read on `ccozianu/devcapsule`, and run
-**Publish production website** from `main` with the reviewed test run ID.
-Known successful test run: `35187865183`, artifact expires 2026-09-24.
+Merge website `production-pages`, then parent `website/initial-cut` with the new
+website pin and test workflow. If the website PR is squash-merged, update the
+parent pin to its merged revision first. Follow [PUBLISHING.md](PUBLISHING.md)
+for production Pages/DNS/HTTPS and manual publishing; no new secret is needed.
+Start a new parent Website run from updated main (production mode, test origin,
+root base path); review the test site, then use its candidate tag in this repo's
+Publish production website action. Old run `35187865183` has no release assets;
+rerunning it uses the old workflow and does not create candidates.
 Do not dispatch production on the owner's behalf during this delivery.
 
 ## Open threads
 
-- Owner handles production PR merge, Pages/DNS/TLS, secret and initial dispatch.
+- Owner handles both PR merges, production Pages/DNS/TLS and initial dispatches.
 - The current test deployment allows indexing because the parent workflow uses
   production mode to publish; separate noindex support is outside this slice.
 - Formal autonomy-experiment acceptance/finalization remains with the owner.
