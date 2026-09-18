@@ -1,23 +1,35 @@
 # Website current status
 
-State: test site and public candidates working; visible build timestamp prepared
-as part of DevCapsule's `website` workstream. Branch: `build-timestamp`.
-Delivery: owner merges PR to `main`.
+State: initial website delivered and public; awaiting owner experiment verdict
+and closure records. Branch: `experiment-handoff`. Delivery: owner merges PR.
+This final handoff remains part of DevCapsule's `website` workstream.
 Independent future development: `single-stream`; transition not yet performed.
 
 ## Current result
 
-Eleventy renders the parent README, guides and development blog. The custom
-responsive presentation, navigation, code highlighting/copying, local preview,
-source-link conversion and build identities are implemented. Content stays in
-DevCapsule. The owner reports the test deployment works well; HTTPS and its
-manifest were independently checked on 2026-09-17. Initial website and parent
-PRs are merged. Production publication remains an owner action.
+The static website is delivered and public on both domains. Product content
+remains authored in DevCapsule; this repository owns presentation and publishing
+machinery. The website is ready for the owner's autonomy-experiment verdict.
+No further feature work is required for the initial contract.
 
-The parent owns the current experiment budget and interruption arrangements.
-SSH clone/push is the delivery path; GitHub app access is unavailable. The owner
-accepts local execution of build/trigger scripts and will handle backend wiring
-at delivery. See [PUBLISHING.md](PUBLISHING.md).
+Live verification on 2026-09-18: production HTTPS, homepage, docs overview,
+first-session guide and journal return HTTP 200 with production canonical URLs
+and the visible 00:43 UTC build timestamp. Production build-info identifies
+content `5a4b35435ee3e1cb460b48d292f15e5efe5228be`, implementation
+`0691956e3aa383b74c9fb87f4d46140136b8a0b6`, and promoted public release
+`website-candidate-35292339140-1`. Anonymous retrieval of that release's metadata
+confirmed matching source revisions and archive checksum provenance.
+
+Test HTTPS and the same four routes also pass. Its newer 00:57 UTC build has
+production canonical URLs, although it is served on the test hostname. That
+build does not meet the current candidate packaging checks; this does not affect
+the earlier valid candidate already promoted to production. Future test runs
+must use test origin `https://test-devcapsule.mycodespace.ai` and base path `/`.
+
+SSH push is the agent's delivery path; the owner creates/merges PRs and runs
+publication workflows. No personal token or expiring credential is required.
+See [PUBLISHING.md](PUBLISHING.md). Budget and final experiment acceptance
+remain owned by the parent workstream.
 
 ## Validation
 
@@ -58,10 +70,8 @@ A clean build of the deployed source revisions passed packaging, simulated
 anonymous asset download, promotion and all 582 local links across 16 pages.
 Both workflows pass actionlint 1.7.12. No visual changes were made, so browser
 audits were not repeated for that slice. Those workflow PRs are now merged.
-Public candidate website-candidate-35286734496-1 is fetched; the test site
-serves content a99ca28 and implementation ff1a987 over HTTPS. Production
-publication is owner-reported; HTTPS verification from this environment still
-reports a hostname mismatch, so production is not independently verified.
+Hosted candidate creation, production promotion and HTTPS are now verified as
+recorded above. Public deployment is complete; no token setup remains.
 
 The required parent `nox -s build` gate passed again, including all nine
 packaging integration checks. Its dirty-tree policy skipped the public revision
@@ -86,18 +96,23 @@ were visually inspected. Existing promotion tests confirm builtAt is preserved.
 
 ## Next step
 
-Merge website `build-timestamp`, then parent `website/initial-cut` with its new
-website pin. Select the merged website revision first if squash-merging.
-Run a fresh parent Website deployment (`production`, test domain, `/`) to get
-the timestamp into the test site and a new release candidate; promote that tag
-when reviewed. Existing published files do not update merely by merging code.
+Obtain the owner's experiment verdict and finalize the parent workstream records.
+After closure, future presentation/website work should start in this standalone
+repository with its single-stream handoff; authoritative product content remains
+in DevCapsule. Do not silently start a new feature or switch workstreams during
+closure. No independent development session has been started by this handoff.
 
-## Open threads
+## Open threads and future maintenance
 
-- Owner handles both timestamp PR merges and new test/production workflow runs.
-- The current test deployment allows indexing because the parent workflow uses
-  production mode to publish; separate noindex support is outside this slice.
-- Formal autonomy-experiment acceptance/finalization remains with the owner.
-- Full graphical launch of this project's own capsule remains untested; Node-based
-  standalone preview is the practical acceptance path for this cut.
-- No separate content copy, database, cloud account, or full chat record is preserved.
+- Awaiting the owner's explicit experiment verdict and closure-record merges.
+- Simplify the parent test workflow's inputs: use clear build-only/deploy-test
+  labels, make test deployment the normal default, and prevent production-origin
+  input on the test path. This is recorded follow-up, not implemented behavior.
+- Add test-site noindex support deliberately; today's production-mode test builds
+  permit indexing. Keep this compatible with promotion's metadata validation.
+- Retain public candidate releases needed for rollback. Candidate integrity and
+  older selection are tested; an actual live rollback has not been performed.
+- Full graphical launch of this project's own capsule remains untested; clean
+  standalone Node development and local browser preview have been validated.
+- No content copy, database, cloud account, personal token or chat transcript
+  was introduced. No new feature backlog has been inferred from the experiment.
