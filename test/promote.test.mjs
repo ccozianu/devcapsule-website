@@ -16,6 +16,7 @@ function fixture(t) {
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   const manifest = {
     schema: 1, mode: "production", basePath: "/",
+    builtAt: "2026-09-17T10:20:30.000Z",
     content: { revision: candidate.contentSha, dirty: false, sha256: "4".repeat(64) },
     implementation: { revision: candidate.websiteSha, dirty: false },
   };
@@ -35,6 +36,7 @@ test("promotion preserves page bytes outside the canonical URL and leaves assets
   const output = JSON.parse(fs.readFileSync(path.join(dir, "build-info.json")));
   assert.deepEqual(output.content, manifest.content);
   assert.deepEqual(output.implementation, manifest.implementation);
+  assert.equal(output.builtAt, manifest.builtAt);
   assert.equal(output.promotion.archiveDigest, candidate.digest);
 });
 

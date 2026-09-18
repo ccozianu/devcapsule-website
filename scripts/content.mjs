@@ -287,6 +287,7 @@ export function buildContent() {
     hash.update(asset + "\0").update(fs.readFileSync(path.join(dir, asset)));
   const manifest = {
     schema: 1,
+    builtAt: new Date().toISOString(),
     content: { ...content, sha256: hash.digest("hex") },
     implementation,
     basePath: prefix(),

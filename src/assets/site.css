@@ -714,8 +714,14 @@ main:focus {
   gap: 20px;
   border-top: 1px solid var(--line);
   padding-top: 20px;
-  font: 9px/1.7 var(--mono);
+  font: 11px/1.7 var(--mono);
   color: var(--muted);
+}
+.build-details {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px 16px;
 }
 .reading-layout {
   max-width: 1510px;
@@ -1485,7 +1491,9 @@ summary {
   .footer-bottom {
     flex-direction: column;
     gap: 10px;
-    font-size: 9px;
+  }
+  .build-details {
+    justify-content: flex-start;
   }
   .reading-layout {
     display: block;

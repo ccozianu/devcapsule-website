@@ -65,7 +65,10 @@ links, and checks the resulting site's local links before deploying.
 
 Promotion changes only HTML canonical origins from the test hostname to
 `https://devcapsule.mycodespace.ai` and adds release/run/checksum provenance to
-`build-info.json`. It does not rebuild content, styles, scripts or images.
+`build-info.json`. It does not rebuild content, styles, scripts or images. The visible footer
+build time and `builtAt` in `build-info.json` remain the original candidate
+build time, including on rollback. Candidates created before this field was
+introduced remain promotable but do not gain a timestamp retroactively.
 The source must be a clean production-mode build at `/` with the test site's
 canonical origin. The publishing workflow is trusted to create candidates only
 after successful test deployment. Promotion reads the retained release, so it
