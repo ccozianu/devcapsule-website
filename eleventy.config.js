@@ -14,6 +14,7 @@ export default function (config) {
   );
   config.addFilter("json", (value) => JSON.stringify(value, null, 2));
   config.addPassthroughCopy({ "src/assets": "assets" });
+  config.addPassthroughCopy({ "src/static": "." });
   for (const asset of site.assets)
     config.addPassthroughCopy({
       [site.contentDir + "/" + asset]: "content-assets/" + asset,

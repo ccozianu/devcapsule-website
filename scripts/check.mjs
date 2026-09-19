@@ -3,12 +3,14 @@ import path from "node:path";
 import assert from "node:assert/strict";
 import { load } from "cheerio";
 import { root, walk } from "./content.mjs";
+import { isGoogleVerification } from "./verification.mjs";
 const output = path.join(root, "_site");
 const manifest = JSON.parse(
   fs.readFileSync(path.join(output, "build-info.json"), "utf8"),
 );
 const base = manifest.basePath;
-const htmlFiles = walk(output).filter((file) => file.endsWith(".html"));
+const htmlFiles = walk(output).filter((file) => file.endsWith(".html") &&
+  !isGoogleVerification(path.relative(output, file), fs.readFileSync(file, "utf8")));
 const documents = new Map(
   htmlFiles.map((file) => [file, load(fs.readFileSync(file, "utf8"))]),
 );
