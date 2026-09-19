@@ -4,6 +4,9 @@ The presentation project for DevCapsule: an Eleventy static site with a landing
 page, navigable user guides, and a development journal. The authoritative content
 lives in [ccozianu/devcapsule](https://github.com/ccozianu/devcapsule).
 This repository owns layouts, styles, navigation, and the publishing machinery.
+Website functionality and follow-up work are tracked in [BACKLOG.md](BACKLOG.md);
+content and parent integration remain in DevCapsule. The owner authorized this
+backlog handoff on 2026-09-19.
 
 ## Preview inside DevCapsule's repository
 
@@ -70,8 +73,8 @@ agent credential access is requested by this project.
 
 Inside the IDE terminal run `npm ci`, `npm run content:fetch`, then `npm run dev`.
 Choose any additional AI component using DevCapsule's normal local setup.
-The initial cut belongs to the parent website workstream. After acceptance,
-future independent work follows this project's `single-stream` handoff in
+The initial cut belonged to the parent website workstream. Following the owner's
+backlog handoff, independent work uses this project's `single-stream` handoff in
 [CURRENT-STATUS.md](CURRENT-STATUS.md).
 
 ## Validate
@@ -100,6 +103,10 @@ fragments, image labels, document structure, and revision metadata. Production
 configuration and publication are described in [PUBLISHING.md](PUBLISHING.md).
 
 ## Content contract
+
+This section describes the existing implementation. W12 in [BACKLOG.md](BACKLOG.md)
+owns agreement of a complete versioned interface with the content producer;
+do not treat undocumented parser assumptions as accepted requirements.
 
 The build consumes `README.md`, all Markdown below `docs/`, and dated Markdown
 blog entries below `engineering-docs/blog/`. It copies only referenced image

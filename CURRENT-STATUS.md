@@ -1,16 +1,41 @@
 # Website current status
 
-State: initial website accepted with A−; urgent Google verification fix prepared.
-Branch: `google-site-verification`. Delivery: owner merges PR.
-This final handoff remains part of DevCapsule's `website` workstream.
-Independent future development: `single-stream`; transition not yet performed.
+State: initial website accepted with A−; website-owned backlog handoff prepared.
+Branch: `backlog-handoff`. Delivery: owner merges PR.
+The owner authorized direct submodule edits to transfer the backlog from
+DevCapsule. Future website development uses this project's single-stream status
+and [BACKLOG.md](BACKLOG.md); the parent retains content and caller integration.
+This handoff is performed under the explicit exception from the parent website
+workstream, without selecting a second workstream in the checkout.
 
 ## Current result
 
 The static website is delivered and public on both domains. Product content
 remains authored in DevCapsule; this repository owns presentation and publishing
 machinery. The owner accepted the autonomy experiment and is reviewing follow-up
-work. The parent inventory will migrate according to the agreed ownership split.
+work. [BACKLOG.md](BACKLOG.md) now owns W00–W13, their evidence, acceptance
+criteria and producer dependencies. It includes the content–website contract
+(W12), which was previously discussed but not yet given a full task record.
+
+## Ownership handoff (2026-09-19)
+
+DevCapsule owns authored text, editorial status/version decisions, descriptions
+and product media. This repository owns website functionality, appearance,
+navigation, rendering, search/analytics and publishing machinery. The existing
+parent GitHub workflow remains in place; its physical location does not make
+website behavior a content responsibility. Parent integration task I01 coordinates
+changes to that caller. Mixed work is split into linked producer tasks, not
+duplicated implementation backlogs.
+
+The full W01 publishing bug evidence is in
+[the website bug record](engineering-docs/bugs/website/2026-09-19-test-publishing-accepts-inconsistent-settings.md),
+confirmed and open; the parent keeps a retired transfer pointer. W09 keeps its
+original scope; W00 remains first. W13 analytics is planned second-stage work
+and is not counted as an initial implementation defect.
+
+No source behavior, workflow, deployment, or new service changed during this
+handoff. Review task coverage, links and the paired parent/submodule changes;
+implementation testing is not evidence for the quality of this backlog split.
 
 ## Urgent Google verification (2026-09-19)
 
@@ -24,8 +49,10 @@ Validation: all 12 tests pass, including exact file preservation through candida
 packaging, download and promotion, and rejection of malformed verification bodies.
 Production-mode test-origin build and all 582 local link/asset checks pass;
 the built verification file matches its source byte for byte. No visual change,
-browser campaign or container build was needed. Public verification remains
-pending merge and publication; see PUBLISHING.md.
+browser campaign or container build was needed. The fix is merged in website
+main at `2f7cc75`. The owner reports successful publication and Google Search
+Console processing the indexing data. This is owner-reported progress, not an
+agent observation of indexing or permission to close W00; see BACKLOG.md.
 
 Live verification on 2026-09-18: production HTTPS, homepage, docs overview,
 first-session guide and journal return HTTP 200 with production canonical URLs
@@ -111,24 +138,22 @@ were visually inspected. Existing promotion tests confirm builtAt is preserved.
 
 ## Next step
 
-Merge this website fix and the parent submodule update, run the parent's Website
-workflow on main with production mode, test origin and `/`, then promote that
-new candidate here. Verify the public root file and click Verify in Search
-Console. Continue ownership migration/backlog review separately; no independent
-workstream transition is claimed by this urgent fix.
+Review/merge this backlog handoff and the parent pointer update. Resume W00:
+inspect search-engine reports with the owner and implement the sitemap/discovery
+slice after agreeing its boundary. W12 needs producer agreement before changing
+the content interface; W13 needs measurement requirements and provider choice.
+W00 is still first. Resume from this status and BACKLOG.md rather than the old
+parent implementation inventory.
 
 ## Open threads and future maintenance
 
-- Experiment accepted with A−; follow-up inventory and ownership migration remain
-  coordinated from the parent website workstream.
-- Simplify the parent test workflow's inputs: use clear build-only/deploy-test
-  labels, make test deployment the normal default, and prevent production-origin
-  input on the test path. This is recorded follow-up, not implemented behavior.
-- Add test-site noindex support deliberately; today's production-mode test builds
-  permit indexing. Keep this compatible with promotion's metadata validation.
-- Retain public candidate releases needed for rollback. Candidate integrity and
-  older selection are tested; an actual live rollback has not been performed.
-- Full graphical launch of this project's own capsule remains untested; clean
-  standalone Node development and local browser preview have been validated.
+- Experiment accepted with A−; website backlog delivery is prepared for merge.
+  Its tasks, including remaining publication/recovery/browser evidence gaps,
+  are authoritative in BACKLOG.md. Parent content/integration tasks stay there.
+- Search indexing is not yet established. Read the owner's current Search Console
+  and Bing reports before attributing a cause; prior live observations are dated.
+- W12 is the intended single contract definition, not a claim that a complete
+  contract already exists. Content-owner approval remains necessary.
 - No content copy, database, cloud account, personal token or chat transcript
-  was introduced. No new feature backlog has been inferred from the experiment.
+  was introduced. The migrated feature backlog was explicitly requested by the
+  owner; recording it did not authorize implementing or publishing every item.

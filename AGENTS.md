@@ -2,9 +2,13 @@
 
 Read `README.md`, `DEVELOPING.md`, `.devcapsule/devcapsule.toml`, and
 `CURRENT-STATUS.md` before editing. This project uses single-stream handoff.
-The initial cut is part of the parent DevCapsule website workstream, not a
-second active workstream. Do not claim the future independent transition until
-an owner actually initiates it.
+The initial cut was part of the parent DevCapsule website workstream. On
+2026-09-19 the owner authorized a direct submodule handoff: website-owned tasks
+are authoritative in `BACKLOG.md` here; DevCapsule retains content and its small
+caller integration. Read the backlog and open bugs under `engineering-docs/bugs/`
+alongside the status. This project's single-stream bug records use `owner: none`.
+The transfer exception does not authorize future autonomous switches between
+repositories/workstreams; follow the user's selected scope.
 
 Follow `REQUIREMENTS.md` and the content contract. Author product content in
 DevCapsule, not as a second copy here. Keep presentation and integration small.
