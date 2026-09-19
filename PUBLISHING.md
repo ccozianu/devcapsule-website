@@ -1,5 +1,19 @@
 # Build and publication
 
+## Google Search Console verification
+
+The build copies `src/static/` unchanged to the output root. The committed
+`googledda808d7513923e5.html` contains the owner's Google verification response.
+Publish a new test candidate and promote it using the steps below; then verify
+`https://devcapsule.mycodespace.ai/googledda808d7513923e5.html` in Search Console.
+Keep the file in future builds so ownership remains verifiable. An older
+candidate predating this file will remove it if deployed as a rollback.
+
+Page validation and promotion recognize root-level `google<hex>.html` files
+only when their full body is `google-site-verification: <filename>` with an
+optional final newline. They preserve those bytes without adding layouts or
+canonical URLs; other HTML still receives the normal page checks.
+
 DevCapsule builds and publishes the test site. Its `scripts/website.sh` invokes
 this project's build using the parent content checkout and pinned website Git
 revision. This repository promotes a reviewed test artifact to production.

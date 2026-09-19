@@ -28,6 +28,9 @@ function fixture(t) {
 
 test("public release download promotes packed bytes with no authentication", async t => {
   const { dir, site, source, bundle } = fixture(t);
+  const verificationName = "googledda808d7513923e5.html";
+  const verification = fs.readFileSync(new URL(`../src/static/${verificationName}`, import.meta.url));
+  fs.writeFileSync(path.join(site, verificationName), verification);
   const original = fs.readFileSync(path.join(site, "index.html"), "utf8");
   pack(site, bundle, source);
   assert.equal(fs.readFileSync(path.join(site, "index.html"), "utf8"), original);
@@ -45,6 +48,7 @@ test("public release download promotes packed bytes with no authentication", asy
   assert.equal(fs.readFileSync(path.join(output, "index.html"), "utf8"),
     original.replace("https://test-devcapsule.", "https://devcapsule."));
   assert.deepEqual(fs.readFileSync(path.join(output, "image.bin")), Buffer.from([0, 255, 128]));
+  assert.deepEqual(fs.readFileSync(path.join(output, verificationName)), verification);
 });
 
 test("corrupt release archive fails before extraction", t => {

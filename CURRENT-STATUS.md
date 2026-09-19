@@ -1,7 +1,7 @@
 # Website current status
 
-State: initial website delivered and public; awaiting owner experiment verdict
-and closure records. Branch: `experiment-handoff`. Delivery: owner merges PR.
+State: initial website accepted with A−; urgent Google verification fix prepared.
+Branch: `google-site-verification`. Delivery: owner merges PR.
 This final handoff remains part of DevCapsule's `website` workstream.
 Independent future development: `single-stream`; transition not yet performed.
 
@@ -9,8 +9,23 @@ Independent future development: `single-stream`; transition not yet performed.
 
 The static website is delivered and public on both domains. Product content
 remains authored in DevCapsule; this repository owns presentation and publishing
-machinery. The website is ready for the owner's autonomy-experiment verdict.
-No further feature work is required for the initial contract.
+machinery. The owner accepted the autonomy experiment and is reviewing follow-up
+work. The parent inventory will migrate according to the agreed ownership split.
+
+## Urgent Google verification (2026-09-19)
+
+The owner supplied `googledda808d7513923e5.html` and requested a quick fix for
+Search Console verification. `src/static/` now copies to the site root unchanged.
+Page checking and promotion validate root Google verification responses and
+preserve them without normal-page metadata. Other HTML keeps its existing checks.
+This is a bounded W00 prerequisite, not completion of search indexing work.
+
+Validation: all 12 tests pass, including exact file preservation through candidate
+packaging, download and promotion, and rejection of malformed verification bodies.
+Production-mode test-origin build and all 582 local link/asset checks pass;
+the built verification file matches its source byte for byte. No visual change,
+browser campaign or container build was needed. Public verification remains
+pending merge and publication; see PUBLISHING.md.
 
 Live verification on 2026-09-18: production HTTPS, homepage, docs overview,
 first-session guide and journal return HTTP 200 with production canonical URLs
@@ -96,15 +111,16 @@ were visually inspected. Existing promotion tests confirm builtAt is preserved.
 
 ## Next step
 
-Obtain the owner's experiment verdict and finalize the parent workstream records.
-After closure, future presentation/website work should start in this standalone
-repository with its single-stream handoff; authoritative product content remains
-in DevCapsule. Do not silently start a new feature or switch workstreams during
-closure. No independent development session has been started by this handoff.
+Merge this website fix and the parent submodule update, run the parent's Website
+workflow on main with production mode, test origin and `/`, then promote that
+new candidate here. Verify the public root file and click Verify in Search
+Console. Continue ownership migration/backlog review separately; no independent
+workstream transition is claimed by this urgent fix.
 
 ## Open threads and future maintenance
 
-- Awaiting the owner's explicit experiment verdict and closure-record merges.
+- Experiment accepted with A−; follow-up inventory and ownership migration remain
+  coordinated from the parent website workstream.
 - Simplify the parent test workflow's inputs: use clear build-only/deploy-test
   labels, make test deployment the normal default, and prevent production-origin
   input on the test path. This is recorded follow-up, not implemented behavior.

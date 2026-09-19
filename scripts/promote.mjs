@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { isGoogleVerification } from "./verification.mjs";
 
 const testOrigin = "https://test-devcapsule.mycodespace.ai";
 const productionOrigin = "https://devcapsule.mycodespace.ai";
@@ -37,6 +38,7 @@ export function promote(directory, candidate) {
       if (entry.isDirectory()) visit(file);
       else if (entry.name.endsWith(".html")) {
         const html = fs.readFileSync(file, "utf8");
+        if (isGoogleVerification(path.relative(directory, file), html)) continue;
         const canonical = [...html.matchAll(/<link rel="canonical" href="([^"]+)">/g)];
         assert.equal(canonical.length, 1, `Expected one canonical URL in ${file}`);
         assert(canonical[0][1].startsWith(testOrigin + "/"), `Unexpected canonical origin in ${file}`);
