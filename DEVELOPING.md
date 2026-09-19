@@ -7,7 +7,9 @@ Read [README.md](README.md) for setup, commands, architecture and content contra
 then [CURRENT-STATUS.md](CURRENT-STATUS.md) for the current handoff.
 
 Keep content ownership and presentation separate. No server runtime, database,
-comments, analytics, or account system is required. Plain HTML remains usable
+comments, or account system is required. Analytics was deferred in the initial
+cut and is now explicitly requested as second-stage task W13; agree its scope
+before choosing a provider. Plain HTML remains usable
 without JavaScript. JavaScript enhances code copying and the section indicator.
 Do not expand the product claims, rewrite the current-release tutorials, or
 publish production without owner acceptance.
@@ -22,8 +24,9 @@ sufficient. No Docker build is
 needed to work on the site; the committed DevCapsule setup is an optional
 reproducible development environment.
 
-The initial implementation belongs to DevCapsule's website workstream.
-Independent future work uses single-stream status here; record the transition
-when the owner accepts the handoff. Commit coherent slices, keep the state
+The initial implementation belonged to DevCapsule's website workstream. The
+owner authorized migration of website work here on 2026-09-19; `BACKLOG.md` and
+single-stream status now own its continuation. Content and parent caller tasks
+remain in DevCapsule and are linked from the backlog. Commit coherent slices, keep the state
 resumable, and deliver changes by pull request. The owner handles PR creation
 and merge when SSH-only agent access is available.
