@@ -188,3 +188,12 @@ The owner merges this; the website decides sequencing in BACKLOG.md.
    reading correct without JavaScript through the system preference alone,
    change the `color-scheme` meta to `light dark`, and run the existing axe
    contrast checks in both modes. The owner expects this to be small.
+
+## Planned next step
+
+Merge this branch, which also installs the DevCapsule workflow definition
+0.2.14 with `WORKFLOW.md`, `WORKFLOW-LOCAL.md`, the generic `AGENTS.md` plus
+website-specific instructions, and the `[workflow]` table in the manifest.
+The owner sequences W00 and the three requests above. Recorded suggestion:
+the sitemap first, because it serves gating W00; then contract version 1
+(W12, with W07 and W08 as its consumers); then the night-mode task.

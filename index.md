@@ -5,6 +5,8 @@
 - [Project overview and local preview](README.md)
 - [Developer brief](DEVELOPING.md)
 - [Agent instructions](AGENTS.md)
+- [Workflow definition](WORKFLOW.md)
+- [Local workflow](WORKFLOW-LOCAL.md)
 - [Requirements](REQUIREMENTS.md)
 - [Current status](CURRENT-STATUS.md)
 - [Website backlog and producer dependencies](BACKLOG.md)
