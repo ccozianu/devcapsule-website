@@ -157,3 +157,34 @@ parent implementation inventory.
 - No content copy, database, cloud account, personal token or chat transcript
   was introduced. The migrated feature backlog was explicitly requested by the
   owner; recording it did not authorize implementing or publishing every item.
+
+## Requests from DevCapsule (2026-09-22)
+
+Delivered by the parent `user-docs` workstream as a pointer commit under the
+owner's cross-repository exception; the two repositories share no mailbox.
+The owner merges this; the website decides sequencing in BACKLOG.md.
+
+1. **W12-C is delivered.** The producer side of the content–website contract
+   is [R-DOCS-003](https://github.com/ccozianu/devcapsule/blob/e67f6faf5e2aba80e942b35bd9bf72bea26adb10/engineering-docs/requirements/product/r-docs-003-website-content-carries-front-matter.md):
+   mandatory front matter on every published page under `docs/` and the
+   journal (`description`, `draft`, `status`, `aliases`, `weight`, `updated`),
+   and `docs/versions.yaml` giving the documentation the PostgreSQL shape:
+   `/docs/<version>/`, a canonical `/docs/current/` copy, a per-page version
+   switcher, and the statuses `development`, `supported`, `deprecated`,
+   `unsupported`. Each version is built from the `docs/` tree of its declared
+   source ref only; landing page and journal always come from `main`. Please
+   implement it as contract version 1 (W12, with W07/W08 as its consumers).
+   The parent will add the front matter and the manifest in the same parent
+   change that pins the implementing website revision, so no build sees half
+   a contract. Ask questions by editing the requirement through a parent PR
+   or in the owner's review of this handoff.
+2. **Sitemap now, ahead of the rest of W09.** For W00: emit `sitemap.xml`
+   limited to indexable pages, so drafts, `noindex` versions and the staging
+   policy are respected once those land, reference it from `robots.txt`, and
+   keep it through candidate packaging and promotion. The owner submits it in
+   Search Console and Bing Webmaster Tools.
+3. **Night mode switch, proposed as a new task.** Follow `prefers-color-scheme`
+   by default, offer a visible light/dark toggle persisted per browser, keep
+   reading correct without JavaScript through the system preference alone,
+   change the `color-scheme` meta to `light dark`, and run the existing axe
+   contrast checks in both modes. The owner expects this to be small.
