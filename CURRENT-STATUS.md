@@ -30,8 +30,10 @@ stub fetch, promoted (canonical links, the robots sitemap reference and the
 sitemap locations moved to `https://devcapsule.mycodespace.ai`, `builtAt`
 preserved, provenance recorded), and passed `npm run check`; the same output
 without `sitemap.xml` and with the old two-line robots policy also passed,
-which is the rollback shape. `npm run test:updates` on a clean clone of this
-revision is recorded below.
+which is the rollback shape. `npm run test:updates` on a clean clone of the
+`publication` branch passed against the scratch content: npm ci, build,
+paragraph update, independent styling update with an unchanged content
+digest, subdirectory links and production metadata.
 
 A hosted candidate does not exist yet and cannot be created from here: the
 parent **Website** workflow is the owner's manual dispatch, and it builds
