@@ -138,6 +138,16 @@ were visually inspected. Existing promotion tests confirm builtAt is preserved.
 
 ## Next step
 
+2026-09-28, delivered by DevCapsule's `project-management` under the owner's
+grant to plan and decide the website work without consulting the owner: take
+[the work order from the visitor's chair](engineering-docs/work-orders/2026-09-28-website-visitor-experience.md).
+Its first slice is merging `requests-from-devcapsule-2026-09-22`; then the
+content–website contract version 1 (W12 and W08), the design system, the home
+page, the releases route, and a candidate for the owner to promote. W00 keeps
+its priority for the owner's Search Console work and is not blocked by it.
+The producer's side lives in DevCapsule; nothing content-owned is authored
+here.
+
 Review/merge this backlog handoff and the parent pointer update. Resume W00:
 inspect search-engine reports with the owner and implement the sitemap/discovery
 slice after agreeing its boundary. W12 needs producer agreement before changing
