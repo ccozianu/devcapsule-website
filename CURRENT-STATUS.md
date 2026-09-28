@@ -3,13 +3,33 @@
 State: executing [the visitor-experience work order](engineering-docs/work-orders/2026-09-28-website-visitor-experience.md)
 under the owner's autonomy grant of 2026-09-28. Slice 1 is on branch
 `take-2026-09-22-delivery`, slice 2 on `contract-v1`, slice 3 on
-`design-system` and slice 4 on `home-page`, each stacked on the previous;
-the owner merges their PRs in that order. Delivery: SSH push, owner merges PRs
+`design-system`, slice 4 on `home-page` and slice 5 on `releases`, each
+stacked on the previous; the owner merges their PRs in that order. Delivery: SSH push, owner merges PRs
 and runs the publication workflows. Read
 [Work order execution](#work-order-execution-2026-09-28) first; the sections
 below it are the history of the initial website and its handoff.
 
 ## Work order execution (2026-09-28)
+
+### Slice 5 — releases: delivered, awaiting merge
+
+Branch `releases` from `home-page`. `/releases/` lists every
+`engineering-docs/releases/<tag>/notes.md` newest first with its description
+and release date; `/releases/<tag>/` renders the notes with links to the
+GitHub release and to that version's documentation when the manifest lists
+it. The home page's releases strip names the current release and its date
+from the manifest and the notes and links the notes, all releases and all
+documentation versions. Releases joins the navigation, which is now Docs ·
+Start here · Journal · Releases · GitHub as the work order asks. The release
+date is the first "Released YYYY-MM-DD" in the notes (CONTRACT.md 3.6).
+
+Validated: 21 unit tests pass, including the release fixture (order, date,
+documentation links, front matter required). Preview build and
+`npm run check` pass (180 pages). Browser checks: 39 audits including
+`/releases/` and `/releases/v0.2.15/` pass at 1440px and 360px in both
+schemes; the header now wraps at 360px rather than overflowing. The release
+page, the index and the home strip at 1440px and the index at 360px were
+inspected by eye: 0.2.14 and 0.2.15 are listed with their notes.
 
 ### Slice 4 — home page: delivered, awaiting merge
 
@@ -323,11 +343,13 @@ were visually inspected. Existing promotion tests confirm builtAt is preserved.
 
 ## Next step
 
-Slice 5 of the work order: releases. `/releases/` and `/releases/<tag>/` from
-`engineering-docs/releases/<tag>/notes.md`, the releases strip on the home
-page reading the current one, and Releases in the navigation; done when
-0.2.14 and 0.2.15 are listed with their notes. Branch from `home-page`. Then
-slice 6, publication: candidate preparation and the pin bump request. W00 keeps its priority for the owner's
+Slice 6 of the work order: publication. Verify the candidate packaging and
+promotion path end to end on a local production-mode build of this
+implementation, make rollback to candidates that predate the sitemap keep
+working through the production workflow's checks, and record the runbook the
+owner follows: merge the five stacked PRs in order, apply the producer
+requests in DevCapsule with the pin bump, dispatch the parent Website
+workflow for the test site, review, then promote the candidate in one run. W00 keeps its priority for the owner's
 Search Console work and is not blocked by any of this. The requests to
 DevCapsule under slice 2 gate the test-site deployment of everything above.
 

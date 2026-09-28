@@ -150,8 +150,11 @@ checked as usual. The field is additive, so the manifest keeps `contract: 1`.
   sections are identified by the markers of 3.7.
 - `engineering-docs/blog/*.md`: the journal, one page per dated file, with
   the front matter of 3.3 minus `role`; drafts behave as in 3.3.
-- `engineering-docs/releases/<tag>/notes.md`: release notes, consumed once
-  the releases route is built (work order slice 5).
+- `engineering-docs/releases/<tag>/notes.md`, for every directory named
+  like a final tag `vX.Y.Z`: the release notes, with the front matter of 3.3
+  minus `role`. The first `Released YYYY-MM-DD` in the body is the release
+  date shown on the index, the page and the home page's releases strip; a
+  page without it shows no date.
 
 ### 3.7 Landing page identities (W07)
 
@@ -224,6 +227,7 @@ documentation only by role, resolved to `/docs/current/<path>/`.
 |---|---|
 | `/` | landing page |
 | `/journal/`, `/journal/<date>-<slug>/` | journal; `/blog/` and every `/blog/<date>-<slug>/` redirect to it |
+| `/releases/`, `/releases/<tag>/` | release notes, newest first; each page links the release on GitHub and that version's documentation when the manifest lists it |
 | `/why/` | the `why`, `comparison` and `fit` sections of 3.7; absent when the README has neither `why` nor `comparison` |
 | `/contribute/` | the `contribute` section of 3.7, or a "coming soon" stub |
 | `/docs/` | the versions index: the notice, the current version, then supported (with deprecated marked), unsupported and development versions, each with its status and note |

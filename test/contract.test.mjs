@@ -283,3 +283,27 @@ Comparison.
   assert.deepEqual(site.landing.fit.columns, []);
   assert.ok(page(site, "/why/"));
 });
+
+test("release notes become one page per final tag, newest first, with the current release on the strip", (t) => {
+  const repo = createFixtureRepo();
+  t.after(repo.remove);
+  const site = build(repo);
+  assert.deepEqual(site.releases.map((r) => [r.tag, r.version, r.released, r.url]), [
+    ["v1.0.0", "1.0.0", "2026-01-04", "/releases/v1.0.0/"],
+    ["v0.9.0", "0.9.0", "2025-12-01", "/releases/v0.9.0/"],
+  ]);
+  assert.equal(site.currentRelease.tag, "v1.0.0");
+  assert.equal(site.currentRelease.releasedLabel, "4 January 2026");
+  const notes = page(site, "/releases/v1.0.0/");
+  assert.equal(notes.title, "Fixture 1.0.0");
+  assert.equal(notes.docsUrl, "/docs/current/");
+  assert.equal(page(site, "/releases/v0.9.0/").docsUrl, "/docs/0.9.0/");
+  assert.match(notes.html, /href="\/docs\/current\/getting-started\/first-session\/"/);
+  assert.match(notes.html, /href="https:\/\/github.com\/ccozianu\/devcapsule\/blob\/[0-9a-f]{40}\/engineering-docs\/bugs\/README.md"/);
+  assert.equal(notes.lastmod, "2026-01-05");
+  assert.equal(notes.indexable, true);
+  assert.ok(site.sitemap.some((e) => e.loc === "/releases/"));
+  assert.ok(site.sitemap.some((e) => e.loc === "/releases/v1.0.0/"));
+  repo.write("engineering-docs/releases/v1.0.0/notes.md", "# Fixture 1.0.0\n\nNo block.\n");
+  assert.throws(() => build(repo), /engineering-docs\/releases\/v1\.0\.0\/notes\.md: missing front matter block/);
+});

@@ -20,6 +20,8 @@ const routes = [
   "journal/2026-09-16-does-the-subscription-include-navier-stokes/",
   "why/",
   "contribute/",
+  "releases/",
+  "releases/v0.2.15/",
 ];
 const results = [];
 try {

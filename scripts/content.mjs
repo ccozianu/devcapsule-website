@@ -615,6 +615,62 @@ export function buildContent() {
   }
   posts.sort((a, b) => b.date.localeCompare(a.date) || a.title.localeCompare(b.title));
 
+  // Release notes: engineering-docs/releases/<tag>/notes.md, one page per
+  // final tag, newest first, unversioned like the journal.
+  const releases = [];
+  const releasesDir = path.join(dir, "engineering-docs/releases");
+  const tagDirs = fs.existsSync(releasesDir)
+    ? fs.readdirSync(releasesDir, { withFileTypes: true })
+        .filter((e) => e.isDirectory() && /^v\d+\.\d+\.\d+$/.test(e.name) && fs.existsSync(path.join(releasesDir, e.name, "notes.md")))
+        .map((e) => e.name)
+    : [];
+  for (const tag of tagDirs) {
+    const file = `engineering-docs/releases/${tag}/notes.md`;
+    const source = fs.readFileSync(path.join(dir, file), "utf8");
+    hash.update(file + "\0" + source + "\0");
+    const { meta, body } = readPage(source, file);
+    if (meta.draft && production) continue;
+    if (meta.role) fail(`${file}: "role" belongs to versioned documentation only`);
+    const rendered = render(body, file, unversionedContext);
+    const released = body.match(/\bReleased (\d{4}-\d{2}-\d{2})\b/)?.[1] ?? null;
+    const version = tag.slice(1);
+    const release = {
+      ...rendered,
+      file,
+      url: `/releases/${tag}/`,
+      kind: "release",
+      tag,
+      version,
+      released,
+      releasedLabel: released
+        ? new Date(released + "T12:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
+        : "",
+      description: meta.description,
+      excerpt: excerpt(meta.description),
+      draft: meta.draft,
+      updated: meta.updated,
+      lastmod: meta.updated || released,
+      indexable: production && !meta.draft,
+      canonical: `/releases/${tag}/`,
+      sourceUrl: `${repository}/blob/${content.revision}/${encodePath(file)}`,
+      releaseUrl: `${repository}/releases/tag/${tag}`,
+      docsUrl: manifest.versions.some((v) => v.version === version)
+        ? docsUrl(version === manifest.current ? "current" : version, "")
+        : null,
+    };
+    for (const alias of meta.aliases)
+      if (!aliases.has(alias)) aliases.set(alias, { url: release.url, title: release.title, from: file, priority: 0 });
+    pages.push(release);
+    releases.push(release);
+  }
+  const compareVersions = (a, b) => {
+    const pa = a.split(".").map(Number), pb = b.split(".").map(Number);
+    for (let i = 0; i < 3; i++) if (pa[i] !== pb[i]) return pb[i] - pa[i];
+    return 0;
+  };
+  releases.sort((a, b) => compareVersions(a.version, b.version));
+  const currentRelease = releases.find((r) => r.version === manifest.current) ?? null;
+
   // Versioned output: one directory per version, and the current copy.
   const versionAssets = {};
   for (const v of versions) {
@@ -708,7 +764,7 @@ export function buildContent() {
   }
   aliases.set("/blog/", { url: "/journal/", title: "The development journal", from: "the journal route", priority: 0 });
   const routes = new Set(pages.map((p) => p.url));
-  routes.add("/docs/").add("/journal/");
+  routes.add("/docs/").add("/journal/").add("/releases/");
   for (const [alias, target] of aliases) {
     const url = alias;
     if (routes.has(url))
@@ -768,6 +824,8 @@ export function buildContent() {
   return {
     pages,
     posts,
+    releases: releases.map(({ html, toc, ...r }) => r),
+    currentRelease: currentRelease ? { tag: currentRelease.tag, version: currentRelease.version, released: currentRelease.released, releasedLabel: currentRelease.releasedLabel, url: currentRelease.url, description: currentRelease.description } : null,
     landing: site,
     versions: versions.map((v) => v.summary),
     groups,
@@ -781,6 +839,7 @@ export function buildContent() {
       [
         { url: "/journal/", lastmod: posts[0]?.lastmod, indexable: production },
         { url: "/docs/", indexable: production },
+        { url: "/releases/", lastmod: releases[0]?.lastmod, indexable: production },
         ...pages,
       ],
       mode,

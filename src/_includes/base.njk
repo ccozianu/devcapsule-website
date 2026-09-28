@@ -26,6 +26,7 @@
       <a href="{{ site.current.url | url }}" {% if entry.kind == 'doc' or page.url == '/docs/' %}aria-current="true"{% endif %}>Docs</a>
       <a class="nav-start" href="{{ site.roles['getting-started'] | url }}">Start here</a>
       <a href="{{ '/journal/' | url }}" {% if entry.kind == 'post' or page.url == '/journal/' %}aria-current="true"{% endif %}>Journal</a>
+      <a href="{{ '/releases/' | url }}" {% if entry.kind == 'release' or page.url == '/releases/' %}aria-current="true"{% endif %}>Releases</a>
       <a class="github-link" href="https://github.com/ccozianu/devcapsule">GitHub <span aria-hidden="true">↗</span></a>
       <button class="theme-toggle" type="button" aria-pressed="false" hidden>Night mode</button>
       <a class="nav-cta" href="{{ site.roles['getting-started'] | url }}">Start here <span aria-hidden="true">→</span></a>
@@ -36,7 +37,7 @@
 <footer class="site-footer">
   <div class="wrap">
     <div><a class="brand" href="{{ '/' | url }}">DevCapsule<span class="brand-dot">.</span></a><p>A project worth coming back to.</p></div>
-    <nav aria-label="Footer"><a href="{{ site.current.url | url }}">Documentation {{ site.current.label }}</a><a href="{{ '/docs/' | url }}">All versions</a><a href="{{ '/journal/' | url }}">Development journal</a>{% if site.landing.why %}<a href="{{ '/why/' | url }}">Why DevCapsule</a>{% endif %}<a href="{{ '/contribute/' | url }}">Contribute</a><a href="https://github.com/ccozianu/devcapsule/blob/main/DEVELOPING.md">For developers ↗</a><a href="https://github.com/ccozianu/devcapsule/blob/main/LICENSE">Apache-2.0 ↗</a></nav>
+    <nav aria-label="Footer"><a href="{{ site.current.url | url }}">Documentation {{ site.current.label }}</a><a href="{{ '/docs/' | url }}">All versions</a><a href="{{ '/journal/' | url }}">Development journal</a><a href="{{ '/releases/' | url }}">Releases</a>{% if site.landing.why %}<a href="{{ '/why/' | url }}">Why DevCapsule</a>{% endif %}<a href="{{ '/contribute/' | url }}">Contribute</a><a href="https://github.com/ccozianu/devcapsule/blob/main/DEVELOPING.md">For developers ↗</a><a href="https://github.com/ccozianu/devcapsule/blob/main/LICENSE">Apache-2.0 ↗</a></nav>
     <div class="footer-bottom">
       <span>Built in the open. Built with DevCapsule.{% if site.landing.badges %} <span class="badges">{{ site.landing.badges | safe }}</span>{% endif %}</span>
       <div class="build-details">
