@@ -146,11 +146,60 @@ checked as usual. The field is additive, so the manifest keeps `contract: 1`.
 
 - `README.md`: the landing page, exempt from front matter. Its links into
   `docs/` resolve to the current copy when the page exists there, otherwise
-  to the newest listed version that has it, otherwise the build fails.
+  to the newest listed version that has it, otherwise the build fails. Its
+  sections are identified by the markers of 3.7.
 - `engineering-docs/blog/*.md`: the journal, one page per dated file, with
   the front matter of 3.3 minus `role`; drafts behave as in 3.3.
 - `engineering-docs/releases/<tag>/notes.md`: release notes, consumed once
   the releases route is built (work order slice 5).
+
+### 3.7 Landing page identities (W07)
+
+*Added by this consumer as the stable section identities backlog task W07
+asks for; additive.* The README marks the sections the site uses with HTML
+comments, which GitHub does not render:
+
+```markdown
+<!-- website:hero -->
+## Start working on a project right away!
+
+One lead paragraph.
+
+- Pre-V1
+- Linux x86-64
+- Windows via WSL2
+
+<!-- website:benefits -->
+- **A real IDE in a capsule.** Two lines. [The first session](docs/getting-started/first-session.md)
+- **Agents at full speed, behind a boundary you control.** Two lines. [Containment](docs/containment/the-boundary.md)
+
+<!-- website:end -->
+```
+
+A marker starts a section that runs to the next marker or to
+`<!-- website:end -->`; text outside the markers is not shown on the site.
+Within a section, the first heading is its heading and the rest its body;
+top-level list items are its items; lower headings split it into
+subsections. The names, and what each renders:
+
+| Name | Renders | Shape |
+|---|---|---|
+| `hero` | the headline, the lead and the eyebrow chips | required: a heading and a paragraph; optional: a list, one chip per item |
+| `benefits` | the "What you get" cards | at most four items: `**Headline.** text [link](docs/…)` |
+| `fit` | the "Is it for you?" columns, also shown on `/why/` | a heading and two subsections, each with a list |
+| `dogfood` | the line above the journal cards | one paragraph |
+| `why` | `/why/`, the long answer | a heading and prose |
+| `comparison` | the second part of `/why/` | a heading and prose |
+| `contribute` | `/contribute/` and the closing band's invitation | a heading and prose; absent means `/contribute/` is a "coming soon" stub, `noindex` |
+
+The three pillars under the hero are not a section: they are the
+`getting-started`, `your-project` and `agents` role pages of the current
+version, with their titles and descriptions, so the producer edits them in
+the documentation. Images before the first marker are the health badges,
+shown in the footer. An unknown name, a name marked twice, a hero without a
+heading or more than four benefits fail the build naming the problem. A
+README without any marker is read by the original heading adapter as long as
+it lasts, so the site builds while the producer adopts the markers.
 
 ## 4. Roles
 
@@ -174,7 +223,9 @@ documentation only by role, resolved to `/docs/current/<path>/`.
 | Route | Content |
 |---|---|
 | `/` | landing page |
-| `/blog/`, `/blog/<date>-<slug>/` | journal (the `/journal/` route and `/blog/` alias come with the home page slice) |
+| `/journal/`, `/journal/<date>-<slug>/` | journal; `/blog/` and every `/blog/<date>-<slug>/` redirect to it |
+| `/why/` | the `why`, `comparison` and `fit` sections of 3.7; absent when the README has neither `why` nor `comparison` |
+| `/contribute/` | the `contribute` section of 3.7, or a "coming soon" stub |
 | `/docs/` | the versions index: the notice, the current version, then supported (with deprecated marked), unsupported and development versions, each with its status and note |
 | `/docs/<version>/…` | that version's documentation, `docs/README.md` at the version root, `docs/a/b.md` at `a/b/` |
 | `/docs/current/…` | a full copy of the current version; the canonical URL of every page that exists in it |
@@ -269,6 +320,9 @@ Recorded so that version 2 starts from what is actually implemented:
 7. The typed-version pattern is bounded so that addresses such as
    `127.0.0.1` and sentence-final versions are handled as intended (3.4).
 8. A `role` on a journal entry fails the build; roles belong to `docs/`.
+9. The landing page identities of 3.7, the pillars from role pages, and the
+   `/why/` and `/contribute/` routes (5.1).
+10. The journal lives at `/journal/`; `/blog/` addresses redirect (5.1).
 
 ## 9. Acceptance
 

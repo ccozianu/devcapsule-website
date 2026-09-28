@@ -188,7 +188,12 @@ implied by recording these tasks.
   reviewed for meaning, not merely passing a test derived from the implementation.
 - Reopen if ordinary editing again requires changing presentation code.
 - Progress (2026-09-28): documentation links are resolved by role (contract
-  section 4); the README adapter itself is replaced in work order slice 4.
+  section 4), and the landing page is assembled from marked sections of the
+  README (CONTRACT.md 3.7): the producer moves or rewords prose freely inside
+  a marked section, an unknown or duplicated marker fails by name, and the
+  three pillars come from the role pages. The heading adapter survives only
+  as the fallback for a README without markers, until the producer adopts
+  them; then it is deleted and this task closes.
 - Producer dependency: W07-C supplies/agrees landing section identities under
   W12; do not make presentation code the authority for product prose.
 

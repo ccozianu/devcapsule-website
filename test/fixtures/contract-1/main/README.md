@@ -2,30 +2,45 @@
 
 [![tests](docs/images/badge.svg)](https://example.com/tests)
 
-## Why DevCapsule?
-
-### For the really, really curious—and itching to try it:
-
-[Start here: open your first workspace](docs/getting-started/first-session.md) on Linux.
-On Windows, read [the platform note](docs/platforms/windows-wsl2.md).
-
-### The essence of why DevCapsule: start working on a project right away!
+<!-- website:hero -->
+## Start working on a project right away
 
 The lead paragraph of the fixture landing page, long enough to be a description.
 
-The motto.
+- Pre-V1
+- Linux x86-64
 
-**The workspace.** First feature paragraph.
+<!-- website:benefits -->
+## What you get
 
-**The coding partner.** Second feature paragraph.
+- **A real IDE in a capsule.** First benefit text. [The first session](docs/getting-started/first-session.md)
+- **Agents at full speed.** Second benefit text. [Choose an agent](docs/working-with-ai/choose-an-agent.md)
 
-The boundary paragraph of the fixture.
+<!-- website:fit -->
+## Is it for you?
 
-## Aim for engineering excellence. Keep the fun.
+### Good fit today
 
-The philosophy paragraph. See the [journal](engineering-docs/blog/2026-01-02-fixture-entry.md)
-and [the developer brief](DEVELOPING.md).
+- Linux users with Docker.
 
-### But is it really needed?
+### Not yet
+
+- macOS.
+
+<!-- website:dogfood -->
+DevCapsule is developed inside DevCapsule; the [journal](engineering-docs/blog/2026-01-02-fixture-entry.md) is the transcript.
+
+<!-- website:why -->
+## Aim for engineering excellence
+
+The philosophy paragraph. See [the developer brief](DEVELOPING.md).
+
+<!-- website:comparison -->
+## But is it really needed?
 
 The comparison paragraph.
+
+<!-- website:end -->
+## Developing the fixture
+
+Not shown on the site.

@@ -38,7 +38,7 @@ test("the fixture builds every version, the current copy, the index data, roles 
   assert.deepEqual(site.groups.supported.map((v) => v.version), ["1.0.0", "0.9.0"]);
   assert.deepEqual(site.groups.development.map((v) => v.version), ["devel"]);
   assert.match(site.notice, /Fixture notice/);
-  assert.match(site.notice, /href="\/blog\/"/);
+  assert.match(site.notice, /href="\/journal\/"/);
   assert.deepEqual(site.roles, {
     overview: "/docs/current/",
     "getting-started": "/docs/current/getting-started/first-session/",
@@ -91,7 +91,7 @@ test("the fixture builds every version, the current copy, the index data, roles 
   assert.ok(!locations.includes("/docs/1.0.0/getting-started/first-session/"));
   assert.ok(!locations.includes("/docs/devel/"));
   assert.ok(!locations.includes("/docs/current/reference/cli/"), "planned stubs are not indexable");
-  assert.ok(locations.includes("/blog/2026-01-02-fixture-entry/"));
+  assert.ok(locations.includes("/journal/2026-01-02-fixture-entry/"));
 
   // The switcher: the same page where it exists, otherwise that version's index.
   assert.deepEqual(
@@ -117,13 +117,15 @@ test("the fixture builds every version, the current copy, the index data, roles 
   assert.deepEqual(sidebar.start.map((p) => p.path), ["", "getting-started/first-session/", "your-project/existing-repository/", "working-with-ai/choose-an-agent/", "containment/the-boundary/", "platforms/windows-wsl2/"]);
   assert.deepEqual(sidebar.background.map((p) => p.path), ["product/pitch/"]);
   assert.deepEqual(page(site, "/docs/0.9.0/").sidebar.areas.map((a) => a.title), ["Guides"]);
-  const post = page(site, "/blog/2026-01-02-fixture-entry/");
+  const post = page(site, "/journal/2026-01-02-fixture-entry/");
   assert.equal(post.description, "A fixture journal entry that links a versioned guide and names a version, which unversioned pages may do.");
   assert.match(post.html, /href="\/docs\/current\/getting-started\/first-session\/"/);
   assert.equal(post.lastmod, "2026-01-03");
   const aliases = site.pages.filter((p) => p.kind === "alias").map((p) => [p.url, p.target]);
   assert.deepEqual(aliases.sort(), [
-    ["/blog/old-entry/", "/blog/2026-01-02-fixture-entry/"],
+    ["/blog/", "/journal/"],
+    ["/blog/2026-01-02-fixture-entry/", "/journal/2026-01-02-fixture-entry/"],
+    ["/blog/old-entry/", "/journal/2026-01-02-fixture-entry/"],
     ["/docs/guides/first-session/", "/docs/current/getting-started/first-session/"],
     ["/docs/old-first-session/", "/docs/current/getting-started/first-session/"],
   ]);
@@ -137,10 +139,10 @@ test("drafts are absent from production builds and labelled in previews", (t) =>
   t.after(repo.remove);
   const production = build(repo);
   assert.equal(page(production, "/docs/devel/getting-started/draft-page/"), undefined);
-  assert.equal(page(production, "/blog/2026-01-01-draft-entry/"), undefined);
+  assert.equal(page(production, "/journal/2026-01-01-draft-entry/"), undefined);
   const preview = build(repo, "preview");
   assert.equal(page(preview, "/docs/devel/getting-started/draft-page/").draft, true);
-  assert.equal(page(preview, "/blog/2026-01-01-draft-entry/").draft, true);
+  assert.equal(page(preview, "/journal/2026-01-01-draft-entry/").draft, true);
   assert.deepEqual(preview.sitemap, []);
 });
 
@@ -165,6 +167,10 @@ test("each named failure names its file, field, version or role", (t) => {
     ["duplicate role", (r) => r.write("docs/platforms/linux.md", "---\ndescription: x\nrole: windows\n---\n# Linux\n"), /version devel: role "windows" is declared by both/],
     ["missing required role", (r) => r.write("docs/versions.yaml", r.read("docs/versions.yaml").replace('current: "1.0.0"', 'current: "0.9.0"')), /current version 0\.9\.0 defines no page with role "overview"/],
     ["alias collision", (r) => r.write("docs/platforms/linux.md", "---\ndescription: x\naliases: [/docs/current/]\n---\n# Linux\n"), /alias \/docs\/current\/ .* collides with a published page/],
+    ["unknown landing section", (r) => r.write("README.md", r.read("README.md").replace("website:dogfood", "website:pitch")), /README\.md: unknown landing section "pitch"/],
+    ["landing section marked twice", (r) => r.write("README.md", r.read("README.md").replace("website:why", "website:hero")), /landing section "hero" is marked twice/],
+    ["too many benefits", (r) => r.write("README.md", r.read("README.md").replace("<!-- website:fit -->", "- **Three.** t\n- **Four.** t\n- **Five.** t\n\n<!-- website:fit -->")), /benefits section lists 5 items/],
+    ["hero without a heading", (r) => r.write("README.md", r.read("README.md").replace("## Start working on a project right away\n", "")), /README\.md: the landing page needs a hero section with a heading/],
     ["broken link", (r) => r.write("docs/platforms/linux.md", "---\ndescription: x\n---\n# Linux\n\n[gone](nowhere.md)\n"), /docs\/platforms\/linux\.md: broken source link nowhere\.md/],
     ["journal without front matter", (r) => r.write("engineering-docs/blog/2026-01-04-bare.md", "# Bare\n\nText.\n"), /engineering-docs\/blog\/2026-01-04-bare\.md: missing front matter block/],
     ["documentation link nowhere", (r) => r.write("engineering-docs/blog/2026-01-04-link.md", "---\ndescription: x\n---\n# Link\n\n[gone](../../docs/missing.md)\n"), /link to docs\/missing\.md: no published documentation version contains that page/],
@@ -196,4 +202,84 @@ test("immutable versions are built once; a change on main rebuilds only devel", 
   assert.deepEqual(third.stats, { rendered: ["devel"], reused: ["1.0.0", "0.9.0"] });
   assert.deepEqual(third.groups.unsupported.map((v) => v.version), ["0.9.0"]);
   assert.equal(page(third, "/docs/0.9.0/guides/first-session/").noindex, true);
+});
+
+test("the landing page is assembled from the README's marked identities", (t) => {
+  const repo = createFixtureRepo();
+  t.after(repo.remove);
+  const site = build(repo);
+  const landing = site.landing;
+  assert.equal(landing.marked, true);
+  assert.equal(landing.hero.headline, "Start working on a project right away");
+  assert.match(landing.hero.lead, /^<p>The lead paragraph/);
+  assert.deepEqual(landing.hero.chips, ["Pre-V1", "Linux x86-64"]);
+  assert.match(landing.badges, /badge\.svg/);
+  assert.deepEqual(landing.pillars.map((p) => [p.role, p.title, p.url]), [
+    ["getting-started", "Your first session", "/docs/current/getting-started/first-session/"],
+    ["your-project", "An existing repository", "/docs/current/your-project/existing-repository/"],
+    ["agents", "Choose an agent", "/docs/current/working-with-ai/choose-an-agent/"],
+  ]);
+  assert.equal(landing.pillars[0].description, "The fixture first session, with tokens instead of typed versions.");
+  assert.deepEqual(landing.benefits.map((c) => [c.headline, c.url, c.label]), [
+    ["A real IDE in a capsule", "/docs/current/getting-started/first-session/", "The first session"],
+    ["Agents at full speed", "/docs/current/working-with-ai/choose-an-agent/", "Choose an agent"],
+  ]);
+  assert.match(landing.benefits[0].html, /First benefit text/);
+  assert.equal(landing.fit.heading, "Is it for you?");
+  assert.deepEqual(landing.fit.columns.map((c) => c.heading), ["Good fit today", "Not yet"]);
+  assert.match(landing.fit.columns[1].html, /macOS/);
+  assert.match(landing.dogfood, /href="\/journal\/2026-01-02-fixture-entry\/"/);
+  assert.equal(landing.why.heading, "Aim for engineering excellence");
+  assert.equal(landing.comparison.heading, "But is it really needed?");
+  assert.equal(landing.contribute, null);
+  const home = page(site, "/");
+  assert.equal(home.description, "The lead paragraph of the fixture landing page, long enough to be a description.");
+  assert.equal(page(site, "/why/").title, "Aim for engineering excellence");
+  assert.equal(page(site, "/why/").indexable, true);
+  const contribute = page(site, "/contribute/");
+  assert.equal(contribute.planned, true);
+  assert.equal(contribute.noindex, true);
+  assert.ok(!site.sitemap.some((e) => e.loc === "/contribute/"));
+  assert.ok(site.sitemap.some((e) => e.loc === "/why/"));
+  assert.ok(site.sitemap.some((e) => e.loc === "/journal/"));
+  // A contribute section makes the page real and indexable.
+  repo.write("README.md", repo.read("README.md").replace("<!-- website:end -->", "<!-- website:contribute -->\n## Contribute\n\nPick a bug.\n\n<!-- website:end -->"));
+  const authored = build(repo);
+  assert.equal(page(authored, "/contribute/").planned, false);
+  assert.match(authored.landing.contribute.html, /Pick a bug/);
+  assert.ok(authored.sitemap.some((e) => e.loc === "/contribute/"));
+});
+
+test("a README without markers still builds through the heading adapter", (t) => {
+  const repo = createFixtureRepo();
+  t.after(repo.remove);
+  repo.write("README.md", `# Fixture
+
+## Why DevCapsule?
+
+### The essence of why DevCapsule: start now!
+
+Lead paragraph of the legacy README, long enough to describe the page.
+
+Motto.
+
+**IDE.** First feature.
+
+**Agent.** Second feature.
+
+## Aim for engineering excellence. Keep the fun.
+
+Philosophy.
+
+### But is it really needed?
+
+Comparison.
+`);
+  const site = build(repo);
+  assert.equal(site.landing.marked, false);
+  assert.equal(site.landing.hero.headline, "Start now!");
+  assert.deepEqual(site.landing.benefits.map((c) => c.headline), ["IDE", "Agent"]);
+  assert.equal(site.landing.why.heading, "Aim for engineering excellence. Keep the fun.");
+  assert.deepEqual(site.landing.fit.columns, []);
+  assert.ok(page(site, "/why/"));
 });

@@ -83,10 +83,10 @@ const isImage = (target) => /\.(?:png|jpg|jpeg|gif|svg|webp|avif)$/i.test(target
 // Routes of the unversioned pages, always built from the checkout.
 export function route(file) {
   if (file === "README.md") return "/";
-  if (file === "engineering-docs/blog/README.md") return "/blog/";
+  if (file === "engineering-docs/blog/README.md") return "/journal/";
   if (file.startsWith("engineering-docs/blog/"))
     return (
-      "/blog/" +
+      "/journal/" +
       file.slice("engineering-docs/blog/".length).replace(/\.md$/, "/")
     );
   throw new Error(`No unversioned route for ${file}`);
@@ -178,59 +178,135 @@ const excerpt = (text) =>
   text.length > 210 ? text.slice(0, 207).replace(/\s+\S*$/, "") + "…" : text;
 const minutes = (source) => Math.max(1, Math.ceil(source.split(/\s+/).length / 220));
 
-function landing(record) {
-  const $ = load(record.html, null, false);
+// --- The landing page: stable section identities (W07) ---------------------
+// The README marks its sections with HTML comments, `<!-- website:NAME -->`,
+// which GitHub does not render; a section runs to the next marker or to
+// `<!-- website:end -->`. CONTRACT.md section 3.6 lists the names and what
+// each one renders. A README without markers falls back to the original
+// heading adapter, so the site builds while the producer adopts the markers.
+export const LANDING_SECTIONS = ["hero", "benefits", "fit", "dogfood", "why", "comparison", "contribute"];
+const MARKER = /^\s*website:([a-z-]+)\s*$/;
+
+function sectionModel($, nodes) {
+  const heading = nodes.find((n) => /^h[1-4]$/.test(n.tagName));
+  const rest = nodes.filter((n) => n !== heading);
+  const items = rest
+    .filter((n) => n.tagName === "ul" || n.tagName === "ol")
+    .flatMap((list) => $(list).children("li").toArray().map((li) => $(li).html().trim()));
+  const paragraphs = rest.filter((n) => n.tagName === "p").map((n) => $.html(n));
+  const subsections = [];
+  for (const node of rest) {
+    if (/^h[2-4]$/.test(node.tagName)) subsections.push({ heading: $(node).text(), id: $(node).attr("id"), nodes: [] });
+    else if (subsections.length) subsections.at(-1).nodes.push(node);
+  }
+  return {
+    heading: heading ? $(heading).text() : null,
+    id: heading ? $(heading).attr("id") : null,
+    html: rest.map((n) => $.html(n)).join("\n"),
+    paragraphs,
+    items,
+    subsections: subsections.map((sub) => ({ heading: sub.heading, id: sub.id, html: sub.nodes.map((n) => $.html(n)).join("\n") })),
+  };
+}
+
+export function landingSections(html) {
+  const $ = load(html, null, false);
+  const sections = {};
+  let name = null;
+  let nodes = [];
+  const flush = () => {
+    if (name) sections[name] = sectionModel($, nodes);
+    nodes = [];
+  };
+  for (const node of $.root().contents().toArray()) {
+    if (node.type === "comment") {
+      const match = node.data.match(MARKER);
+      if (!match) continue;
+      flush();
+      name = match[1] === "end" ? null : match[1];
+      if (name && !LANDING_SECTIONS.includes(name))
+        fail(`README.md: unknown landing section "${name}"; the contract defines ${LANDING_SECTIONS.join(", ")}`);
+      if (name && sections[name]) fail(`README.md: landing section "${name}" is marked twice`);
+      continue;
+    }
+    if (node.type === "tag" || (node.type === "text" && node.data.trim())) nodes.push(node);
+  }
+  flush();
+  return Object.keys(sections).length ? sections : null;
+}
+
+// An item of a card list: "**Headline.** Two lines. [Link](target)".
+function cardOf(itemHtml) {
+  const $ = load(itemHtml, null, false);
+  const headline = $("strong").first().text().replace(/[.:]\s*$/, "");
+  $("strong").first().remove();
+  const link = $("a").last();
+  const url = link.attr("href") || null;
+  const label = link.text() || null;
+  if (url) link.remove();
+  return { headline: headline || null, html: $.html().trim(), url, label };
+}
+
+// The original adapter, kept only for a README without markers.
+function legacyLanding(html) {
+  const $ = load(html, null, false);
   const sections = {};
   $("h2,h3").each((_, el) => {
     const heading = $(el);
-    const nodes = heading.nextUntil("h2,h3");
     sections[heading.text()] = {
       heading: heading.text(),
       id: heading.attr("id"),
-      html: nodes
-        .map((_, node) => $.html(node))
-        .get()
-        .join("\n"),
+      html: heading.nextUntil("h2,h3").map((_, node) => $.html(node)).get().join("\n"),
     };
   });
-  const essence = Object.values(sections).find((s) =>
-    s.heading.startsWith("The essence of why DevCapsule:"),
-  );
-  if (
-    !essence ||
-    !sections["Why DevCapsule?"] ||
-    !sections["Aim for engineering excellence. Keep the fun."]
-  ) {
-    throw new Error(
-      "README landing headings changed; update the presentation adapter in scripts/content.mjs.",
-    );
-  }
-  const body = load(essence.html, null, false);
-  const paragraphs = body("p")
-    .toArray()
-    .map((el) => body.html(el));
+  const essence = Object.values(sections).find((s) => s.heading.startsWith("The essence of why DevCapsule:"));
+  const body = essence ? load(essence.html, null, false) : null;
+  const paragraphs = body ? body("p").toArray().map((el) => body.html(el)) : [];
+  const model = {};
+  if (essence)
+    model.hero = { heading: essence.heading.replace("The essence of why DevCapsule: ", "").replace(/^s/, "S"), id: essence.id, paragraphs: paragraphs.slice(0, 1), items: [], subsections: [], html: "" };
+  if (paragraphs.length > 3)
+    model.benefits = { heading: null, id: null, html: "", paragraphs: [], subsections: [], items: paragraphs.slice(2, 4).map((p) => load(p, null, false)("p").html()) };
+  if (sections["Aim for engineering excellence. Keep the fun."])
+    model.why = { ...sections["Aim for engineering excellence. Keep the fun."], paragraphs: [], items: [], subsections: [] };
+  if (sections["But is it really needed?"])
+    model.comparison = { ...sections["But is it really needed?"], paragraphs: [], items: [], subsections: [] };
+  return model;
+}
+
+function landing(record, roles, rolePages) {
+  const $ = load(record.html, null, false);
+  const badges = $("img").toArray().map((el) => $.html($(el).closest("a").length ? $(el).closest("a") : $(el))).join(" ");
+  const marked = landingSections(record.html);
+  const sections = marked || legacyLanding(record.html);
+  if (!sections.hero || !sections.hero.heading)
+    fail("README.md: the landing page needs a hero section with a heading; mark it with <!-- website:hero --> (CONTRACT.md 3.6)");
+  const benefits = (sections.benefits?.items ?? []).map(cardOf);
+  if (benefits.length > 4) fail(`README.md: the benefits section lists ${benefits.length} items; the home page shows at most four`);
+  const fit = sections.fit
+    ? sections.fit.subsections.length ? sections.fit.subsections : [{ heading: sections.fit.heading, id: sections.fit.id, html: sections.fit.html }]
+    : [];
   return {
-    headline: essence.heading
-      .replace("The essence of why DevCapsule: ", "")
-      .replace(/^s/, "S"),
-    id: essence.id,
-    lead: paragraphs[0],
-    motto: paragraphs[1],
-    features: paragraphs.slice(2, 4),
-    boundary: paragraphs.slice(4).join("\n"),
-    intro: {
-      ...sections["Why DevCapsule?"],
-      html: Object.values(sections)
-        .filter((s) => s.heading.startsWith("For the really"))
-        .map((s) => `<h3 id="${s.id}">${s.heading}</h3>${s.html}`)
-        .join(""),
+    marked: Boolean(marked),
+    badges,
+    hero: {
+      headline: sections.hero.heading,
+      id: sections.hero.id || "hero",
+      lead: sections.hero.paragraphs[0] || "",
+      chips: sections.hero.items.map((item) => load(item, null, false).text().trim()),
     },
-    philosophy: sections["Aim for engineering excellence. Keep the fun."],
-    comparison: sections["But is it really needed?"],
-    badges: $("img")
-      .toArray()
-      .map((el) => $.html($(el).closest("a")))
-      .join(" "),
+    pillars: ["getting-started", "your-project", "agents"].map((role) => ({
+      role,
+      title: rolePages[role].title,
+      description: rolePages[role].description,
+      url: roles[role],
+    })),
+    benefits,
+    fit: { heading: sections.fit?.heading ?? null, id: sections.fit?.id ?? null, columns: fit },
+    dogfood: sections.dogfood?.html ?? "",
+    why: sections.why ?? null,
+    comparison: sections.comparison ?? null,
+    contribute: sections.contribute ?? null,
   };
 }
 
@@ -451,20 +527,54 @@ export function buildContent() {
   const readme = fs.readFileSync(path.join(dir, "README.md"), "utf8");
   hash.update("README.md\0" + readme + "\0");
   const home = render(readme, "README.md", unversionedContext);
+  const rolePages = Object.fromEntries(ROLES.map((role) => [role, current.byPath.get(docsPath(current.roles[role]))]));
+  const site = landing(home, roles, rolePages);
+  const homeDescription = load(site.hero.lead, null, false).text().replace(/\s+/g, " ").trim() || home.description;
   const pages = [
     {
       ...home,
       file: "README.md",
       url: "/",
       kind: "home",
-      description: excerpt(home.description),
-      excerpt: excerpt(home.description),
+      description: excerpt(homeDescription),
+      excerpt: excerpt(homeDescription),
       indexable: production,
       canonical: "/",
       sourceUrl: `${repository}/blob/${content.revision}/README.md`,
-      landing: landing(home),
+      landing: site,
     },
   ];
+  if (site.why || site.comparison)
+    pages.push({
+      file: "README.md",
+      url: "/why/",
+      kind: "why",
+      title: site.why?.heading || site.comparison.heading,
+      titleId: "why",
+      description: excerpt(load(site.why?.html || site.comparison.html, null, false)("p").first().text()),
+      excerpt: excerpt(load(site.why?.html || site.comparison.html, null, false)("p").first().text()),
+      indexable: production,
+      canonical: "/why/",
+      sourceUrl: `${repository}/blob/${content.revision}/README.md`,
+      landing: site,
+    });
+  pages.push({
+    file: "README.md",
+    url: "/contribute/",
+    kind: "contribute",
+    title: site.contribute?.heading || "Contribute",
+    titleId: "contribute",
+    description: site.contribute
+      ? excerpt(load(site.contribute.html, null, false)("p").first().text())
+      : "How a stranger picks a bug, works it with an agent inside DevCapsule, and sends it back. Coming soon.",
+    excerpt: "",
+    planned: !site.contribute,
+    noindex: !site.contribute,
+    indexable: production && Boolean(site.contribute),
+    canonical: "/contribute/",
+    sourceUrl: `${repository}/blob/${content.revision}/README.md`,
+    landing: site,
+  });
   const posts = [];
   const aliases = new Map();
   for (const file of blogFiles) {
@@ -497,7 +607,8 @@ export function buildContent() {
       canonical: route(file),
       sourceUrl: `${repository}/blob/${content.revision}/${encodePath(file)}`,
     };
-    for (const alias of meta.aliases)
+    // The journal moved from /blog/; the old address of every entry keeps working.
+    for (const alias of [post.url.replace("/journal/", "/blog/"), ...meta.aliases])
       if (!aliases.has(alias)) aliases.set(alias, { url: post.url, title: post.title, from: file, priority: 0 });
     pages.push(post);
     posts.push(post);
@@ -595,8 +706,9 @@ export function buildContent() {
       }
     }
   }
+  aliases.set("/blog/", { url: "/journal/", title: "The development journal", from: "the journal route", priority: 0 });
   const routes = new Set(pages.map((p) => p.url));
-  routes.add("/docs/").add("/blog/");
+  routes.add("/docs/").add("/journal/");
   for (const [alias, target] of aliases) {
     const url = alias;
     if (routes.has(url))
@@ -656,6 +768,7 @@ export function buildContent() {
   return {
     pages,
     posts,
+    landing: site,
     versions: versions.map((v) => v.summary),
     groups,
     current: current.summary,
@@ -666,7 +779,7 @@ export function buildContent() {
     manifest: buildManifest,
     sitemap: sitemapEntries(
       [
-        { url: "/blog/", lastmod: posts[0]?.lastmod, indexable: production },
+        { url: "/journal/", lastmod: posts[0]?.lastmod, indexable: production },
         { url: "/docs/", indexable: production },
         ...pages,
       ],

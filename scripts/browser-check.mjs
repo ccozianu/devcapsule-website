@@ -16,8 +16,10 @@ const routes = [
   "docs/devel/getting-started/first-session/",
   "docs/0.2.14/guides/first-session/",
   "docs/0.2.14/product/v1-announcement/",
-  "blog/",
-  "blog/2026-09-16-does-the-subscription-include-navier-stokes/",
+  "journal/",
+  "journal/2026-09-16-does-the-subscription-include-navier-stokes/",
+  "why/",
+  "contribute/",
 ];
 const results = [];
 try {
@@ -57,7 +59,7 @@ try {
         0,
         JSON.stringify(results.at(-1), null, 2),
       );
-      if (["", "docs/", "docs/current/getting-started/first-session/", "docs/0.2.14/guides/first-session/", "blog/"].includes(route))
+      if (["", "docs/", "docs/current/getting-started/first-session/", "docs/0.2.14/guides/first-session/", "journal/", "why/"].includes(route))
         await page.screenshot({
           path: path.join(
             artifacts,
@@ -72,7 +74,7 @@ try {
     await page.keyboard.press("Enter");
     assert.equal(await page.locator(":focus").getAttribute("id"), "main");
     await page
-      .getByRole("link", { name: "Open your first workspace", exact: true })
+      .getByRole("link", { name: /^Open your first workspace/ })
       .click();
     assert.match(page.url(), /docs\/current\/getting-started\/first-session\/$/);
     if (await page.locator(".mobile-toc summary").isVisible())
@@ -88,6 +90,8 @@ try {
     assert.match(page.url(), /docs\/0\.2\.14\/$/, "0.2.14 lacks this page, so its index opens");
     await page.goto(new URL("docs/guides/first-session/", base).href, { waitUntil: "networkidle" });
     assert.match(page.url(), /docs\/current\/getting-started\/first-session\/$/);
+    await page.goto(new URL("blog/", base).href, { waitUntil: "networkidle" });
+    assert.match(page.url(), /\/journal\/$/, "the old journal address redirects");
     assert.equal(errors.length, 0, errors.join("\n"));
     await context.close();
   }

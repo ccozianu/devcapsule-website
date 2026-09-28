@@ -12,7 +12,7 @@ const context = {
   exists: (target) => ["DEVELOPING.md", "docs/images/x.png"].includes(target),
   local(target) {
     if (target === "README.md") return "/";
-    if (target === "engineering-docs/blog/2026-01-01-entry.md") return "/blog/2026-01-01-entry/";
+    if (target === "engineering-docs/blog/2026-01-01-entry.md") return "/journal/2026-01-01-entry/";
     if (target === "docs/guides/windows-wsl2.md") return "/docs/current/guides/windows-wsl2/";
     return undefined;
   },
@@ -23,8 +23,8 @@ test("Markdown links keep anchors and queries, reach published pages, and become
     "/docs/current/guides/windows-wsl2/#before-you-start",
   );
   assert.equal(resolveTarget("../../README.md?from=docs#why", "docs/guides/first-session.md", context), "/?from=docs#why");
-  assert.equal(route("engineering-docs/blog/README.md"), "/blog/");
-  assert.equal(route("engineering-docs/blog/2026-01-01-entry.md"), "/blog/2026-01-01-entry/");
+  assert.equal(route("engineering-docs/blog/README.md"), "/journal/");
+  assert.equal(route("engineering-docs/blog/2026-01-01-entry.md"), "/journal/2026-01-01-entry/");
   assert.equal(docsPath("docs/README.md"), "");
   assert.equal(docsPath("docs/getting-started/first-session.md"), "getting-started/first-session/");
   assert.equal(docsPath("docs/reference/README.md"), "reference/");
@@ -66,12 +66,12 @@ test("subdirectory deployment rewrites internal routes without changing external
 test("the sitemap lists indexable pages in production builds and nothing in previews", () => {
   const pages = [
     { url: "/", indexable: true },
-    { url: "/blog/2026-09-21-entry/", lastmod: "2026-09-21", indexable: true },
+    { url: "/journal/2026-09-21-entry/", lastmod: "2026-09-21", indexable: true },
     { url: "/docs/devel/", indexable: false },
   ];
   assert.deepEqual(sitemapEntries(pages, "production"), [
     { loc: "/", lastmod: null },
-    { loc: "/blog/2026-09-21-entry/", lastmod: "2026-09-21" },
+    { loc: "/journal/2026-09-21-entry/", lastmod: "2026-09-21" },
   ]);
   assert.deepEqual(sitemapEntries(pages, "preview"), []);
 });

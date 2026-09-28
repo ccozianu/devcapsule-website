@@ -1066,6 +1066,114 @@ main:focus {
   max-width: 20ch;
 }
 
+.button-version {
+  font: 0.6875rem var(--font-mono);
+  padding: 2px var(--s-2);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.12);
+}
+.nav-start {
+  display: none;
+  white-space: nowrap;
+}
+.pillars {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.pillar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-6);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-card);
+  text-decoration: none;
+  color: inherit;
+}
+.pillar:hover {
+  border-color: var(--c-line-strong);
+  color: inherit;
+}
+.pillar h2 {
+  font-size: var(--fs-xl);
+  margin: 0;
+}
+.pillar p {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: var(--fs-sm);
+}
+.pillar-action {
+  margin-top: auto;
+  font-weight: var(--fw-strong);
+  font-size: var(--fs-sm);
+  color: var(--c-link);
+}
+.pillar:hover .pillar-action {
+  color: var(--c-accent);
+}
+.cards--4 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.cards--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.card-body {
+  color: var(--c-muted);
+  font-size: var(--fs-sm);
+}
+.card-body p:last-child {
+  margin-bottom: 0;
+}
+.fit-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-7);
+}
+.fit-column h3 {
+  font-size: var(--fs-xl);
+  margin: 0 0 var(--s-4);
+}
+.fit-column ul {
+  padding-left: var(--s-5);
+}
+.dogfood {
+  margin-top: var(--s-3);
+  font-size: var(--fs-md);
+  color: var(--c-muted);
+}
+.dogfood p:last-child {
+  margin-bottom: 0;
+}
+.closing-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: var(--s-7);
+  align-items: center;
+  text-align: left;
+}
+.closing-aside {
+  border-left: 1px solid var(--c-band-line);
+  padding-left: var(--s-6);
+  color: var(--c-band-muted);
+  font-size: var(--fs-sm);
+}
+.closing-aside .prose {
+  font-size: var(--fs-sm);
+}
+.closing-aside .text-link {
+  color: var(--c-band-text);
+}
+.footer-bottom .badges {
+  display: inline-flex;
+  vertical-align: middle;
+  margin-left: var(--s-3);
+}
+.footer-bottom .badges img {
+  height: 18px;
+}
+
 /* ---------- 8. Reading layout: docs and journal ---------- */
 .reading-layout {
   width: min(100% - 2 * var(--gutter), var(--w-wide));
@@ -1686,8 +1794,22 @@ main:focus {
     grid-template-columns: minmax(0, var(--w-reading));
   }
   .cards,
-  .post-cards {
+  .cards--4,
+  .cards--2,
+  .pillars,
+  .post-cards,
+  .fit-columns {
     grid-template-columns: 1fr;
+  }
+  .closing-grid {
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+  }
+  .closing-aside {
+    border-left: 0;
+    padding-left: 0;
+    border-top: 1px solid var(--c-band-line);
+    padding-top: var(--s-5);
   }
   .post-card {
     display: grid;
@@ -1748,6 +1870,9 @@ main:focus {
   }
   .nav-cta {
     display: none;
+  }
+  .nav-start {
+    display: inline;
   }
   .hero .wrap {
     padding-block: var(--s-6);

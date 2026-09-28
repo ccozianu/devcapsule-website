@@ -122,11 +122,13 @@ instead of typed versions. Each failure names the file, field, version or role.
 `npm run check:content` runs the same assembly without output, for the
 producer's gate.
 
-Root `README.md` supplies the landing prose. The presentation adapter groups its
-current headings and paragraphs into sections; a changed structural heading
-fails explicitly so maintainers can update the adapter (W07 replaces this with
-stable section identities). Links to non-published files resolve to the exact
-content revision on GitHub. Only referenced image assets are copied.
+Root `README.md` supplies the landing prose through marked sections
+(`<!-- website:hero -->` and the others in CONTRACT.md 3.7); the three
+pillars are the role pages of the current version. A README without markers
+is still read by the original heading adapter. The journal is served at
+`/journal/` with `/blog/` redirecting; `/why/` and `/contribute/` come from
+the README's marked sections. Links to non-published files resolve to the
+exact content revision on GitHub. Only referenced image assets are copied.
 
 Every page footer shows when the site version was built, in UTC. The same
 ISO timestamp appears as `builtAt` in `build-info.json`, alongside content and

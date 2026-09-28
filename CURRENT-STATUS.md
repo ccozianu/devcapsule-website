@@ -2,14 +2,54 @@
 
 State: executing [the visitor-experience work order](engineering-docs/work-orders/2026-09-28-website-visitor-experience.md)
 under the owner's autonomy grant of 2026-09-28. Slice 1 is on branch
-`take-2026-09-22-delivery`, slice 2 on `contract-v1` and slice 3 on
-`design-system`, each stacked on the previous; the owner merges their PRs in
-that order. Delivery: SSH push, owner merges PRs
+`take-2026-09-22-delivery`, slice 2 on `contract-v1`, slice 3 on
+`design-system` and slice 4 on `home-page`, each stacked on the previous;
+the owner merges their PRs in that order. Delivery: SSH push, owner merges PRs
 and runs the publication workflows. Read
 [Work order execution](#work-order-execution-2026-09-28) first; the sections
 below it are the history of the initial website and its handoff.
 
 ## Work order execution (2026-09-28)
+
+### Slice 4 — home page: delivered, awaiting merge
+
+Branch `home-page` from `design-system`. The landing page is assembled from
+stable section identities (W07, CONTRACT.md 3.7): HTML-comment markers in
+the README name the `hero`, `benefits`, `fit`, `dogfood`, `why`,
+`comparison` and `contribute` sections; the three pillars are the
+`getting-started`, `your-project` and `agents` role pages with their titles
+and descriptions; the health badges moved to the footer; the hero carries the
+current version beside its one action and a quiet in-page secondary. New
+routes: `/why/` from the `why`, `comparison` and `fit` sections; `/contribute/`
+as a "coming soon" stub until the producer authors that section; `/journal/`
+with `/blog/` and every old entry address redirecting. Navigation is Docs ·
+Start here · Journal · GitHub; Releases joins in slice 5, where the releases
+strip (section 6 of the home page) also lands, because its link target does
+not exist yet. No product text is typed in templates; the labels are the
+section eyebrows, button labels and the stub notice. A README without
+markers falls back to the original heading adapter so the test site builds
+before the producer adopts the markers; the fallback is deleted with W07.
+
+Validated: 20 unit tests pass, including the marked fixture README, its
+named failures (unknown or duplicated marker, hero without heading, more
+than four benefits), the fallback, the journal aliases and the `/why/` and
+`/contribute/` pages. Preview build and `npm run check` pass (177 pages,
+13017 links). Browser checks: 33 page/viewport/scheme audits over the home,
+docs, journal, `/why/` and `/contribute/` pages pass, plus the `/blog/`
+redirect. Home at 1440px and 360px and `/why/` at 1440px were inspected by
+eye against a scratch README carrying markers around its existing prose.
+
+Not validated: the test site; the `fit` and `contribute` sections and the
+hero chips are exercised only by the fixture until the producer authors
+them.
+
+**Further requests to DevCapsule.** (5) Adopt the README markers of
+CONTRACT.md 3.7; author the `fit` section (good fit today / not yet,
+including macOS and "every edge has a file") and the `dogfood` line, and
+later the `contribute` section. (6) The work order's `/why/` also wants the
+comparison note; it is linked from the README today and stays a GitHub link
+until the producer decides whether `engineering-docs/design-notes/…/competitive-comparison.md`
+joins the published inputs (an additive contract change).
 
 ### Slice 3 — design system: delivered, awaiting merge
 
@@ -283,11 +323,11 @@ were visually inspected. Existing promotion tests confirm builtAt is preserved.
 
 ## Next step
 
-Slice 4 of the work order: the home page. The seven sections from stable
-identities, `/why/` and `/contribute/` routes (the latter a planned stub),
-the `/journal/` route with `/blog/` as an alias; done when the three visitor
-questions are each answered above the fold or one click below, with no typed
-content in templates. Branch from `design-system`. Then slices 5 and 6. W00 keeps its priority for the owner's
+Slice 5 of the work order: releases. `/releases/` and `/releases/<tag>/` from
+`engineering-docs/releases/<tag>/notes.md`, the releases strip on the home
+page reading the current one, and Releases in the navigation; done when
+0.2.14 and 0.2.15 are listed with their notes. Branch from `home-page`. Then
+slice 6, publication: candidate preparation and the pin bump request. W00 keeps its priority for the owner's
 Search Console work and is not blocked by any of this. The requests to
 DevCapsule under slice 2 gate the test-site deployment of everything above.
 
