@@ -27,7 +27,7 @@
       <a class="nav-start" href="{{ site.roles['getting-started'] | url }}">Start here</a>
       <a href="{{ '/journal/' | url }}" {% if entry.kind == 'post' or page.url == '/journal/' %}aria-current="true"{% endif %}>Journal</a>
       <a href="{{ '/releases/' | url }}" {% if entry.kind == 'release' or page.url == '/releases/' %}aria-current="true"{% endif %}>Releases</a>
-      <a class="github-link" href="https://github.com/ccozianu/devcapsule">GitHub <span aria-hidden="true">↗</span></a>
+      <a class="github-link" href="https://github.com/ccozianu/devcapsule" target="_blank" rel="noopener">GitHub <span aria-hidden="true">↗</span></a>
       <label class="palette-picker" hidden><span class="sr-only">Colour scheme</span><select id="palette" aria-label="Colour scheme">
         <option value="catppuccin-latte">Catppuccin latte</option>
         <option value="catppuccin-mocha">Catppuccin mocha</option>
