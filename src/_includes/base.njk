@@ -12,30 +12,36 @@
   <meta property="og:title" content="{{ title }} · DevCapsule">
   <meta property="og:type" content="{{ 'article' if entry.kind == 'post' else 'website' }}">
   <link rel="icon" href="{{ '/assets/favicon.svg' | url }}" type="image/svg+xml">
+  <link rel="preload" href="{{ '/assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ '/assets/fonts/fraunces-latin-wght-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{{ '/assets/site.css' | url }}">
   <script src="{{ '/assets/site.js' | url }}" defer></script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
-<header class="site-header">
-  <a class="brand" href="{{ '/' | url }}" aria-label="DevCapsule home"><span class="brand-mark" aria-hidden="true"><span></span></span>DevCapsule<span class="brand-dot">.</span></a>
-  <nav aria-label="Main navigation">
-    <a href="{{ site.current.url | url }}" {% if entry.kind == 'doc' or page.url == '/docs/' %}aria-current="true"{% endif %}>Docs</a>
-    <a href="{{ '/blog/' | url }}" {% if entry.kind == 'post' or page.url == '/blog/' %}aria-current="true"{% endif %}>Journal</a>
-    <a class="github-link" href="https://github.com/ccozianu/devcapsule">GitHub <span aria-hidden="true">↗</span></a>
-    <button class="theme-toggle" type="button" aria-pressed="false" hidden>Night mode</button>
-    <a class="nav-cta" href="{{ site.roles['getting-started'] | url }}">Start here <span aria-hidden="true">→</span></a>
-  </nav>
+<header class="site-header band">
+  <div class="wrap">
+    <a class="brand" href="{{ '/' | url }}" aria-label="DevCapsule home"><span class="brand-mark" aria-hidden="true"><span></span></span>DevCapsule<span class="brand-dot">.</span></a>
+    <nav aria-label="Main navigation">
+      <a href="{{ site.current.url | url }}" {% if entry.kind == 'doc' or page.url == '/docs/' %}aria-current="true"{% endif %}>Docs</a>
+      <a href="{{ '/blog/' | url }}" {% if entry.kind == 'post' or page.url == '/blog/' %}aria-current="true"{% endif %}>Journal</a>
+      <a class="github-link" href="https://github.com/ccozianu/devcapsule">GitHub <span aria-hidden="true">↗</span></a>
+      <button class="theme-toggle" type="button" aria-pressed="false" hidden>Night mode</button>
+      <a class="nav-cta" href="{{ site.roles['getting-started'] | url }}">Start here <span aria-hidden="true">→</span></a>
+    </nav>
+  </div>
 </header>
 <main id="main" tabindex="-1">{{ content | safe }}</main>
 <footer class="site-footer">
-  <div><a class="brand" href="{{ '/' | url }}">DevCapsule<span class="brand-dot">.</span></a><p>A project worth coming back to.</p></div>
-  <nav aria-label="Footer"><a href="{{ site.current.url | url }}">Documentation {{ site.current.label }}</a><a href="{{ '/docs/' | url }}">All versions</a><a href="{{ '/blog/' | url }}">Development journal</a><a href="https://github.com/ccozianu/devcapsule/blob/main/DEVELOPING.md">For developers ↗</a><a href="https://github.com/ccozianu/devcapsule/blob/main/LICENSE">Apache-2.0 ↗</a></nav>
-  <div class="footer-bottom">
-    <span>Built in the open. Built with DevCapsule.</span>
-    <div class="build-details">
-      <span>Site built <time datetime="{{ site.manifest.builtAt }}">{{ site.manifest.builtAt | buildtime }}</time></span>
-      <a href="{{ '/build-info.json' | url }}">{{ 'Local preview' if preview else 'Build information' }} · {{ site.manifest.content.revision | shortsha }}</a>
+  <div class="wrap">
+    <div><a class="brand" href="{{ '/' | url }}">DevCapsule<span class="brand-dot">.</span></a><p>A project worth coming back to.</p></div>
+    <nav aria-label="Footer"><a href="{{ site.current.url | url }}">Documentation {{ site.current.label }}</a><a href="{{ '/docs/' | url }}">All versions</a><a href="{{ '/blog/' | url }}">Development journal</a><a href="https://github.com/ccozianu/devcapsule/blob/main/DEVELOPING.md">For developers ↗</a><a href="https://github.com/ccozianu/devcapsule/blob/main/LICENSE">Apache-2.0 ↗</a></nav>
+    <div class="footer-bottom">
+      <span>Built in the open. Built with DevCapsule.</span>
+      <div class="build-details">
+        <span>Site built <time datetime="{{ site.manifest.builtAt }}">{{ site.manifest.builtAt | buildtime }}</time></span>
+        <a href="{{ '/build-info.json' | url }}">{{ 'Local preview' if preview else 'Build information' }} · {{ site.manifest.content.revision | shortsha }}</a>
+      </div>
     </div>
   </div>
 </footer>

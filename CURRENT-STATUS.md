@@ -2,13 +2,43 @@
 
 State: executing [the visitor-experience work order](engineering-docs/work-orders/2026-09-28-website-visitor-experience.md)
 under the owner's autonomy grant of 2026-09-28. Slice 1 is on branch
-`take-2026-09-22-delivery` and slice 2 on `contract-v1`, stacked on it; the
-owner merges their PRs in that order. Delivery: SSH push, owner merges PRs
+`take-2026-09-22-delivery`, slice 2 on `contract-v1` and slice 3 on
+`design-system`, each stacked on the previous; the owner merges their PRs in
+that order. Delivery: SSH push, owner merges PRs
 and runs the publication workflows. Read
 [Work order execution](#work-order-execution-2026-09-28) first; the sections
 below it are the history of the initial website and its handoff.
 
 ## Work order execution (2026-09-28)
+
+### Slice 3 — design system: delivered, awaiting merge
+
+Branch `design-system` from `contract-v1`. `src/assets/site.css` is rewritten
+around tokens: the reference pairing Fraunces (variable serif, display) and
+Atkinson Hyperlegible (body), self-hosted as latin woff2 files under
+`src/assets/fonts/` with their SIL Open Font License texts and no third-party
+fetch; a `clamp()` type scale (`--fs-*`), body 1.0625rem at line-height 1.6;
+the spacing scale `--s-1` (0.25rem) to `--s-9` (6rem); `--w-prose: 70ch`;
+radii; and two palettes from the same names, tuned to WCAG AA. The header
+and hero sit on one deep-green band, the closing call to action on another,
+and the page between is paper with alternating calm sections. Cards, pillars,
+banners, the switcher, sidebar and prose use tokens only; the only literal
+colours left are inside the IDE illustration, which is a picture of an IDE
+at night in both modes, and the syntax highlighting inside code blocks. The
+existing home sections are restyled on the new system; slice 4 restructures
+them.
+
+Validated: 18 unit tests, preview build and `npm run check` (168 pages,
+12317 links including the eight font files) pass. Browser checks now audit
+1440px and 360px: 27 page/viewport/scheme audits pass without overflow or
+WCAG A/AA violations in either palette, with the switch, anchors, keyboard
+and no-JavaScript navigation. Home in both palettes at 1440px, the current
+first-session guide at 1440px, and the home page and journal at 360px were
+inspected by eye.
+
+Not validated: the test site; `npm run test:updates` was run for slice 2 and
+the styling change is exercised by its independent-styling step in the same
+way, but the run was not repeated for this slice.
 
 ### Slice 2 — contract version 1: delivered, awaiting merge
 
@@ -253,12 +283,11 @@ were visually inspected. Existing promotion tests confirm builtAt is preserved.
 
 ## Next step
 
-Slice 3 of the work order: the design system. Tokens, a self-hosted type
-pairing, the spacing scale, both palettes, bands, cards, pillars and banners,
-applied to the base, docs and journal layouts; done when every page uses only
-tokens, contrast is AA in both modes, and 360px and 1440px both read well by
-the browser check and by eye. Branch from `contract-v1`. Then slices 4 to 6
-in the order the work order gives. W00 keeps its priority for the owner's
+Slice 4 of the work order: the home page. The seven sections from stable
+identities, `/why/` and `/contribute/` routes (the latter a planned stub),
+the `/journal/` route with `/blog/` as an alias; done when the three visitor
+questions are each answered above the fold or one click below, with no typed
+content in templates. Branch from `design-system`. Then slices 5 and 6. W00 keeps its priority for the owner's
 Search Console work and is not blocked by any of this. The requests to
 DevCapsule under slice 2 gate the test-site deployment of everything above.
 

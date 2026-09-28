@@ -51,7 +51,8 @@ CONTENT_DIR=/absolute/path/to/devcapsule npm run dev
 
 Inside the parent, its checkout is the default content source. Standalone,
 `.content/` is the default. `CONTENT_DIR` overrides both. Edit `src/assets/site.css`
-for styling, `src/_includes/` for layouts, and `scripts/content.mjs` for routing
+for styling (tokens first: type, spacing and both palettes are defined at its
+top, and components use only tokens), `src/_includes/` for layouts, and `scripts/content.mjs` for routing
 and navigation. Keep substantive product prose in the DevCapsule repository.
 
 ## This project's own capsule

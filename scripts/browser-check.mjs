@@ -21,7 +21,7 @@ const routes = [
 ];
 const results = [];
 try {
-  for (const width of [1440, 390]) {
+  for (const width of [1440, 360]) {
     const context = await browser.newContext({
       viewport: { width, height: 1000 },
       reducedMotion: "reduce",
@@ -138,7 +138,7 @@ try {
     const context = await browser.newContext({
       javaScriptEnabled: false,
       colorScheme: "dark",
-      viewport: { width: 390, height: 844 },
+      viewport: { width: 360, height: 780 },
     });
     const page = await context.newPage();
     await page.goto(new URL("docs/", base).href);
@@ -146,12 +146,12 @@ try {
       "The switch needs JavaScript and stays hidden without it");
     assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), "rgb(18, 26, 23)",
       "Without JavaScript the system preference alone selects the night palette");
-    await page.screenshot({ path: path.join(artifacts, "390-dark-nojs-docs.png"), fullPage: true });
+    await page.screenshot({ path: path.join(artifacts, "360-dark-nojs-docs.png"), fullPage: true });
     await context.close();
   }
   const context = await browser.newContext({
     javaScriptEnabled: false,
-    viewport: { width: 390, height: 844 },
+    viewport: { width: 360, height: 780 },
   });
   const page = await context.newPage();
   await page.goto(new URL("docs/current/getting-started/first-session/", base).href);
