@@ -4,6 +4,7 @@
 
 - [Project overview and local preview](README.md)
 - [Developer brief](DEVELOPING.md)
+- [Developing and testing against a copy of the parent](DEVELOPING-WITH-CONTENT.md)
 - [Agent instructions](AGENTS.md)
 - [Workflow definition](WORKFLOW.md)
 - [Local workflow](WORKFLOW-LOCAL.md)

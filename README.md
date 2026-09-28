@@ -43,7 +43,9 @@ to select a different content revision. It refuses to overwrite local content
 edits. This avoids circular setup: the website can be developed before its
 parent updates the submodule pointer.
 
-Alternatively, use an existing content checkout:
+[DEVELOPING-WITH-CONTENT.md](DEVELOPING-WITH-CONTENT.md) explains what the
+copy must contain, how to experiment on a scratch copy, and which check to run
+when. Alternatively, use an existing content checkout:
 
 ```sh
 CONTENT_DIR=/absolute/path/to/devcapsule npm run dev
