@@ -1,20 +1,34 @@
 # Website current status
 
-State: executing [the visitor-experience work order](engineering-docs/work-orders/2026-09-28-website-visitor-experience.md)
-under the owner's autonomy grant of 2026-09-28. Slice 1 is on branch
-`take-2026-09-22-delivery`, slice 2 on `contract-v1`, slice 3 on
-`design-system`, slice 4 on `home-page`, slice 5 on `releases` and slice 6
-on `publication`, each stacked on the previous; the owner merges their PRs in
-that order. Compare links, each against the branch below it:
-[slice 1](https://github.com/ccozianu/devcapsule-website/compare/main...take-2026-09-22-delivery),
-[slice 2](https://github.com/ccozianu/devcapsule-website/compare/take-2026-09-22-delivery...contract-v1),
-[slice 3](https://github.com/ccozianu/devcapsule-website/compare/contract-v1...design-system),
-[slice 4](https://github.com/ccozianu/devcapsule-website/compare/design-system...home-page),
-[slice 5](https://github.com/ccozianu/devcapsule-website/compare/home-page...releases),
-[slice 6](https://github.com/ccozianu/devcapsule-website/compare/releases...publication). Delivery: SSH push, owner merges PRs
-and runs the publication workflows. Read
-[Work order execution](#work-order-execution-2026-09-28) first; the sections
-below it are the history of the initial website and its handoff.
+State: the visitor-experience work order is published. The owner merged the
+seven stacked branches as PR #7 (`6759b9d`) and promoted the test candidate
+to production on 2026-09-28; the live verification is below. Delivery: SSH
+push, owner merges PRs and runs the publication workflows.
+
+## Live verification (2026-09-28, 21:08 UTC build)
+
+Checked by the agent against `https://devcapsule.mycodespace.ai` after the
+owner reported publication:
+
+- HTTP 200 on `/`, `/docs/`, `/docs/current/`, the current first-session
+  guide, `/journal/`, `/releases/`, `/why/`, `/sitemap.xml`, `/robots.txt`
+  and the `/blog/` redirect.
+- `build-info.json`: implementation `6759b9d` (the PR #7 merge), content
+  `2ec36b9` clean, contract 1, current `0.2.15`, versions devel
+  (development), 0.2.15 (supported), 0.2.14 and 0.2.12 (deprecated);
+  promotion from candidate `website-candidate-36484073029-1` with the
+  origin-only transformation.
+- `robots.txt` allows crawling and names the production sitemap; the sitemap
+  lists 49 pages at the production origin.
+- The 0.2.14 first-session guide carries its own canonical, as a deprecated
+  page absent from `current` should, and no robots meta.
+- The colour-scheme select is served with Catppuccin latte first.
+
+So the producer has landed its side: a manifest with the four versions,
+the journal front matter and the README markers are in content `2ec36b9`.
+The acceptance item "against the producer's main at the pin" is therefore
+met by the live build. Not checked by the agent: Search Console and Bing
+submission of the sitemap, and indexing evidence; those remain W00.
 
 ## Work order execution (2026-09-28)
 
@@ -430,12 +444,7 @@ were visually inspected. Existing promotion tests confirm builtAt is preserved.
 
 ## Next step
 
-The owner's: merge the six PRs, land the producer change with the pin, and
-run the two publication workflows as the slice 6 runbook records. On the
-agent's side the work order is complete except for what depends on that:
-the test-site review, the candidate tag, and the acceptance item "against the
-producer's `main` at the pin", to be recorded here when they happen. After
-publication: W00 resumes with the owner's Search Console and Bing evidence
+Published. W00 resumes with the owner's Search Console and Bing evidence
 and the sitemap submission; W07 closes when the README carries the markers
 and the heading adapter is deleted; W09's metadata and share cards follow
 from the `description` field now available; W13 still needs its
