@@ -12,13 +12,21 @@ export default function (config) {
       hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: "UTC",
     }) + " UTC",
   );
+  config.addFilter("datelabel", (value) =>
+    new Date(value + "T12:00:00Z").toLocaleDateString("en-GB", {
+      day: "numeric", month: "long", year: "numeric", timeZone: "UTC",
+    }),
+  );
   config.addFilter("json", (value) => JSON.stringify(value, null, 2));
   config.addPassthroughCopy({ "src/assets": "assets" });
   config.addPassthroughCopy({ "src/static": "." });
-  for (const asset of site.assets)
-    config.addPassthroughCopy({
-      [site.contentDir + "/" + asset]: "content-assets/" + asset,
-    });
+  // Images referenced by content, keyed by the source they were read from:
+  // "main" for the checkout, the short commit for an immutable version source.
+  for (const [key, { tree, files }] of Object.entries(site.versionAssets))
+    for (const asset of files)
+      config.addPassthroughCopy({
+        [tree + "/" + asset]: `content-assets/${key}/${asset}`,
+      });
   return {
     dir: { input: "src", output: "_site", includes: "_includes" },
     pathPrefix: prefix(),

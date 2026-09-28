@@ -4,6 +4,7 @@ _site/
 .artifacts/
 .site-next/
 .site-previous/
+.cache/
 
 # Python / DevCapsule defaults
 __pycache__/

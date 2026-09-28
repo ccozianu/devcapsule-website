@@ -3,25 +3,29 @@ pagination:
   data: site.pages
   size: 1
   alias: entry
-permalink: "{{ entry.permalink }}"
+permalink: "{{ entry.url }}"
 eleventyComputed:
   title: "{{ entry.title }}"
-layout: base.njk
+  layout: "{{ 'redirect.njk' if entry.kind == 'alias' else 'base.njk' }}"
 ---
 {% if entry.kind == 'home' %}
   {% include 'home.njk' %}
+{% elif entry.kind == 'alias' %}
 {% else %}
 <div class="reading-layout {% if entry.kind == 'post' %}journal-layout{% endif %}">
   {% if entry.kind == 'doc' %}{% include 'sidebar.njk' %}{% endif %}
   <article class="reading-main" aria-labelledby="{{ entry.titleId }}">
-    <div class="breadcrumbs"><a href="{{ '/' | url }}">Home</a><span>/</span><a href="{{ ('/blog/' if entry.kind == 'post' else '/docs/') | url }}">{{ 'Journal' if entry.kind == 'post' else 'Documentation' }}</a></div>
-    {% if entry.kind == 'post' %}<div class="eyebrow post-meta"><time datetime="{{ entry.date }}">{{ entry.dateLabel }}</time><span>{{ entry.minutes }} min read</span></div>{% else %}<div class="eyebrow">{{ 'Background & earlier material' if entry.historical else 'The DevCapsule guides' }}</div>{% endif %}
+    {% if entry.kind == 'doc' %}{% include 'switcher.njk' %}{% endif %}
+    <div class="breadcrumbs"><a href="{{ '/' | url }}">Home</a><span>/</span>{% if entry.kind == 'post' %}<a href="{{ '/blog/' | url }}">Journal</a>{% else %}<a href="{{ '/docs/' | url }}">Documentation</a><span>/</span><a href="{{ (entry.version.url if entry.copy == 'current' else entry.version.versionUrl) | url }}">{{ entry.version.label }}{% if entry.version.current %} (current){% endif %}</a>{% endif %}</div>
+    {% if entry.kind == 'post' %}<div class="eyebrow post-meta"><time datetime="{{ entry.date }}">{{ entry.dateLabel }}</time><span>{{ entry.minutes }} min read</span>{% if entry.draft %}<span class="label-draft">Draft</span>{% endif %}</div>{% else %}<div class="eyebrow post-meta">{% if entry.historical %}<span>Background &amp; earlier material</span>{% elif entry.planned %}<span>Coming soon</span>{% else %}<span>The DevCapsule guides</span>{% endif %}{% if entry.updated %}<span>Updated <time datetime="{{ entry.updated }}">{{ entry.updated | datelabel }}</time></span>{% endif %}{% if entry.draft %}<span class="label-draft">Draft</span>{% endif %}</div>{% endif %}
     <h1 id="{{ entry.titleId }}">{{ entry.title }}</h1>
-    {% if entry.historical %}<aside class="notice"><strong>Background, draft or historical material.</strong> This page does not describe the current setup experience. Use <a href="{{ '/docs/guides/first-session/' | url }}">the first-session guide</a> to get started.</aside>{% endif %}
+    {% if entry.kind == 'doc' %}{% include 'banner.njk' %}{% endif %}
+    {% if entry.historical %}<aside class="notice"><strong>Background, draft or historical material.</strong> This page does not describe the current setup experience. Use <a href="{{ site.roles['getting-started'] | url }}">the first-session guide</a> to get started.</aside>{% endif %}
+    {% if entry.planned %}<aside class="notice notice-planned"><strong>Coming soon.</strong> This page exists so the shape of the documentation is visible; its content follows in a later release.</aside>{% endif %}
     {% if entry.toc.length %}<details class="mobile-toc"><summary>On this page</summary>{% include 'toc.njk' %}</details>{% endif %}
     <div class="prose">{{ entry.html | safe }}</div>
     <div class="article-end"><a href="{{ entry.sourceUrl }}">Read the source on GitHub <span aria-hidden="true">↗</span></a><a href="#{{ entry.titleId }}">Back to top ↑</a></div>
-    {% if entry.kind == 'post' %}<a class="button secondary" href="{{ '/blog/' | url }}">← All journal entries</a>{% else %}<div class="doc-next"><span class="eyebrow">Keep going</span>{% for item in site.navigation %}{% if item.file != entry.file %}<a href="{{ item.url | url }}">{{ item.label }} <span aria-hidden="true">↗</span></a>{% endif %}{% endfor %}</div>{% endif %}
+    {% if entry.kind == 'post' %}<a class="button secondary" href="{{ '/blog/' | url }}">← All journal entries</a>{% elif entry.sidebar.start.length > 1 %}<div class="doc-next"><span class="eyebrow">Keep going</span>{% for item in entry.sidebar.start %}{% if item.path != entry.path %}<a href="{{ item.url | url }}">{{ item.title }} <span aria-hidden="true">↗</span></a>{% endif %}{% endfor %}</div>{% endif %}
   </article>
   {% if entry.toc.length %}<aside class="toc-desktop" aria-label="On this page"><span class="eyebrow">On this page</span>{% include 'toc.njk' %}</aside>{% endif %}
 </div>

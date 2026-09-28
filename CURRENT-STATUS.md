@@ -1,13 +1,78 @@
 # Website current status
 
 State: executing [the visitor-experience work order](engineering-docs/work-orders/2026-09-28-website-visitor-experience.md)
-under the owner's autonomy grant of 2026-09-28. Slice 1 is delivered on branch
-`take-2026-09-22-delivery`; the owner merges its PR. Delivery: SSH push, owner
-merges PRs and runs the publication workflows. Read
+under the owner's autonomy grant of 2026-09-28. Slice 1 is on branch
+`take-2026-09-22-delivery` and slice 2 on `contract-v1`, stacked on it; the
+owner merges their PRs in that order. Delivery: SSH push, owner merges PRs
+and runs the publication workflows. Read
 [Work order execution](#work-order-execution-2026-09-28) first; the sections
 below it are the history of the initial website and its handoff.
 
 ## Work order execution (2026-09-28)
+
+### Slice 2 — contract version 1: delivered, awaiting merge
+
+Branch `contract-v1` from `take-2026-09-22-delivery`. [CONTRACT.md](CONTRACT.md)
+records the accepted contract, implementing the producer's design with its
+section 11a decisions, and lists what this consumer added or interpreted
+(section 8): the additive `legacy: true` manifest field for the pre-contract
+sources the owner decided to publish as they are, `source: main` as the
+checkout's working tree, tokens rendering the entry's version under
+`source-version`, `noindex` for planned and historical pages, sidebar areas
+derived from the overview page, and alias preference. Implemented: manifest
+parsing with the version check, front matter with the R-DOCS-003 fields plus
+`role` and `planned`, tokens and the typed-version check, the per-version
+build with once-only rendering of immutable sources cached by commit, the
+versions index at `/docs/`, the `current` copy with canonicals and robots by
+status, role resolution used by the header, hero, footer and 404, the
+switcher and banners, redirect pages for aliases, the shared fixture and
+`npm run check:content` for the producer's gate. The `yaml` package was added
+to the dependency lock for the manifest and front matter.
+
+Validated: 18 unit tests pass, including every named failure of the contract
+provoked from the fixture and the once-only build (a `main` change re-renders
+only `devel`; a manifest status change re-renders nothing). Against a scratch
+copy of producer `main` `d9b9975` with a preview manifest and journal front
+matter added locally (see the requests below), preview and production-mode
+builds pass `npm run check` (166 pages, 11951 links, 44 sitemap entries,
+6 alias redirects) and `npm run check:content`. Browser checks pass: 27
+page/viewport/scheme audits over the home page, the versions index, the
+current, devel and 0.2.14 first-session guides, a 0.2.14 historical page and
+the journal, without overflow or WCAG A/AA violations; the switcher reaches
+0.2.14's index from a page it lacks; the old `/docs/guides/first-session/`
+URL redirects to the current guide; no-JavaScript navigation through the
+sidebar works. The versions index, the current and 0.2.14 guides at 1440px
+and the current guide at 390px were inspected by eye.
+
+The clean-clone acceptance `npm run test:updates` passes against the scratch
+content, after it caught two defects now fixed: the cached rendering of an
+immutable version is keyed by base path, and the breadcrumb applied the base
+path only to one branch of a conditional.
+
+Not validated: the test site, and the acceptance item "against the
+producer's `main` at the pin", which needs the producer requests below. The production sitemap now lists 0.2.14's and 0.2.12's guide
+pages that have no counterpart in `current`; W00 may revisit that with the
+owner's Search Console evidence.
+
+**Requests to DevCapsule (recorded here per work order section 7).**
+
+1. `docs/versions.yaml` does not exist on any producer branch. Add it with
+   `contract: 1`, the owner's notice, and the bootstrap of the companion
+   order's section 3, using `legacy: true` on the 0.2.14 and 0.2.12 entries
+   (CONTRACT.md 3.5). While `docs-0.2.15` still equals `v0.2.15`, its guides
+   are pre-contract too: either mark that entry `legacy: true` or, better,
+   carry the corrected guides onto it first; note that with a legacy tree as
+   `current` the build fails on the missing roles, by design.
+2. Journal entries under `engineering-docs/blog/` have no front matter; the
+   build requires `description` on each and `draft: true` on the two
+   2026-09-19 retrospectives, per R-DOCS-003.
+3. Three descriptions are not valid YAML because of an unquoted colon:
+   `docs/sessions/another-machine.md`, `docs/reference/configuration-nodes.md`
+   and `docs/reference/cli.md`. Quote them.
+4. The currently pinned website (`78b7b7f`) no longer builds against
+   producer `main` since the documentation restructure; the pin must advance
+   to the merged slice 2 revision together with items 1 to 3, and the gate
+   should run `npm --prefix website run check:content`.
 
 ### Slice 1 — take the 2026-09-22 delivery: delivered, awaiting merge
 
@@ -188,16 +253,14 @@ were visually inspected. Existing promotion tests confirm builtAt is preserved.
 
 ## Next step
 
-Slice 2 of the work order: contract version 1. Record the accepted contract in
-this repository referencing the producer's design document; implement manifest
-parsing with the version check, front matter with the R-DOCS-003 fields, `role`
-and `planned`, tokens and the typed-version check, the per-version build with
-once-only builds for immutable sources, the versions index, role resolution,
-the switcher and banners, shared fixtures and a `check` command the producer's
-gate can run. Done when the contract's acceptance section passes against the
-fixtures and against the producer's `main` at the pin. Then slices 3 to 6 in
-the order the work order gives. W00 keeps its priority for the owner's Search
-Console work and is not blocked by any of this.
+Slice 3 of the work order: the design system. Tokens, a self-hosted type
+pairing, the spacing scale, both palettes, bands, cards, pillars and banners,
+applied to the base, docs and journal layouts; done when every page uses only
+tokens, contrast is AA in both modes, and 360px and 1440px both read well by
+the browser check and by eye. Branch from `contract-v1`. Then slices 4 to 6
+in the order the work order gives. W00 keeps its priority for the owner's
+Search Console work and is not blocked by any of this. The requests to
+DevCapsule under slice 2 gate the test-site deployment of everything above.
 
 Earlier recorded next steps, kept for context: review/merge this backlog
 handoff and the parent pointer update (done, PR #5); resume W00 with the owner's

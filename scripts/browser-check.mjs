@@ -11,10 +11,13 @@ const browser = await chromium.launch({ headless: true });
 const routes = [
   "",
   "docs/",
-  "docs/guides/first-session/",
+  "docs/current/",
+  "docs/current/getting-started/first-session/",
+  "docs/devel/getting-started/first-session/",
+  "docs/0.2.14/guides/first-session/",
+  "docs/0.2.14/product/v1-announcement/",
   "blog/",
   "blog/2026-09-16-does-the-subscription-include-navier-stokes/",
-  "docs/product/v1-announcement/",
 ];
 const results = [];
 try {
@@ -54,7 +57,7 @@ try {
         0,
         JSON.stringify(results.at(-1), null, 2),
       );
-      if (["", "docs/guides/first-session/", "blog/"].includes(route))
+      if (["", "docs/", "docs/current/getting-started/first-session/", "docs/0.2.14/guides/first-session/", "blog/"].includes(route))
         await page.screenshot({
           path: path.join(
             artifacts,
@@ -71,14 +74,20 @@ try {
     await page
       .getByRole("link", { name: "Open your first workspace", exact: true })
       .click();
-    assert.match(page.url(), /docs\/guides\/first-session\/$/);
+    assert.match(page.url(), /docs\/current\/getting-started\/first-session\/$/);
     if (await page.locator(".mobile-toc summary").isVisible())
       await page.locator(".mobile-toc summary").click();
     await page
       .locator(width === 1440 ? ".toc-desktop" : ".mobile-toc")
-      .getByRole("link", { name: "1. Get DevCapsule", exact: true })
+      .getByRole("link", { name: "1. Make a first workspace", exact: true })
       .click();
-    assert.equal(new URL(page.url()).hash, "#1-get-devcapsule");
+    assert.equal(new URL(page.url()).hash, "#1-make-a-first-workspace");
+    // The switcher reaches the same page in another version, and the old
+    // guide URL still leads to the current guide.
+    await page.getByRole("navigation", { name: "Documentation versions" }).getByRole("link", { name: /^0\.2\.14/ }).click();
+    assert.match(page.url(), /docs\/0\.2\.14\/$/, "0.2.14 lacks this page, so its index opens");
+    await page.goto(new URL("docs/guides/first-session/", base).href, { waitUntil: "networkidle" });
+    assert.match(page.url(), /docs\/current\/getting-started\/first-session\/$/);
     assert.equal(errors.length, 0, errors.join("\n"));
     await context.close();
   }
@@ -145,12 +154,13 @@ try {
     viewport: { width: 390, height: 844 },
   });
   const page = await context.newPage();
-  await page.goto(new URL("docs/guides/first-session/", base).href);
+  await page.goto(new URL("docs/current/getting-started/first-session/", base).href);
   await page
-    .getByRole("link", { name: "Windows & WSL2", exact: true })
+    .getByRole("navigation", { name: /^Documentation 0/ })
+    .getByRole("link", { name: /^Windows/ })
     .first()
     .click();
-  assert.match(page.url(), /windows-wsl2\/$/);
+  assert.match(page.url(), /docs\/current\/platforms\/windows-wsl2\/$/);
   assert.equal(
     await page.locator("h1").textContent(),
     "Windows: read this before installing",

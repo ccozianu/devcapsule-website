@@ -57,7 +57,11 @@ export function promote(directory, candidate) {
         const canonical = [...html.matchAll(/<link rel="canonical" href="([^"]+)">/g)];
         assert.equal(canonical.length, 1, `Expected one canonical URL in ${file}`);
         assert(canonical[0][1].startsWith(testOrigin + "/"), `Unexpected canonical origin in ${file}`);
-        assert(!/<meta\b[^>]*name=["']robots["']/i.test(html), "Unexpected page indexing override");
+        // Documentation versions the contract marks noindex carry exactly this
+        // meta tag; the preview marker (noindex, nofollow) must never be promoted.
+        const robotsMeta = [...html.matchAll(/<meta\b[^>]*name=["']robots["'][^>]*>/gi)].map(m => m[0]);
+        assert(robotsMeta.every(tag => tag === '<meta name="robots" content="noindex">'),
+          `Unexpected page indexing override in ${file}`);
         changes.push([file, html.replace(canonical[0][0], canonical[0][0].replace(testOrigin, productionOrigin))]);
       }
     }

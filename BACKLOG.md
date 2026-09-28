@@ -187,6 +187,8 @@ implied by recording these tasks.
 - Verify: heading rename, inserted/reordered paragraph and new section examples
   reviewed for meaning, not merely passing a test derived from the implementation.
 - Reopen if ordinary editing again requires changing presentation code.
+- Progress (2026-09-28): documentation links are resolved by role (contract
+  section 4); the README adapter itself is replaced in work order slice 4.
 - Producer dependency: W07-C supplies/agrees landing section identities under
   W12; do not make presentation code the authority for product prose.
 
@@ -205,6 +207,12 @@ implied by recording these tasks.
 - Verify: representative current, draft and historical documents, plus a newly
   added file, receive the intended visibility/status/version and navigation.
 - Reopen if path naming again becomes the only publication/status decision.
+- Progress (2026-09-28): implemented under contract version 1 ([CONTRACT.md](CONTRACT.md)):
+  front matter decides draft, historical and planned status; the manifest
+  decides versions and their statuses; every documentation page shows its
+  version, switcher, banner and `updated` date. Path-based inference survives
+  only for `legacy` sources. Remains open until the producer's manifest and
+  journal front matter land with the pin.
 - Producer dependency: W08-C owns inclusion/status/version decisions and metadata.
   Website consumes that metadata and implements visibility and labels under W12;
   substantive guide corrections stay in DevCapsule.
@@ -283,6 +291,12 @@ implied by recording these tasks.
   using the documentation; incompatible input produces useful diagnostics;
   both repositories exercise shared examples against the declared contract.
 - Reopen if either side changes the interface without a compatibility decision.
+- Progress (2026-09-28): [CONTRACT.md](CONTRACT.md) records version 1 as
+  accepted, implementing the producer's design with the decisions of its
+  section 11a and listing this consumer's additions; fixtures, named failures
+  and the once-only build are covered by `test/contract.test.mjs`;
+  `npm run check:content` is the shared check. Closes when the producer
+  references it from R-DOCS-003 and its gate runs the check at the pin.
 - Dependency: parent W12-C owns producer requirements and acceptance; W07 is the
   separate implementation task to replace fragile parsing under this contract.
 

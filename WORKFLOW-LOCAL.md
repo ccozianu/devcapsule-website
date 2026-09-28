@@ -63,11 +63,10 @@ description is in [README.md](README.md#validate) and [DEVELOPING.md](DEVELOPING
 Authored content lives in DevCapsule: its `README.md`, `docs/`, and
 `engineering-docs/blog/`. This repository owns presentation, navigation,
 rendering, and publishing machinery, and never keeps a second copy of authored
-prose. The consumed interface is described under *Content contract* in
-[README.md](README.md) as implemented today; its agreed producer-side
-requirements are DevCapsule's
-[R-DOCS-003](https://github.com/ccozianu/devcapsule/blob/e67f6faf5e2aba80e942b35bd9bf72bea26adb10/engineering-docs/requirements/product/r-docs-003-website-content-carries-front-matter.md),
-to be recorded here as contract version 1 under W12 when implemented.
+prose. The consumed interface is [CONTRACT.md](CONTRACT.md), the content–website
+contract version 1 accepted on 2026-09-28 under W12, implementing DevCapsule's
+[R-DOCS-003](https://github.com/ccozianu/devcapsule/blob/main/engineering-docs/requirements/product/r-docs-003-website-content-carries-front-matter.md)
+and the producer's contract design of the same date.
 
 ## Exceptions
 

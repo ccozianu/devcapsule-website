@@ -83,6 +83,7 @@ backlog handoff, independent work uses this project's `single-stream` handoff in
 npm test
 npm run build
 npm run check
+npm run check:content
 npx playwright install chromium
 # Keep npm run dev running in another terminal:
 npm run test:browser
@@ -106,35 +107,35 @@ configuration and publication are described in [PUBLISHING.md](PUBLISHING.md).
 
 ## Content contract
 
-This section describes the existing implementation. W12 in [BACKLOG.md](BACKLOG.md)
-owns agreement of a complete versioned interface with the content producer;
-do not treat undocumented parser assumptions as accepted requirements.
-
-The build consumes `README.md`, all Markdown below `docs/`, and dated Markdown
-blog entries below `engineering-docs/blog/`. It copies only referenced image
-assets. It does not execute Markdown as a template, or publish the other
-engineering collections. Links to those collections and non-published files
-resolve to the exact content revision on GitHub. Existing absolute permalinks
-stay unchanged. Relative document links and GitHub-style heading anchors become
-local website links, including when deployed below `/devcapsule/`.
+[CONTRACT.md](CONTRACT.md) is the accepted content–website contract, version 1
+(backlog W12), implementing the producer's design of 2026-09-28. In short: the
+build consumes `README.md` as the landing page and dated Markdown journal
+entries below `engineering-docs/blog/` from the content checkout, and builds
+the documentation tree `docs/` once per version listed in `docs/versions.yaml`,
+each from its own Git source, with `/docs/current/` as the canonical copy of
+the current version, a versions index at `/docs/`, a per-page version switcher
+and status banners. Every page under `docs/` and the journal carries front
+matter (`description`, `draft`, `status`, `aliases`, `weight`, `updated`, and
+`role` on the six entry pages); versioned pages write `{{version}}` tokens
+instead of typed versions. Each failure names the file, field, version or role.
+`npm run check:content` runs the same assembly without output, for the
+producer's gate.
 
 Root `README.md` supplies the landing prose. The presentation adapter groups its
 current headings and paragraphs into sections; a changed structural heading
-fails explicitly so maintainers can update the adapter. Paragraph edits require
-no website change. The guides are rendered intact. Existing draft/historical
-material is prominently labeled and separated from current setup navigation.
-Blog titles, dates, excerpts, and reading times are derived during the build.
-New guide pages appear in navigation automatically; background pages are grouped
-separately. No authored Markdown is copied into this repository.
+fails explicitly so maintainers can update the adapter (W07 replaces this with
+stable section identities). Links to non-published files resolve to the exact
+content revision on GitHub. Only referenced image assets are copied.
 
 Every page footer shows when the site version was built, in UTC. The same
 ISO timestamp appears as `builtAt` in `build-info.json`, alongside content and
 implementation Git SHAs, dirty indicators, a digest of consumed content/assets,
-base path, and build mode. Promotion preserves that original build time; it is
-not a deployment completion time or a claim that every article changed then.
-No local paths or credentials appear there. Content must be a Git checkout;
-a dirty preview is supported and identified. Reproduce the published content
-and presentation from its two clean revisions, dependency lock, and publication
-parameters; rebuilding generates a new build timestamp.
+the contract version, every documentation version's source revision and
+status, base path, and build mode. Promotion preserves that original build
+time; it is not a deployment completion time or a claim that every article
+changed then. No local paths or credentials appear there. Content must be a
+Git checkout with the tags or branches the manifest names; a dirty preview is
+supported and identified. Rendered released versions are cached under
+ignored `.cache/` by source commit.
 
 [Development brief](DEVELOPING.md) · [Requirements](REQUIREMENTS.md) · [Index](index.md)

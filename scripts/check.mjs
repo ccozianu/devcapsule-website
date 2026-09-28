@@ -70,8 +70,17 @@ for (const [file, $] of documents) {
 const sitemapText = fs.readFileSync(path.join(output, "sitemap.xml"), "utf8");
 const robots = fs.readFileSync(path.join(output, "robots.txt"), "utf8");
 const locations = [...sitemapText.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1]);
+// Indexable: an ordinary page without a robots meta tag whose canonical URL
+// is its own address. Aliases, noindex versions and copies pointing at
+// /docs/current/ stay out of the sitemap.
 const indexable = htmlFiles
   .filter((file) => path.relative(output, file) !== "404.html")
+  .filter((file) => {
+    const $ = documents.get(file);
+    const url = base + path.relative(output, file).replace(/index\.html$/, "");
+    const canonical = $("link[rel=canonical]").attr("href");
+    return !$("meta[name=robots]").length && (!canonical || new URL(canonical).pathname === url);
+  })
   .map((file) => base + path.relative(output, file).replace(/index\.html$/, ""));
 if (manifest.mode === "production") {
   const canonicalOrigin = new URL(documents.get(path.join(output, "index.html"))("link[rel=canonical]").attr("href")).origin;
