@@ -13,6 +13,10 @@
 
 - [Build and publication](PUBLISHING.md)
 
+## Work orders
+
+- [The website, seen from the visitor's chair](engineering-docs/work-orders/2026-09-28-website-visitor-experience.md), issued by DevCapsule's project-management on 2026-09-28
+
 ## Open bugs
 
 - [Test publication accepts settings that cannot produce a candidate](engineering-docs/bugs/website/2026-09-19-test-publishing-accepts-inconsistent-settings.md)
