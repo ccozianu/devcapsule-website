@@ -44,6 +44,16 @@ screenshots of Solarized light, Gruvbox dark, Nord and Catppuccin latte were
 inspected by eye. Compare link:
 [publication…colour-schemes](https://github.com/ccozianu/devcapsule-website/compare/publication...colour-schemes).
 
+Second review, same day: the owner chose Catppuccin latte as the default
+and reported the drop-down's options rendering white on white in the dark
+schemes. Now the root tokens are Catppuccin latte, so it applies with no
+stored choice and without JavaScript; "DevCapsule day & night (system)" is a
+selectable scheme carrying the former default behaviour; and the select
+declares a light colour scheme with explicit dark text on a white popup for
+its options, so the list reads the same in every scheme. The audit caught
+that the closing band's contributor text inherited prose colours meant for
+paper; it now uses the band tokens. Browser checks: 59 audits pass.
+
 ### Slice 6 — publication: prepared, awaiting the owner
 
 Branch `publication` from `releases`. The production check now accepts a

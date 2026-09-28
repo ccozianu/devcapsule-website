@@ -351,8 +351,12 @@ implied by recording these tasks.
   Gruvbox light and dark, Nord, and Catppuccin latte and mocha; each scheme
   sets every token, was checked for WCAG AA on the pairs a reader meets, and
   is audited by the browser check on the home and a documentation page. The
-  choice persists per browser; the empty choice follows the system again;
-  without JavaScript the system preference alone applies.
+  choice persists per browser. After a second review the owner made
+  Catppuccin latte the default: it applies without JavaScript and without a
+  stored choice; "DevCapsule day & night (system)" is a selectable scheme
+  that follows the system preference. The option list renders dark text on a
+  light popup in every scheme, after the owner saw white-on-white options in
+  the dark ones.
 - Reopen if a component gains a colour outside the tokens, or the picker stops
   persisting.
 
