@@ -3,13 +3,62 @@
 State: executing [the visitor-experience work order](engineering-docs/work-orders/2026-09-28-website-visitor-experience.md)
 under the owner's autonomy grant of 2026-09-28. Slice 1 is on branch
 `take-2026-09-22-delivery`, slice 2 on `contract-v1`, slice 3 on
-`design-system`, slice 4 on `home-page` and slice 5 on `releases`, each
-stacked on the previous; the owner merges their PRs in that order. Delivery: SSH push, owner merges PRs
+`design-system`, slice 4 on `home-page`, slice 5 on `releases` and slice 6
+on `publication`, each stacked on the previous; the owner merges their PRs in
+that order. Compare links, each against the branch below it:
+[slice 1](https://github.com/ccozianu/devcapsule-website/compare/main...take-2026-09-22-delivery),
+[slice 2](https://github.com/ccozianu/devcapsule-website/compare/take-2026-09-22-delivery...contract-v1),
+[slice 3](https://github.com/ccozianu/devcapsule-website/compare/contract-v1...design-system),
+[slice 4](https://github.com/ccozianu/devcapsule-website/compare/design-system...home-page),
+[slice 5](https://github.com/ccozianu/devcapsule-website/compare/home-page...releases),
+[slice 6](https://github.com/ccozianu/devcapsule-website/compare/releases...publication). Delivery: SSH push, owner merges PRs
 and runs the publication workflows. Read
 [Work order execution](#work-order-execution-2026-09-28) first; the sections
 below it are the history of the initial website and its handoff.
 
 ## Work order execution (2026-09-28)
+
+### Slice 6 — publication: prepared, awaiting the owner
+
+Branch `publication` from `releases`. The production check now accepts a
+candidate that predates the sitemap, so rollback keeps working. A local
+end-to-end dry run of the publication path passed on this implementation:
+a clean production-mode build for the test origin (176 pages, 13368 links,
+48 sitemap entries) was packaged as the parent's candidate job packages it
+(410737 bytes, ustar), downloaded through the public-asset code path with a
+stub fetch, promoted (canonical links, the robots sitemap reference and the
+sitemap locations moved to `https://devcapsule.mycodespace.ai`, `builtAt`
+preserved, provenance recorded), and passed `npm run check`; the same output
+without `sitemap.xml` and with the old two-line robots policy also passed,
+which is the rollback shape. `npm run test:updates` on a clean clone of this
+revision is recorded below.
+
+A hosted candidate does not exist yet and cannot be created from here: the
+parent **Website** workflow is the owner's manual dispatch, and it builds
+producer `main` with the pinned website revision, which today is `78b7b7f`.
+The runbook for the owner, in order:
+
+1. Merge the six PRs in the order above (each is a fast-forward of the last).
+2. In DevCapsule, one change by its `website` workstream: `docs/versions.yaml`
+   with `contract: 1` (requests 1 and 3 under slice 2, with `legacy: true`
+   on the pre-contract entries), front matter on the journal entries
+   (request 2), the README markers of CONTRACT.md 3.7 (request 5), the
+   three quoted descriptions (request 3), the `website` pin advanced to the
+   merged `main` revision, and the gate running
+   `npm --prefix website run check:content`. Until `docs-0.2.15` carries the
+   corrected guides, `current` cannot be a legacy tree because the six roles
+   are missing there; either correct the guides first or make `devel`
+   current for the first publication and say so in the notice.
+3. Dispatch **Website** on DevCapsule `main` with mode `production`, origin
+   `https://test-devcapsule.mycodespace.ai`, base path `/`. Review the test
+   site: home, `/docs/`, `/docs/current/`, the switcher, `/journal/`,
+   `/releases/`, night mode, a phone width.
+4. Run **Publish production website** here with the candidate tag, then
+   check production HTTPS, `/sitemap.xml`, `/build-info.json` and submit the
+   sitemap in Search Console and Bing Webmaster Tools (W00).
+
+Production publication needs the owner's explicit acceptance and is not
+performed by the agent.
 
 ### Slice 5 — releases: delivered, awaiting merge
 
@@ -343,13 +392,26 @@ were visually inspected. Existing promotion tests confirm builtAt is preserved.
 
 ## Next step
 
-Slice 6 of the work order: publication. Verify the candidate packaging and
-promotion path end to end on a local production-mode build of this
-implementation, make rollback to candidates that predate the sitemap keep
-working through the production workflow's checks, and record the runbook the
-owner follows: merge the five stacked PRs in order, apply the producer
-requests in DevCapsule with the pin bump, dispatch the parent Website
-workflow for the test site, review, then promote the candidate in one run. W00 keeps its priority for the owner's
+The owner's: merge the six PRs, land the producer change with the pin, and
+run the two publication workflows as the slice 6 runbook records. On the
+agent's side the work order is complete except for what depends on that:
+the test-site review, the candidate tag, and the acceptance item "against the
+producer's `main` at the pin", to be recorded here when they happen. After
+publication: W00 resumes with the owner's Search Console and Bing evidence
+and the sitemap submission; W07 closes when the README carries the markers
+and the heading adapter is deleted; W09's metadata and share cards follow
+from the `description` field now available; W13 still needs its
+measurement requirements and provider choice.
+
+Session close, 2026-09-28. Changed: six stacked branches pushed, listed at
+the top. Requirements: CONTRACT.md is the contract record; REQUIREMENTS.md
+unchanged. Validated: per slice above; final `npm test` 21 passing.
+Not validated: the test site and production. External state: branches on
+`origin` only; nothing published; no producer repository written.
+Uncommitted changes: none in this repository; a scratch worktree of
+DevCapsule with local-only commits (manifest, journal front matter, README
+markers, three quoted descriptions) exists outside the repository for the
+preview and was never pushed. Next task: the owner's runbook above. W00 keeps its priority for the owner's
 Search Console work and is not blocked by any of this. The requests to
 DevCapsule under slice 2 gate the test-site deployment of everything above.
 

@@ -44,6 +44,21 @@ domain use `/`. `SITE_ORIGIN` is only the HTTPS origin, without a path or traili
 slash. Production builds require it. To return to local preview, unset the
 production variables and run the preview command again.
 
+## Publishing the visitor-experience work of 2026-09-28
+
+The five stacked branches merge into `main` in order:
+`take-2026-09-22-delivery`, `contract-v1`, `design-system`, `home-page`,
+`releases`, then `publication`. The site then builds only against a
+DevCapsule revision that satisfies [CONTRACT.md](CONTRACT.md): the producer
+adds `docs/versions.yaml`, journal front matter and the README markers in the
+same change that advances the `website` submodule pin to the merged
+revision, and its gate runs `npm --prefix website run check:content`. The
+owner then dispatches the parent **Website** workflow as below, reviews the
+test site, and promotes the candidate in one run of **Publish production
+website**. Rollback to a candidate that predates the sitemap still works:
+promotion accepts its two-line `robots.txt` and the production check skips
+the sitemap checks when the file is absent.
+
 ## Test site and public candidates: DevCapsule repository
 
 The parent publishes `test-devcapsule.mycodespace.ai`. Its manual
