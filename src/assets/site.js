@@ -1,28 +1,27 @@
-// Night mode switch. Without JavaScript the system preference alone applies
-// through prefers-color-scheme; the switch stores only a deviation from it.
-const themeToggle = document.querySelector('.theme-toggle');
-if (themeToggle) {
-  const systemDark = matchMedia('(prefers-color-scheme: dark)');
-  const stored = () => { try { return localStorage.getItem('theme'); } catch { return null; } };
-  const effective = () => stored() || (systemDark.matches ? 'dark' : 'light');
-  const apply = () => {
-    const choice = stored();
-    if (choice) document.documentElement.setAttribute('data-theme', choice);
-    else document.documentElement.removeAttribute('data-theme');
-    themeToggle.setAttribute('aria-pressed', String(effective() === 'dark'));
+// Colour scheme picker. Without JavaScript the system preference alone
+// selects the DevCapsule day or night palette; a chosen scheme is stored per
+// browser, and the empty choice returns to following the system.
+const picker = document.querySelector('.palette-picker');
+if (picker) {
+  const select = picker.querySelector('select');
+  const root = document.documentElement;
+  const known = [...select.options].map((o) => o.value).filter(Boolean);
+  const stored = () => { try { return localStorage.getItem('palette'); } catch { return null; } };
+  const apply = (value) => {
+    if (known.includes(value)) root.setAttribute('data-palette', value);
+    else root.removeAttribute('data-palette');
+    select.value = known.includes(value) ? value : '';
   };
-  themeToggle.addEventListener('click', () => {
-    const next = effective() === 'dark' ? 'light' : 'dark';
+  apply(root.getAttribute('data-palette') || stored() || '');
+  select.addEventListener('change', () => {
+    apply(select.value);
     try {
-      if (next === (systemDark.matches ? 'dark' : 'light')) localStorage.removeItem('theme');
-      else localStorage.setItem('theme', next);
+      if (select.value) localStorage.setItem('palette', select.value);
+      else localStorage.removeItem('palette');
+      localStorage.removeItem('theme');
     } catch {}
-    document.documentElement.setAttribute('data-theme', next);
-    themeToggle.setAttribute('aria-pressed', String(next === 'dark'));
   });
-  systemDark.addEventListener('change', apply);
-  apply();
-  themeToggle.hidden = false;
+  picker.hidden = false;
 }
 for (const pre of document.querySelectorAll('.prose pre')) {
   if (!navigator.clipboard) continue;

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <script>(function(){var d=document.documentElement;try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")d.setAttribute("data-theme",t);}catch(e){}d.setAttribute("data-js","");})();</script>
+  <script>(function(){var d=document.documentElement,ids=["devcapsule-day","devcapsule-night","solarized-light","solarized-dark","gruvbox-light","gruvbox-dark","nord","catppuccin-latte","catppuccin-mocha"];try{var p=localStorage.getItem("palette")||{light:"devcapsule-day",dark:"devcapsule-night"}[localStorage.getItem("theme")];if(p&&ids.indexOf(p)>-1)d.setAttribute("data-palette",p);}catch(e){}d.setAttribute("data-js","");})();</script>
   <title>{{ title }}{% if title != 'DevCapsule' %} · DevCapsule{% endif %}</title>
   <meta name="description" content="{{ entry.excerpt if entry else description or 'Development notes, decisions, and conversations from building DevCapsule.' }}">
   {% if preview %}<meta name="robots" content="noindex, nofollow">{% elif entry.noindex %}<meta name="robots" content="noindex">{% endif %}
@@ -28,7 +28,18 @@
       <a href="{{ '/journal/' | url }}" {% if entry.kind == 'post' or page.url == '/journal/' %}aria-current="true"{% endif %}>Journal</a>
       <a href="{{ '/releases/' | url }}" {% if entry.kind == 'release' or page.url == '/releases/' %}aria-current="true"{% endif %}>Releases</a>
       <a class="github-link" href="https://github.com/ccozianu/devcapsule">GitHub <span aria-hidden="true">↗</span></a>
-      <button class="theme-toggle" type="button" aria-pressed="false" hidden>Night mode</button>
+      <label class="palette-picker" hidden><span class="sr-only">Colour scheme</span><select id="palette" aria-label="Colour scheme">
+        <option value="">Day &amp; night (system)</option>
+        <option value="devcapsule-day">DevCapsule day</option>
+        <option value="devcapsule-night">DevCapsule night</option>
+        <option value="solarized-light">Solarized light</option>
+        <option value="solarized-dark">Solarized dark</option>
+        <option value="gruvbox-light">Gruvbox light</option>
+        <option value="gruvbox-dark">Gruvbox dark</option>
+        <option value="nord">Nord</option>
+        <option value="catppuccin-latte">Catppuccin latte</option>
+        <option value="catppuccin-mocha">Catppuccin mocha</option>
+      </select></label>
       <a class="nav-cta" href="{{ site.roles['getting-started'] | url }}">Start here <span aria-hidden="true">→</span></a>
     </nav>
   </div>

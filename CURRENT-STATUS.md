@@ -18,6 +18,32 @@ below it are the history of the initial website and its handoff.
 
 ## Work order execution (2026-09-28)
 
+### Owner request after review — colour schemes: delivered, awaiting merge
+
+Branch `colour-schemes` from `publication`. The owner reviewed the local
+test site (the parent's checkout at `http://localhost:8080`, building
+implementation `31e85b1` against producer branch `ws-website/contract-v1`
+at `3325172`, which already carries a manifest) and asked for a drop-down of
+open-source colour schemes instead of the night-mode switch, as the reference
+site offers. The header now has a "Colour scheme" select: Day & night
+(system), DevCapsule day, DevCapsule night, Solarized light and dark,
+Gruvbox light and dark, Nord, Catppuccin latte and mocha. Each scheme sets
+every token via `data-palette` on the root; the empty choice removes the
+attribute and follows the system preference again; the choice persists per
+browser under `palette`, and an earlier `theme` choice migrates. Without
+JavaScript the select stays hidden and the system preference applies.
+
+Validated: every scheme's token pairs a reader meets were checked for WCAG
+AA by a generator script before the CSS was written (seven pairs were
+adjusted); 21 unit tests, build and `npm run check` pass; browser checks
+pass with 57 audits, now including the home page and the current
+first-session guide in every scheme, the picker's persistence and its return
+to the system, plus one contrast defect the audit caught and this branch
+fixes (the "current" switcher label now inherits the ink colour). Hero
+screenshots of Solarized light, Gruvbox dark, Nord and Catppuccin latte were
+inspected by eye. Compare link:
+[publication…colour-schemes](https://github.com/ccozianu/devcapsule-website/compare/publication...colour-schemes).
+
 ### Slice 6 — publication: prepared, awaiting the owner
 
 Branch `publication` from `releases`. The production check now accepts a

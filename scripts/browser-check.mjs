@@ -97,9 +97,9 @@ try {
     assert.equal(errors.length, 0, errors.join("\n"));
     await context.close();
   }
-  // Night mode: the system preference alone must pass the same audits, and the
-  // header switch must override it, persist per browser, and return to the
-  // system preference when the visitor switches back to it.
+  // Colour schemes: the system preference alone must pass the same audits;
+  // the picker must override it, persist per browser, and return to the
+  // system preference on the empty choice.
   {
     const context = await browser.newContext({
       viewport: { width: 1440, height: 1000 },
@@ -124,20 +124,31 @@ try {
     await page.goto(base);
     const scheme = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
     const dark = await scheme();
-    const toggle = page.getByRole("button", { name: "Night mode" });
-    assert.equal(await toggle.getAttribute("aria-pressed"), "true");
-    await toggle.click();
-    assert.equal(await toggle.getAttribute("aria-pressed"), "false");
-    const light = await scheme();
-    assert.notEqual(light, dark);
+    const picker = page.getByRole("combobox", { name: "Colour scheme" });
+    assert.equal(await picker.inputValue(), "");
+    await picker.selectOption("solarized-light");
+    const solarized = await scheme();
+    assert.equal(solarized, "rgb(253, 246, 227)", "Solarized light paper");
     await page.reload({ waitUntil: "networkidle" });
-    assert.equal(await scheme(), light, "The light choice must persist across reloads");
-    assert.equal(await page.evaluate(() => localStorage.getItem("theme")), "light");
-    await toggle.click();
-    assert.equal(await scheme(), dark);
-    assert.equal(await page.evaluate(() => localStorage.getItem("theme")), null,
-      "Choosing the system's scheme again removes the stored deviation");
-    await page.screenshot({ path: path.join(artifacts, "1440-dark-toggle.png") });
+    assert.equal(await scheme(), solarized, "The chosen scheme must persist across reloads");
+    assert.equal(await page.evaluate(() => localStorage.getItem("palette")), "solarized-light");
+    // Every scheme passes the same audits on the home page and a documentation page.
+    const schemes = await picker.evaluate((el) => [...el.options].map((o) => o.value).filter(Boolean));
+    for (const value of schemes) {
+      for (const route of ["", "docs/current/getting-started/first-session/"]) {
+        await page.goto(new URL(route, base).href, { waitUntil: "networkidle" });
+        await page.getByRole("combobox", { name: "Colour scheme" }).selectOption(value);
+        const audit = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
+        const violations = audit.violations.map((v) => ({ id: v.id, impact: v.impact, description: v.description, nodes: v.nodes.map((n) => n.target) }));
+        results.push({ width: 1440, scheme: value, route, violations });
+        assert.equal(violations.length, 0, JSON.stringify(results.at(-1), null, 2));
+        if (!route) await page.screenshot({ path: path.join(artifacts, `1440-scheme-${value}.png`) });
+      }
+    }
+    await page.goto(base, { waitUntil: "networkidle" });
+    await page.getByRole("combobox", { name: "Colour scheme" }).selectOption("");
+    assert.equal(await scheme(), dark, "The empty choice follows the system again");
+    assert.equal(await page.evaluate(() => localStorage.getItem("palette")), null);
     await context.close();
   }
   {
@@ -148,8 +159,8 @@ try {
     });
     const page = await context.newPage();
     await page.goto(new URL("docs/", base).href);
-    assert.equal(await page.getByRole("button", { name: "Night mode" }).count(), 0,
-      "The switch needs JavaScript and stays hidden without it");
+    assert.equal(await page.getByRole("combobox", { name: "Colour scheme" }).count(), 0,
+      "The picker needs JavaScript and stays hidden without it");
     assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), "rgb(18, 26, 23)",
       "Without JavaScript the system preference alone selects the night palette");
     await page.screenshot({ path: path.join(artifacts, "360-dark-nojs-docs.png"), fullPage: true });
@@ -173,7 +184,7 @@ try {
   );
   await context.close();
   console.log(
-    `Browser checks passed: ${results.length} page/viewport/scheme audits, no overflow or WCAG A/AA violations, keyboard navigation, anchors, night-mode switch and persistence, and no-JavaScript navigation in both schemes.`,
+    `Browser checks passed: ${results.length} page/viewport/scheme audits, no overflow or WCAG A/AA violations, keyboard navigation, anchors, colour-scheme picker, every scheme's audits and persistence, and no-JavaScript navigation in both schemes.`,
   );
 } finally {
   fs.writeFileSync(

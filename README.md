@@ -53,8 +53,8 @@ CONTENT_DIR=/absolute/path/to/devcapsule npm run dev
 
 Inside the parent, its checkout is the default content source. Standalone,
 `.content/` is the default. `CONTENT_DIR` overrides both. Edit `src/assets/site.css`
-for styling (tokens first: type, spacing and both palettes are defined at its
-top, and components use only tokens), `src/_includes/` for layouts, and `scripts/content.mjs` for routing
+for styling (tokens first: type, spacing and every colour scheme are defined
+at its top, and components use only tokens), `src/_includes/` for layouts, and `scripts/content.mjs` for routing
 and navigation. Keep substantive product prose in the DevCapsule repository.
 
 ## This project's own capsule
@@ -96,9 +96,9 @@ npm run test:updates
 
 Set `PREVIEW_URL` for browser checks when the server selected a different port
 or base path. Browser checks cover representative pages at desktop and mobile
-widths in both colour schemes, keyboard/anchor navigation, WCAG A/AA automated
-checks, the night-mode switch and its persistence, and navigation without
-JavaScript. Screenshots and the audit record go to ignored `.artifacts/`.
+widths in the system day and night palettes and in every selectable colour
+scheme, keyboard/anchor navigation, WCAG A/AA automated checks, the
+colour-scheme picker and its persistence, and navigation without JavaScript. Screenshots and the audit record go to ignored `.artifacts/`.
 Visual review and owner acceptance remain necessary. Browser dependencies may
 require your environment administrator's help on a minimal machine; ordinary
 builds and previews need only Node/npm and Git.

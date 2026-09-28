@@ -332,7 +332,7 @@ implied by recording these tasks.
 - Reopen if publication changes break collection or reports stop answering the
   agreed questions.
 
-### W14 — Delivered: Night mode
+### W14 — Delivered: Night mode, then colour schemes
 
 - [x] Follow `prefers-color-scheme` by default, offer a visible light/dark
   switch persisted per browser, keep reading correct without JavaScript through
@@ -344,6 +344,15 @@ implied by recording these tasks.
   hidden without JavaScript; the browser check audits the representative pages
   in dark mode, exercises the switch and its persistence, and confirms the
   no-JavaScript night palette.
-- Reopen if a component gains a colour outside the tokens, or the switch stops
+- Owner request (2026-09-28, after review of the test site): replace the
+  two-state switch with a drop-down of open-source colour schemes, as the
+  reference site offers. Delivered the same day: the header lists "Day &
+  night (system)", DevCapsule day and night, Solarized light and dark,
+  Gruvbox light and dark, Nord, and Catppuccin latte and mocha; each scheme
+  sets every token, was checked for WCAG AA on the pairs a reader meets, and
+  is audited by the browser check on the home and a documentation page. The
+  choice persists per browser; the empty choice follows the system again;
+  without JavaScript the system preference alone applies.
+- Reopen if a component gains a colour outside the tokens, or the picker stops
   persisting.
 
