@@ -67,7 +67,12 @@ for (const [file, $] of documents) {
 }
 // The sitemap must list exactly the indexable pages: every ordinary HTML page
 // in a production build, nothing in a preview build (which is noindex).
-const sitemapText = fs.readFileSync(path.join(output, "sitemap.xml"), "utf8");
+// A candidate packaged before the sitemap existed has no sitemap.xml; the
+// production workflow still checks it before a rollback, so those checks
+// apply only when the file is present.
+const sitemapFile = path.join(output, "sitemap.xml");
+const hasSitemap = fs.existsSync(sitemapFile);
+const sitemapText = hasSitemap ? fs.readFileSync(sitemapFile, "utf8") : "";
 const robots = fs.readFileSync(path.join(output, "robots.txt"), "utf8");
 const locations = [...sitemapText.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1]);
 // Indexable: an ordinary page without a robots meta tag whose canonical URL
@@ -82,7 +87,9 @@ const indexable = htmlFiles
     return !$("meta[name=robots]").length && (!canonical || new URL(canonical).pathname === url);
   })
   .map((file) => base + path.relative(output, file).replace(/index\.html$/, ""));
-if (manifest.mode === "production") {
+if (!hasSitemap) {
+  console.log("No sitemap.xml: a candidate from before the sitemap; skipping the sitemap and robots reference checks.");
+} else if (manifest.mode === "production") {
   const canonicalOrigin = new URL(documents.get(path.join(output, "index.html"))("link[rel=canonical]").attr("href")).origin;
   if (!robots.includes(`Sitemap: ${canonicalOrigin}${base}sitemap.xml`))
     failures.push("robots.txt: missing sitemap reference");
