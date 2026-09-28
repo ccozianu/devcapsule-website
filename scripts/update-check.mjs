@@ -64,7 +64,7 @@ try {
   run("npm", ["run", "check"]);
   assert.ok(
     read("index.html").includes(
-      'href="/devcapsule/docs/guides/first-session/"',
+      'href="/devcapsule/docs/current/getting-started/first-session/"',
     ),
   );
   run("git", ["checkout", "--", "src/assets/site.css"]);

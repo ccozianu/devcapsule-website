@@ -43,7 +43,9 @@ to select a different content revision. It refuses to overwrite local content
 edits. This avoids circular setup: the website can be developed before its
 parent updates the submodule pointer.
 
-Alternatively, use an existing content checkout:
+[DEVELOPING-WITH-CONTENT.md](DEVELOPING-WITH-CONTENT.md) explains what the
+copy must contain, how to experiment on a scratch copy, and which check to run
+when. Alternatively, use an existing content checkout:
 
 ```sh
 CONTENT_DIR=/absolute/path/to/devcapsule npm run dev
@@ -51,7 +53,9 @@ CONTENT_DIR=/absolute/path/to/devcapsule npm run dev
 
 Inside the parent, its checkout is the default content source. Standalone,
 `.content/` is the default. `CONTENT_DIR` overrides both. Edit `src/assets/site.css`
-for styling, `src/_includes/` for layouts, and `scripts/content.mjs` for routing
+for styling (tokens first: type, spacing and every colour scheme are defined
+at its top, Catppuccin latte being the default, and components use only
+tokens), `src/_includes/` for layouts, and `scripts/content.mjs` for routing
 and navigation. Keep substantive product prose in the DevCapsule repository.
 
 ## This project's own capsule
@@ -83,6 +87,7 @@ backlog handoff, independent work uses this project's `single-stream` handoff in
 npm test
 npm run build
 npm run check
+npm run check:content
 npx playwright install chromium
 # Keep npm run dev running in another terminal:
 npm run test:browser
@@ -92,47 +97,51 @@ npm run test:updates
 
 Set `PREVIEW_URL` for browser checks when the server selected a different port
 or base path. Browser checks cover representative pages at desktop and mobile
-widths, keyboard/anchor navigation, WCAG A/AA automated checks, and navigation
-without JavaScript. Screenshots and the audit record go to ignored `.artifacts/`.
+widths in the system day and night palettes and in every selectable colour
+scheme, keyboard/anchor navigation, WCAG A/AA automated checks, the
+colour-scheme picker and its persistence, and navigation without JavaScript. Screenshots and the audit record go to ignored `.artifacts/`.
 Visual review and owner acceptance remain necessary. Browser dependencies may
 require your environment administrator's help on a minimal machine; ordinary
 builds and previews need only Node/npm and Git.
 
 `npm run build` writes `_site/`; `npm run check` verifies all local links and
-fragments, image labels, document structure, and revision metadata. Production
+fragments, image labels, document structure, revision metadata, and that
+`sitemap.xml` lists exactly the indexable pages (none in a preview build). Production
 configuration and publication are described in [PUBLISHING.md](PUBLISHING.md).
 
 ## Content contract
 
-This section describes the existing implementation. W12 in [BACKLOG.md](BACKLOG.md)
-owns agreement of a complete versioned interface with the content producer;
-do not treat undocumented parser assumptions as accepted requirements.
+[CONTRACT.md](CONTRACT.md) is the accepted content–website contract, version 1
+(backlog W12), implementing the producer's design of 2026-09-28. In short: the
+build consumes `README.md` as the landing page and dated Markdown journal
+entries below `engineering-docs/blog/` from the content checkout, and builds
+the documentation tree `docs/` once per version listed in `docs/versions.yaml`,
+each from its own Git source, with `/docs/current/` as the canonical copy of
+the current version, a versions index at `/docs/`, a per-page version switcher
+and status banners. Every page under `docs/` and the journal carries front
+matter (`description`, `draft`, `status`, `aliases`, `weight`, `updated`, and
+`role` on the six entry pages); versioned pages write `{{version}}` tokens
+instead of typed versions. Each failure names the file, field, version or role.
+`npm run check:content` runs the same assembly without output, for the
+producer's gate.
 
-The build consumes `README.md`, all Markdown below `docs/`, and dated Markdown
-blog entries below `engineering-docs/blog/`. It copies only referenced image
-assets. It does not execute Markdown as a template, or publish the other
-engineering collections. Links to those collections and non-published files
-resolve to the exact content revision on GitHub. Existing absolute permalinks
-stay unchanged. Relative document links and GitHub-style heading anchors become
-local website links, including when deployed below `/devcapsule/`.
-
-Root `README.md` supplies the landing prose. The presentation adapter groups its
-current headings and paragraphs into sections; a changed structural heading
-fails explicitly so maintainers can update the adapter. Paragraph edits require
-no website change. The guides are rendered intact. Existing draft/historical
-material is prominently labeled and separated from current setup navigation.
-Blog titles, dates, excerpts, and reading times are derived during the build.
-New guide pages appear in navigation automatically; background pages are grouped
-separately. No authored Markdown is copied into this repository.
+Root `README.md` supplies the landing prose through marked sections
+(`<!-- website:hero -->` and the others in CONTRACT.md 3.7); the three
+pillars are the role pages of the current version. A README without markers
+is still read by the original heading adapter. The journal is served at
+`/journal/` with `/blog/` redirecting; `/why/` and `/contribute/` come from
+the README's marked sections. Links to non-published files resolve to the
+exact content revision on GitHub. Only referenced image assets are copied.
 
 Every page footer shows when the site version was built, in UTC. The same
 ISO timestamp appears as `builtAt` in `build-info.json`, alongside content and
 implementation Git SHAs, dirty indicators, a digest of consumed content/assets,
-base path, and build mode. Promotion preserves that original build time; it is
-not a deployment completion time or a claim that every article changed then.
-No local paths or credentials appear there. Content must be a Git checkout;
-a dirty preview is supported and identified. Reproduce the published content
-and presentation from its two clean revisions, dependency lock, and publication
-parameters; rebuilding generates a new build timestamp.
+the contract version, every documentation version's source revision and
+status, base path, and build mode. Promotion preserves that original build
+time; it is not a deployment completion time or a claim that every article
+changed then. No local paths or credentials appear there. Content must be a
+Git checkout with the tags or branches the manifest names; a dirty preview is
+supported and identified. Rendered released versions are cached under
+ignored `.cache/` by source commit.
 
 [Development brief](DEVELOPING.md) · [Requirements](REQUIREMENTS.md) · [Index](index.md)

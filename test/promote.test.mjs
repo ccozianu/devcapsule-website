@@ -56,6 +56,36 @@ test("wrong source revision, dirty sources, preview mode and subpath candidates 
   }
 });
 
+test("sitemap and robots move to the production origin; older candidates without a sitemap still promote", t => {
+  const { dir } = fixture(t);
+  const robots = "User-agent: *\nAllow: /\nSitemap: https://test-devcapsule.mycodespace.ai/sitemap.xml\n";
+  const sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    "  <url><loc>https://test-devcapsule.mycodespace.ai/</loc></url>\n" +
+    "  <url><loc>https://test-devcapsule.mycodespace.ai/docs/</loc><lastmod>2026-09-21</lastmod></url>\n</urlset>\n";
+  fs.writeFileSync(path.join(dir, "robots.txt"), robots);
+  fs.writeFileSync(path.join(dir, "sitemap.xml"), sitemap);
+  promote(dir, candidate);
+  assert.equal(fs.readFileSync(path.join(dir, "robots.txt"), "utf8"),
+    "User-agent: *\nAllow: /\nSitemap: https://devcapsule.mycodespace.ai/sitemap.xml\n");
+  assert.equal(fs.readFileSync(path.join(dir, "sitemap.xml"), "utf8"),
+    sitemap.replaceAll("https://test-devcapsule.", "https://devcapsule."));
+  const legacy = fixture(t);
+  assert.equal(promote(legacy.dir, candidate), 1);
+  assert.equal(fs.readFileSync(path.join(legacy.dir, "robots.txt"), "utf8"), "User-agent: *\nAllow: /\n");
+});
+
+test("a sitemap naming another origin, an empty sitemap, or an unknown robots policy aborts promotion", t => {
+  const { dir } = fixture(t);
+  fs.writeFileSync(path.join(dir, "sitemap.xml"), "<urlset><url><loc>https://example.com/</loc></url></urlset>");
+  assert.throws(() => promote(dir, candidate), /Unexpected sitemap origin/);
+  fs.writeFileSync(path.join(dir, "sitemap.xml"), "<urlset></urlset>");
+  assert.throws(() => promote(dir, candidate), /Sitemap lists no pages/);
+  fs.rmSync(path.join(dir, "sitemap.xml"));
+  fs.writeFileSync(path.join(dir, "robots.txt"), "User-agent: *\nDisallow: /\n");
+  assert.throws(() => promote(dir, candidate), /Unexpected indexing policy/);
+  assert.equal(fs.readFileSync(path.join(dir, "index.html"), "utf8"), page);
+});
+
 test("unexpected canonical origin aborts before rewriting any page", t => {
   const { dir } = fixture(t);
   fs.writeFileSync(path.join(dir, "z.html"), page.replace("test-devcapsule.mycodespace.ai", "example.com"));

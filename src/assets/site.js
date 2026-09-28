@@ -1,3 +1,30 @@
+// Colour scheme picker. Catppuccin latte is the default and needs no
+// JavaScript; a chosen scheme is stored per browser, and "system" follows
+// the preference between the DevCapsule day and night palettes.
+const picker = document.querySelector('.palette-picker');
+if (picker) {
+  const select = picker.querySelector('select');
+  const root = document.documentElement;
+  const DEFAULT = 'catppuccin-latte';
+  const known = [...select.options].map((o) => o.value);
+  const stored = () => { try { return localStorage.getItem('palette'); } catch { return null; } };
+  const apply = (value) => {
+    const scheme = known.includes(value) ? value : DEFAULT;
+    if (scheme === DEFAULT) root.removeAttribute('data-palette');
+    else root.setAttribute('data-palette', scheme);
+    select.value = scheme;
+  };
+  apply(root.getAttribute('data-palette') || stored() || DEFAULT);
+  select.addEventListener('change', () => {
+    apply(select.value);
+    try {
+      if (select.value === DEFAULT) localStorage.removeItem('palette');
+      else localStorage.setItem('palette', select.value);
+      localStorage.removeItem('theme');
+    } catch {}
+  });
+  picker.hidden = false;
+}
 for (const pre of document.querySelectorAll('.prose pre')) {
   if (!navigator.clipboard) continue;
   const code = pre.querySelector('code');

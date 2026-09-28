@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="0; url={{ entry.target | url }}">
+  <title>{{ title }} · DevCapsule</title>
+  {% if origin %}<link rel="canonical" href="{{ origin }}{{ entry.canonical | url }}">{% endif %}
+  <link rel="stylesheet" href="{{ '/assets/site.css' | url }}">
+</head>
+<body>
+<main id="main" class="not-found">
+  <div class="eyebrow">This page has moved</div>
+  <h1>{{ title }}</h1>
+  <p>Continue to <a href="{{ entry.target | url }}">{{ entry.target | url }}</a>.</p>
+</main>
+</body>
+</html>

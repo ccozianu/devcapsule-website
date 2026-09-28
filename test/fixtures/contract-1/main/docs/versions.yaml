@@ -1,0 +1,17 @@
+contract: 1
+current: "1.0.0"
+notice: >
+  Fixture notice: the current version is the one the fixture fixes.
+  See [the journal](../engineering-docs/blog/README.md) for the policy.
+versions:
+  - version: devel
+    source: main
+    status: development
+  - version: "1.0.0"
+    source: v1.0.0
+    status: supported
+  - version: "0.9.0"
+    source: v0.9.0
+    status: deprecated
+    legacy: true
+    note: Its guides predate the contract and name their version directly.

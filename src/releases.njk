@@ -1,0 +1,17 @@
+---
+layout: base.njk
+title: Releases
+permalink: /releases/
+description: DevCapsule release notes, one page per final release, newest first.
+---
+<div class="versions-index releases-index">
+  <div class="eyebrow">Releases</div>
+  <h1>Release notes<span class="brand-dot">.</span></h1>
+  {% if site.currentRelease %}<p class="versions-hint">The current release is <a href="{{ site.currentRelease.url | url }}">{{ site.currentRelease.version }}</a>{% if site.currentRelease.releasedLabel %}, released {{ site.currentRelease.releasedLabel }}{% endif %}. Its documentation is at <a href="{{ site.current.url | url }}">/docs/current/</a>; <a href="{{ '/docs/' | url }}">every published version</a> is listed there.</p>{% endif %}
+  <ul class="versions-list releases-list">
+    {% for r in site.releases %}
+    <li><a href="{{ r.url | url }}">{{ r.title }}</a>{% if r.version == site.current.version %} <span class="version-status">current</span>{% endif %}{% if r.releasedLabel %} <span class="version-status">{{ r.releasedLabel }}</span>{% endif %}<p>{{ r.description }}</p></li>
+    {% endfor %}
+  </ul>
+  {% if not site.releases.length %}<p class="versions-hint">No release notes are published yet. See <a href="https://github.com/ccozianu/devcapsule/releases">the releases on GitHub</a>.</p>{% endif %}
+</div>

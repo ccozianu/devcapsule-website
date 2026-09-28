@@ -4,3 +4,19 @@ _site/
 .artifacts/
 .site-next/
 .site-previous/
+.cache/
+
+# Python / DevCapsule defaults
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.idea/

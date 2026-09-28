@@ -65,6 +65,46 @@ for (const [file, $] of documents) {
     }
   });
 }
+// The sitemap must list exactly the indexable pages: every ordinary HTML page
+// in a production build, nothing in a preview build (which is noindex).
+// A candidate packaged before the sitemap existed has no sitemap.xml; the
+// production workflow still checks it before a rollback, so those checks
+// apply only when the file is present.
+const sitemapFile = path.join(output, "sitemap.xml");
+const hasSitemap = fs.existsSync(sitemapFile);
+const sitemapText = hasSitemap ? fs.readFileSync(sitemapFile, "utf8") : "";
+const robots = fs.readFileSync(path.join(output, "robots.txt"), "utf8");
+const locations = [...sitemapText.matchAll(/<loc>([^<]*)<\/loc>/g)].map((m) => m[1]);
+// Indexable: an ordinary page without a robots meta tag whose canonical URL
+// is its own address. Aliases, noindex versions and copies pointing at
+// /docs/current/ stay out of the sitemap.
+const indexable = htmlFiles
+  .filter((file) => path.relative(output, file) !== "404.html")
+  .filter((file) => {
+    const $ = documents.get(file);
+    const url = base + path.relative(output, file).replace(/index\.html$/, "");
+    const canonical = $("link[rel=canonical]").attr("href");
+    return !$("meta[name=robots]").length && (!canonical || new URL(canonical).pathname === url);
+  })
+  .map((file) => base + path.relative(output, file).replace(/index\.html$/, ""));
+if (!hasSitemap) {
+  console.log("No sitemap.xml: a candidate from before the sitemap; skipping the sitemap and robots reference checks.");
+} else if (manifest.mode === "production") {
+  const canonicalOrigin = new URL(documents.get(path.join(output, "index.html"))("link[rel=canonical]").attr("href")).origin;
+  if (!robots.includes(`Sitemap: ${canonicalOrigin}${base}sitemap.xml`))
+    failures.push("robots.txt: missing sitemap reference");
+  const listed = new Set(locations.map((loc) => {
+    if (!loc.startsWith(canonicalOrigin + "/")) failures.push(`sitemap.xml: foreign origin ${loc}`);
+    return loc.slice(canonicalOrigin.length);
+  }));
+  for (const url of indexable)
+    if (!listed.has(url)) failures.push(`sitemap.xml: missing indexable page ${url}`);
+  for (const url of listed)
+    if (!indexable.includes(url)) failures.push(`sitemap.xml: lists non-indexable or unknown page ${url}`);
+} else {
+  if (locations.length) failures.push("sitemap.xml: preview builds must list no pages");
+  if (robots.includes("Sitemap:")) failures.push("robots.txt: preview builds must not advertise a sitemap");
+}
 for (const identity of [manifest.content, manifest.implementation])
   assert.match(identity.revision, /^[0-9a-f]{40}$/);
 assert.match(manifest.content.sha256, /^[0-9a-f]{64}$/);
@@ -73,5 +113,5 @@ if (failures.length) {
   process.exitCode = 1;
 } else
   console.log(
-    `Checked ${htmlFiles.length} HTML pages, ${links} local links/assets/anchors, headings, image labels, and build identities: passed.`,
+    `Checked ${htmlFiles.length} HTML pages, ${links} local links/assets/anchors, headings, image labels, sitemap (${locations.length} indexable pages), robots policy, and build identities: passed.`,
   );

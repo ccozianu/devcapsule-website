@@ -1,0 +1,27 @@
+---
+layout: base.njk
+title: Documentation versions
+permalink: /docs/
+---
+<div class="versions-index">
+  <div class="eyebrow">Documentation</div>
+  <h1>Every published version<span class="brand-dot">.</span></h1>
+  {% if site.notice %}<div class="prose versions-notice">{{ site.notice | safe }}</div>{% endif %}
+  <section class="versions-current" aria-labelledby="current-heading">
+    <h2 id="current-heading">Current version</h2>
+    <p><a class="button" href="{{ site.current.url | url }}">DevCapsule {{ site.current.label }} documentation <span aria-hidden="true">→</span></a></p>
+    <p class="versions-hint">The current version is served at <code>/docs/current/</code>; bookmarks and links to it stay valid across releases.{% if site.current.note %} {{ site.current.note }}{% endif %}</p>
+  </section>
+  {% for group in [['Supported versions', site.groups.supported], ['Unsupported versions', site.groups.unsupported], ['Development versions', site.groups.development]] %}
+  {% if group[1].length %}
+  <section class="versions-group" aria-labelledby="group-{{ loop.index }}">
+    <h2 id="group-{{ loop.index }}">{{ group[0] }}</h2>
+    <ul class="versions-list">
+      {% for v in group[1] %}
+      <li><a href="{{ v.versionUrl | url }}">{{ v.label }}</a> <span class="version-status status-{{ v.status }}">{{ v.status }}{% if v.current %}, current{% endif %}</span>{% if v.note %}<p>{{ v.note }}</p>{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+  {% endfor %}
+</div>

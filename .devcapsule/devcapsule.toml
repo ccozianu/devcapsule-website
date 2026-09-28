@@ -14,3 +14,8 @@ mount = "/workspace/devcapsule-website"
 value = "host"
 justification = "Allows the host browser to reach the loopback website preview. Optional if previewing from a browser inside the capsule."
 enables = ["host-browser-local-preview"]
+
+[workflow]
+definition = "devcapsule"
+version = "0.2.14"
+mode = "single-stream"

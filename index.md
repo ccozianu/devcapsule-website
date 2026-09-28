@@ -4,7 +4,11 @@
 
 - [Project overview and local preview](README.md)
 - [Developer brief](DEVELOPING.md)
+- [Developing and testing against a copy of the parent](DEVELOPING-WITH-CONTENT.md)
 - [Agent instructions](AGENTS.md)
+- [Workflow definition](WORKFLOW.md)
+- [Local workflow](WORKFLOW-LOCAL.md)
+- [Content–website contract, version 1](CONTRACT.md)
 - [Requirements](REQUIREMENTS.md)
 - [Current status](CURRENT-STATUS.md)
 - [Website backlog and producer dependencies](BACKLOG.md)

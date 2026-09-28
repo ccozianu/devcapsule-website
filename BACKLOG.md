@@ -63,6 +63,14 @@ implied by recording these tasks.
   verification progress, not indexing evidence. Preserve the root verification
   file in future candidates. The owner also reports no Bing results; include
   Bing Webmaster Tools diagnosis. Sitemap and indexing evidence remain open.
+- Progress (2026-09-28): `sitemap.xml` is emitted (shared with W09), limited to
+  indexable pages: every ordinary page in a production-mode build, none in a
+  preview build. `robots.txt` references it in production mode. Candidate
+  packaging keeps both files; promotion moves their origin to production and
+  `npm run check` verifies the sitemap lists exactly the indexable pages.
+  Drafts and non-indexable documentation versions join the exclusion with the
+  content contract. Submission in Search Console and Bing Webmaster Tools and
+  the indexing evidence remain the owner's and are still open.
 
 ### W01 — P1: Make the test publication action hard to misuse
 
@@ -179,6 +187,13 @@ implied by recording these tasks.
 - Verify: heading rename, inserted/reordered paragraph and new section examples
   reviewed for meaning, not merely passing a test derived from the implementation.
 - Reopen if ordinary editing again requires changing presentation code.
+- Progress (2026-09-28): documentation links are resolved by role (contract
+  section 4), and the landing page is assembled from marked sections of the
+  README (CONTRACT.md 3.7): the producer moves or rewords prose freely inside
+  a marked section, an unknown or duplicated marker fails by name, and the
+  three pillars come from the role pages. The heading adapter survives only
+  as the fallback for a README without markers, until the producer adopts
+  them; then it is deleted and this task closes.
 - Producer dependency: W07-C supplies/agrees landing section identities under
   W12; do not make presentation code the authority for product prose.
 
@@ -197,6 +212,12 @@ implied by recording these tasks.
 - Verify: representative current, draft and historical documents, plus a newly
   added file, receive the intended visibility/status/version and navigation.
 - Reopen if path naming again becomes the only publication/status decision.
+- Progress (2026-09-28): implemented under contract version 1 ([CONTRACT.md](CONTRACT.md)):
+  front matter decides draft, historical and planned status; the manifest
+  decides versions and their statuses; every documentation page shows its
+  version, switcher, banner and `updated` date. Path-based inference survives
+  only for `legacy` sources. Remains open until the producer's manifest and
+  journal front matter land with the pin.
 - Producer dependency: W08-C owns inclusion/status/version decisions and metadata.
   Website consumes that metadata and implements visibility and labels under W12;
   substantive guide corrections stay in DevCapsule.
@@ -214,6 +235,9 @@ implied by recording these tasks.
 - Verify: generated head/sitemap checks and actual share-card previews for the
   homepage, guide and article; staging/drafts follow W02/W08 decisions.
 - Reopen if new page types inherit misleading generic metadata.
+- Progress (2026-09-28): the sitemap part is delivered under W00; metadata,
+  descriptions and share cards remain open and depend on the contract's
+  `description` field.
 - Producer dependency: W09-C supplies approved descriptions and social artwork.
   Website owns metadata generation, sitemap and preview rendering; agree the
   fields through W12. This split does not change the original W09 scope above.
@@ -272,6 +296,12 @@ implied by recording these tasks.
   using the documentation; incompatible input produces useful diagnostics;
   both repositories exercise shared examples against the declared contract.
 - Reopen if either side changes the interface without a compatibility decision.
+- Progress (2026-09-28): [CONTRACT.md](CONTRACT.md) records version 1 as
+  accepted, implementing the producer's design with the decisions of its
+  section 11a and listing this consumer's additions; fixtures, named failures
+  and the once-only build are covered by `test/contract.test.mjs`;
+  `npm run check:content` is the shared check. Closes when the producer
+  references it from R-DOCS-003 and its gate runs the check at the pin.
 - Dependency: parent W12-C owns producer requirements and acceptance; W07 is the
   separate implementation task to replace fragile parsing under this contract.
 
@@ -301,3 +331,32 @@ implied by recording these tasks.
   site still works when measurement is unavailable. Owner reviews report utility.
 - Reopen if publication changes break collection or reports stop answering the
   agreed questions.
+
+### W14 — Delivered: Night mode, then colour schemes
+
+- [x] Follow `prefers-color-scheme` by default, offer a visible light/dark
+  switch persisted per browser, keep reading correct without JavaScript through
+  the system preference alone, declare `color-scheme` as `light dark`, and run
+  the contrast checks in both modes. Requested by DevCapsule on 2026-09-22 and
+  delivered on 2026-09-28 with slice 1 of the visitor-experience work order.
+- Evidence: both palettes are defined from the same tokens in `site.css`; the
+  header switch stores only a deviation from the system preference and is
+  hidden without JavaScript; the browser check audits the representative pages
+  in dark mode, exercises the switch and its persistence, and confirms the
+  no-JavaScript night palette.
+- Owner request (2026-09-28, after review of the test site): replace the
+  two-state switch with a drop-down of open-source colour schemes, as the
+  reference site offers. Delivered the same day: the header lists "Day &
+  night (system)", DevCapsule day and night, Solarized light and dark,
+  Gruvbox light and dark, Nord, and Catppuccin latte and mocha; each scheme
+  sets every token, was checked for WCAG AA on the pairs a reader meets, and
+  is audited by the browser check on the home and a documentation page. The
+  choice persists per browser. After a second review the owner made
+  Catppuccin latte the default: it applies without JavaScript and without a
+  stored choice; "DevCapsule day & night (system)" is a selectable scheme
+  that follows the system preference. The option list renders dark text on a
+  light popup in every scheme, after the owner saw white-on-white options in
+  the dark ones.
+- Reopen if a component gains a colour outside the tokens, or the picker stops
+  persisting.
+
