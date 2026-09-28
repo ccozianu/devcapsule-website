@@ -41,7 +41,60 @@
   --tap: 44px;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
-  /* Palette: paper, ink, deep green, lime, a warm accent. */
+  /* Default palette: Catppuccin latte. The DevCapsule day and night palettes
+     and the others follow, selected by data-palette on the root. */
+  --c-paper: #eff1f5;
+  --c-paper-2: #e6e9ef;
+  --c-surface: #ffffff;
+  --c-ink: #4c4f69;
+  --c-muted: #5c5f77;
+  --c-lead: #5c5f77;
+  --c-line: #ccd0da;
+  --c-line-strong: #9ca0b0;
+  --c-brand: #303446;
+  --c-brand-text: #1a56d6;
+  --c-brand-soft: #dce0e8;
+  --c-accent: #b04104;
+  --c-link: #1a56d6;
+  --c-link-underline: #9ca0b0;
+  --c-band: #303446;
+  --c-band-2: #414559;
+  --c-band-text: #eff1f5;
+  --c-band-muted: #c6d0f5;
+  --c-band-line: rgba(239, 241, 245, 0.16);
+  --c-button-bg: #1e66f5;
+  --c-button-bg-hover: #1a56d6;
+  --c-button-fg: #ffffff;
+  --c-button-band-bg: #f9a66a;
+  --c-button-band-bg-hover: #fbb98a;
+  --c-button-band-fg: #1e1e2e;
+  --c-code-bg: #e6e9ef;
+  --c-code-fg: #4c4f69;
+  --c-pre-bg: #303446;
+  --c-pre-fg: #cdd6f4;
+  --c-pre-line: #45475a;
+  --c-th-bg: #e6e9ef;
+  --c-th-fg: #5c5f77;
+  --c-notice-bg: #fbe8d5;
+  --c-notice-border: #df8e1d;
+  --c-notice-fg: #6b4004;
+  --c-status: #40a02b;
+  --c-figure-bg: #e6e9ef;
+  --c-figure-border: #ccd0da;
+  --c-figure-muted: #5c5f77;
+  --c-figure-chip: #ffffff;
+  --c-figure-shadow: #ccd0da;
+  --c-selection: #dce0e8;
+  --shadow-card: 0 1px 0 rgba(76, 79, 105, 0.05), 0 12px 30px -24px rgba(76, 79, 105, 0.5);
+}
+/* Colour schemes. Catppuccin latte is the default; "system" follows the
+   preference between the DevCapsule day and night palettes; a chosen scheme
+   sets data-palette on the root and overrides every token. Each scheme is an open-source palette:
+   Solarized (Ethan Schoonover, MIT), Gruvbox (morhetz, MIT), Nord (Arctic
+   Ice Studio, MIT), Catppuccin (MIT). */
+:root[data-palette="devcapsule-day"],
+:root[data-palette="system"] {
+  color-scheme: light;
   --c-paper: #f7f7ef;
   --c-paper-2: #eef0e4;
   --c-surface: #fffef8;
@@ -86,13 +139,8 @@
   --c-selection: #e5edc7;
   --shadow-card: 0 1px 0 rgba(32, 46, 40, 0.04), 0 12px 30px -24px rgba(32, 46, 40, 0.5);
 }
-/* Colour schemes. The default follows the system preference between the
-   DevCapsule day and night palettes; a chosen scheme sets data-palette on
-   the root and overrides every token. Each scheme is an open-source palette:
-   Solarized (Ethan Schoonover, MIT), Gruvbox (morhetz, MIT), Nord (Arctic
-   Ice Studio, MIT), Catppuccin (MIT). */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-palette]) {
+  :root[data-palette="system"] {
     color-scheme: dark;
     --c-paper: #121a17;
     --c-paper-2: #182320;
@@ -917,9 +965,12 @@ main:focus {
 .palette-picker select:hover {
   border-color: var(--c-band-muted);
 }
+.palette-picker select {
+  color-scheme: light;
+}
 .palette-picker option {
-  color: initial;
-  background: initial;
+  color: #1e1e2e;
+  background: #ffffff;
 }
 .site-footer {
   margin-top: var(--s-8);
@@ -1489,8 +1540,14 @@ main:focus {
   color: var(--c-band-muted);
   font-size: var(--fs-sm);
 }
-.closing-aside .prose {
+.closing-aside .prose,
+.closing-aside .prose > p:first-child {
   font-size: var(--fs-sm);
+  color: var(--c-band-muted);
+}
+.closing-aside .prose a {
+  color: var(--c-band-text);
+  text-decoration-color: var(--c-band-muted);
 }
 .closing-aside .text-link {
   color: var(--c-band-text);

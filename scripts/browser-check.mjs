@@ -106,6 +106,8 @@ try {
       colorScheme: "dark",
       reducedMotion: "reduce",
     });
+    // The "system" scheme follows the preference; the default is Catppuccin latte.
+    await context.addInitScript(() => { try { if (!localStorage.getItem("palette")) localStorage.setItem("palette", "system"); } catch {} });
     const page = await context.newPage();
     for (const route of routes) {
       await page.goto(new URL(route, base).href, { waitUntil: "networkidle" });
@@ -125,7 +127,7 @@ try {
     const scheme = () => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
     const dark = await scheme();
     const picker = page.getByRole("combobox", { name: "Colour scheme" });
-    assert.equal(await picker.inputValue(), "");
+    assert.equal(await picker.inputValue(), "system");
     await picker.selectOption("solarized-light");
     const solarized = await scheme();
     assert.equal(solarized, "rgb(253, 246, 227)", "Solarized light paper");
@@ -133,7 +135,7 @@ try {
     assert.equal(await scheme(), solarized, "The chosen scheme must persist across reloads");
     assert.equal(await page.evaluate(() => localStorage.getItem("palette")), "solarized-light");
     // Every scheme passes the same audits on the home page and a documentation page.
-    const schemes = await picker.evaluate((el) => [...el.options].map((o) => o.value).filter(Boolean));
+    const schemes = await picker.evaluate((el) => [...el.options].map((o) => o.value));
     for (const value of schemes) {
       for (const route of ["", "docs/current/getting-started/first-session/"]) {
         await page.goto(new URL(route, base).href, { waitUntil: "networkidle" });
@@ -146,9 +148,12 @@ try {
       }
     }
     await page.goto(base, { waitUntil: "networkidle" });
-    await page.getByRole("combobox", { name: "Colour scheme" }).selectOption("");
-    assert.equal(await scheme(), dark, "The empty choice follows the system again");
-    assert.equal(await page.evaluate(() => localStorage.getItem("palette")), null);
+    await page.getByRole("combobox", { name: "Colour scheme" }).selectOption("system");
+    assert.equal(await scheme(), dark, "The system choice follows the preference again");
+    assert.equal(await page.evaluate(() => localStorage.getItem("palette")), "system");
+    await page.getByRole("combobox", { name: "Colour scheme" }).selectOption("catppuccin-latte");
+    assert.equal(await scheme(), "rgb(239, 241, 245)", "Catppuccin latte is the default");
+    assert.equal(await page.evaluate(() => localStorage.getItem("palette")), null, "The default is not stored");
     await context.close();
   }
   {
@@ -161,8 +166,8 @@ try {
     await page.goto(new URL("docs/", base).href);
     assert.equal(await page.getByRole("combobox", { name: "Colour scheme" }).count(), 0,
       "The picker needs JavaScript and stays hidden without it");
-    assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), "rgb(18, 26, 23)",
-      "Without JavaScript the system preference alone selects the night palette");
+    assert.equal(await page.evaluate(() => getComputedStyle(document.body).backgroundColor), "rgb(239, 241, 245)",
+      "Without JavaScript the default Catppuccin latte palette applies");
     await page.screenshot({ path: path.join(artifacts, "360-dark-nojs-docs.png"), fullPage: true });
     await context.close();
   }
