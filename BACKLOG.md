@@ -63,6 +63,14 @@ implied by recording these tasks.
   verification progress, not indexing evidence. Preserve the root verification
   file in future candidates. The owner also reports no Bing results; include
   Bing Webmaster Tools diagnosis. Sitemap and indexing evidence remain open.
+- Progress (2026-09-28): `sitemap.xml` is emitted (shared with W09), limited to
+  indexable pages: every ordinary page in a production-mode build, none in a
+  preview build. `robots.txt` references it in production mode. Candidate
+  packaging keeps both files; promotion moves their origin to production and
+  `npm run check` verifies the sitemap lists exactly the indexable pages.
+  Drafts and non-indexable documentation versions join the exclusion with the
+  content contract. Submission in Search Console and Bing Webmaster Tools and
+  the indexing evidence remain the owner's and are still open.
 
 ### W01 — P1: Make the test publication action hard to misuse
 
@@ -214,6 +222,9 @@ implied by recording these tasks.
 - Verify: generated head/sitemap checks and actual share-card previews for the
   homepage, guide and article; staging/drafts follow W02/W08 decisions.
 - Reopen if new page types inherit misleading generic metadata.
+- Progress (2026-09-28): the sitemap part is delivered under W00; metadata,
+  descriptions and share cards remain open and depend on the contract's
+  `description` field.
 - Producer dependency: W09-C supplies approved descriptions and social artwork.
   Website owns metadata generation, sitemap and preview rendering; agree the
   fields through W12. This split does not change the original W09 scope above.
@@ -301,3 +312,19 @@ implied by recording these tasks.
   site still works when measurement is unavailable. Owner reviews report utility.
 - Reopen if publication changes break collection or reports stop answering the
   agreed questions.
+
+### W14 — Delivered: Night mode
+
+- [x] Follow `prefers-color-scheme` by default, offer a visible light/dark
+  switch persisted per browser, keep reading correct without JavaScript through
+  the system preference alone, declare `color-scheme` as `light dark`, and run
+  the contrast checks in both modes. Requested by DevCapsule on 2026-09-22 and
+  delivered on 2026-09-28 with slice 1 of the visitor-experience work order.
+- Evidence: both palettes are defined from the same tokens in `site.css`; the
+  header switch stores only a deviation from the system preference and is
+  hidden without JavaScript; the browser check audits the representative pages
+  in dark mode, exercises the switch and its persistence, and confirms the
+  no-JavaScript night palette.
+- Reopen if a component gains a colour outside the tokens, or the switch stops
+  persisting.
+

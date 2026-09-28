@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
+  <script>(function(){var d=document.documentElement;try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")d.setAttribute("data-theme",t);}catch(e){}d.setAttribute("data-js","");})();</script>
   <title>{{ title }}{% if title != 'DevCapsule' %} · DevCapsule{% endif %}</title>
   <meta name="description" content="{{ entry.excerpt if entry else 'Development notes, decisions, and conversations from building DevCapsule.' }}">
   {% if preview %}<meta name="robots" content="noindex, nofollow">{% endif %}
@@ -22,6 +23,7 @@
     <a href="{{ '/docs/' | url }}" {% if entry.kind == 'doc' %}aria-current="true"{% endif %}>Docs</a>
     <a href="{{ '/blog/' | url }}" {% if entry.kind == 'post' or page.url == '/blog/' %}aria-current="true"{% endif %}>Journal</a>
     <a class="github-link" href="https://github.com/ccozianu/devcapsule">GitHub <span aria-hidden="true">↗</span></a>
+    <button class="theme-toggle" type="button" aria-pressed="false" hidden>Night mode</button>
     <a class="nav-cta" href="{{ '/docs/guides/first-session/' | url }}">Get started <span aria-hidden="true">→</span></a>
   </nav>
 </header>

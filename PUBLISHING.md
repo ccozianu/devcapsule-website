@@ -77,9 +77,12 @@ candidate release tag. It downloads the two public release assets anonymously,
 checks the archive SHA-256 and source metadata, rejects unsafe archive paths or
 links, and checks the resulting site's local links before deploying.
 
-Promotion changes only HTML canonical origins from the test hostname to
-`https://devcapsule.mycodespace.ai` and adds release/run/checksum provenance to
-`build-info.json`. It does not rebuild content, styles, scripts or images. The visible footer
+Promotion changes only origins from the test hostname to
+`https://devcapsule.mycodespace.ai`: the HTML canonical links, the sitemap
+reference in `robots.txt` and the page locations in `sitemap.xml`. It adds
+release/run/checksum provenance to `build-info.json`. Candidates made before the
+sitemap existed still promote; a sitemap naming another origin or listing no
+page stops promotion. It does not rebuild content, styles, scripts or images. The visible footer
 build time and `builtAt` in `build-info.json` remain the original candidate
 build time, including on rollback. Candidates created before this field was
 introduced remain promotable but do not gain a timestamp retroactively.

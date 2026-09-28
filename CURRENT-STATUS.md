@@ -1,12 +1,62 @@
 # Website current status
 
-State: initial website accepted with A−; website-owned backlog handoff prepared.
-Branch: `backlog-handoff`. Delivery: owner merges PR.
-The owner authorized direct submodule edits to transfer the backlog from
-DevCapsule. Future website development uses this project's single-stream status
-and [BACKLOG.md](BACKLOG.md); the parent retains content and caller integration.
-This handoff is performed under the explicit exception from the parent website
-workstream, without selecting a second workstream in the checkout.
+State: executing [the visitor-experience work order](engineering-docs/work-orders/2026-09-28-website-visitor-experience.md)
+under the owner's autonomy grant of 2026-09-28. Slice 1 is delivered on branch
+`take-2026-09-22-delivery`; the owner merges its PR. Delivery: SSH push, owner
+merges PRs and runs the publication workflows. Read
+[Work order execution](#work-order-execution-2026-09-28) first; the sections
+below it are the history of the initial website and its handoff.
+
+## Work order execution (2026-09-28)
+
+### Slice 1 — take the 2026-09-22 delivery: delivered, awaiting merge
+
+Branch `take-2026-09-22-delivery` from `main` (which carries the owner's local
+lock commit `acade9c`, preserved and pushed with it). It merges
+`requests-from-devcapsule-2026-09-22` without conflicts: the contract request
+pointer, the DevCapsule workflow definition 0.2.14 (`WORKFLOW.md`,
+`WORKFLOW-LOCAL.md`, the generic `AGENTS.md` with website instructions, the
+`[workflow]` table). The declared workflow version stays 0.2.14 as the
+definition requires; the owner's lock commit names 0.2.15 defaults for the
+capsule components only.
+
+The branch only recorded the sitemap and night mode as requests; the work
+order's "done" for this slice needs them served, so this slice implements them:
+
+- `sitemap.xml` listing exactly the indexable pages (all ordinary pages in a
+  production build, none in a preview build) with `lastmod` for journal
+  entries; `robots.txt` references it in production mode. `npm run check`
+  verifies both; promotion moves their origin to production and still accepts
+  older candidates without a sitemap. Backlog W00 and W09 carry the progress.
+- Night mode (new backlog task W14): both palettes from the same tokens,
+  `color-scheme: light dark`, system preference by default, a header switch
+  that persists per browser and stores only a deviation from the system, and
+  no JavaScript needed for the system preference to apply.
+
+Validated: 15 unit tests pass; preview and production-mode builds pass with
+`npm run check` (22 pages, 861 links, 21 sitemap entries in production mode,
+0 in preview). Browser checks pass: 18 page/viewport/scheme audits without
+overflow or WCAG A/AA violations, keyboard and anchor navigation, the switch
+and its persistence, and no-JavaScript navigation in both schemes. Desktop
+light and dark home pages and the mobile no-JavaScript dark documentation page
+were inspected by eye. These checks ran against DevCapsule `3e92a1d`, the last
+`main` revision with the old `docs/guides/` layout; see the note below.
+
+Not validated: the test site. It is built by the owner's manual parent
+**Website** workflow after DevCapsule advances its website pin; the agent has
+no dispatch rights. Search Console and Bing submission of the sitemap remain
+the owner's W00 work.
+
+**Producer state found on 2026-09-28.** DevCapsule `main` (`d9b9975`) already
+carries the 0.2.15 documentation under the contract: thirteen areas under
+`docs/`, front matter with `role` on six pages and `status: planned` on
+fifteen stubs, tokens instead of typed versions, and release notes for 0.2.14
+and 0.2.15 under `engineering-docs/releases/<tag>/notes.md`. It does not yet
+carry `docs/versions.yaml` or journal front matter, and the README's headings
+are unchanged. Because the old `docs/guides/` files are gone, the currently
+pinned website (`78b7b7f`) and this slice both fail to build against producer
+`main`; only slice 2 restores that. This is the producer's migration item 3 of
+the companion order, landing with the pin, and is not a website defect.
 
 ## Current result
 
@@ -138,22 +188,21 @@ were visually inspected. Existing promotion tests confirm builtAt is preserved.
 
 ## Next step
 
-2026-09-28, delivered by DevCapsule's `project-management` under the owner's
-grant to plan and decide the website work without consulting the owner: take
-[the work order from the visitor's chair](engineering-docs/work-orders/2026-09-28-website-visitor-experience.md).
-Its first slice is merging `requests-from-devcapsule-2026-09-22`; then the
-content–website contract version 1 (W12 and W08), the design system, the home
-page, the releases route, and a candidate for the owner to promote. W00 keeps
-its priority for the owner's Search Console work and is not blocked by it.
-The producer's side lives in DevCapsule; nothing content-owned is authored
-here.
+Slice 2 of the work order: contract version 1. Record the accepted contract in
+this repository referencing the producer's design document; implement manifest
+parsing with the version check, front matter with the R-DOCS-003 fields, `role`
+and `planned`, tokens and the typed-version check, the per-version build with
+once-only builds for immutable sources, the versions index, role resolution,
+the switcher and banners, shared fixtures and a `check` command the producer's
+gate can run. Done when the contract's acceptance section passes against the
+fixtures and against the producer's `main` at the pin. Then slices 3 to 6 in
+the order the work order gives. W00 keeps its priority for the owner's Search
+Console work and is not blocked by any of this.
 
-Review/merge this backlog handoff and the parent pointer update. Resume W00:
-inspect search-engine reports with the owner and implement the sitemap/discovery
-slice after agreeing its boundary. W12 needs producer agreement before changing
-the content interface; W13 needs measurement requirements and provider choice.
-W00 is still first. Resume from this status and BACKLOG.md rather than the old
-parent implementation inventory.
+Earlier recorded next steps, kept for context: review/merge this backlog
+handoff and the parent pointer update (done, PR #5); resume W00 with the owner's
+search-engine reports; W12 producer agreement (delivered as the contract
+proposal of 2026-09-28); W13 measurement requirements and provider choice.
 
 ## Open threads and future maintenance
 
@@ -199,11 +248,11 @@ The owner merges this; the website decides sequencing in BACKLOG.md.
    change the `color-scheme` meta to `light dark`, and run the existing axe
    contrast checks in both modes. The owner expects this to be small.
 
-## Planned next step
+## Planned next step (2026-09-22, superseded)
 
-Merge this branch, which also installs the DevCapsule workflow definition
-0.2.14 with `WORKFLOW.md`, `WORKFLOW-LOCAL.md`, the generic `AGENTS.md` plus
-website-specific instructions, and the `[workflow]` table in the manifest.
-The owner sequences W00 and the three requests above. Recorded suggestion:
-the sitemap first, because it serves gating W00; then contract version 1
-(W12, with W07 and W08 as its consumers); then the night-mode task.
+The 2026-09-22 branch installed the DevCapsule workflow definition 0.2.14 with
+`WORKFLOW.md`, `WORKFLOW-LOCAL.md`, the generic `AGENTS.md` plus
+website-specific instructions, and the `[workflow]` table in the manifest. It
+was merged on 2026-09-28 by slice 1 above, together with the sitemap and the
+night-mode task it suggested sequencing separately. The contract request is
+slice 2 of the work order.

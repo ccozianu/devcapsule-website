@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { rewriteLink, render, route } from "../scripts/content.mjs";
+import { rewriteLink, render, route, sitemapEntries } from "../scripts/content.mjs";
 const files = new Set([
   "README.md",
   "docs/README.md",
@@ -106,4 +106,16 @@ test("subdirectory deployment rewrites internal routes without changing external
     if (previous === undefined) delete process.env.SITE_BASE_PATH;
     else process.env.SITE_BASE_PATH = previous;
   }
+});
+test("the sitemap lists indexable pages in production builds and nothing in previews", () => {
+  const pages = [
+    { url: "/", },
+    { url: "/blog/2026-09-21-entry/", date: "2026-09-21" },
+    { url: "/docs/devel/", indexable: false },
+  ];
+  assert.deepEqual(sitemapEntries(pages, "production"), [
+    { loc: "/", lastmod: null },
+    { loc: "/blog/2026-09-21-entry/", lastmod: "2026-09-21" },
+  ]);
+  assert.deepEqual(sitemapEntries(pages, "preview"), []);
 });

@@ -92,14 +92,16 @@ npm run test:updates
 
 Set `PREVIEW_URL` for browser checks when the server selected a different port
 or base path. Browser checks cover representative pages at desktop and mobile
-widths, keyboard/anchor navigation, WCAG A/AA automated checks, and navigation
-without JavaScript. Screenshots and the audit record go to ignored `.artifacts/`.
+widths in both colour schemes, keyboard/anchor navigation, WCAG A/AA automated
+checks, the night-mode switch and its persistence, and navigation without
+JavaScript. Screenshots and the audit record go to ignored `.artifacts/`.
 Visual review and owner acceptance remain necessary. Browser dependencies may
 require your environment administrator's help on a minimal machine; ordinary
 builds and previews need only Node/npm and Git.
 
 `npm run build` writes `_site/`; `npm run check` verifies all local links and
-fragments, image labels, document structure, and revision metadata. Production
+fragments, image labels, document structure, revision metadata, and that
+`sitemap.xml` lists exactly the indexable pages (none in a preview build). Production
 configuration and publication are described in [PUBLISHING.md](PUBLISHING.md).
 
 ## Content contract

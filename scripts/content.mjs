@@ -192,6 +192,18 @@ function landing(record) {
       .join(" "),
   };
 }
+// Only pages a search engine may index belong in the sitemap. Preview builds
+// carry noindex, so they publish an empty sitemap; drafts and non-indexable
+// documentation versions join the exclusion when the content contract lands.
+export function sitemapEntries(pages, mode) {
+  if (mode !== "production") return [];
+  return pages
+    .filter((p) => p.indexable !== false)
+    .map((p) => ({
+      loc: siteUrl(p.url),
+      lastmod: p.lastmod || p.date || null,
+    }));
+}
 export function buildContent() {
   const dir = contentRoot();
   const content = identity(dir);
@@ -285,13 +297,14 @@ export function buildContent() {
   const background = pages.filter((p) => p.historical);
   for (const asset of [...assets].sort())
     hash.update(asset + "\0").update(fs.readFileSync(path.join(dir, asset)));
+  const mode = process.env.SITE_MODE || "preview";
   const manifest = {
     schema: 1,
     builtAt: new Date().toISOString(),
     content: { ...content, sha256: hash.digest("hex") },
     implementation,
     basePath: prefix(),
-    mode: process.env.SITE_MODE || "preview",
+    mode,
     pages: pages.map((p) => ({ file: p.file, url: siteUrl(p.url) })),
   };
   return {
@@ -301,6 +314,10 @@ export function buildContent() {
     background,
     assets: [...assets],
     manifest,
+    sitemap: sitemapEntries(
+      [{ url: "/blog/", lastmod: posts[0]?.date }, ...pages],
+      mode,
+    ),
     contentDir: dir,
   };
 }
