@@ -27,8 +27,10 @@ owner reported publication:
 So the producer has landed its side: a manifest with the four versions,
 the journal front matter and the README markers are in content `2ec36b9`.
 The acceptance item "against the producer's main at the pin" is therefore
-met by the live build. Not checked by the agent: Search Console and Bing
-submission of the sitemap, and indexing evidence; those remain W00.
+met by the live build. Not checked by the agent on 2026-09-28: Search
+Console and Bing submission of the sitemap, and indexing evidence. On
+2026-10-16 the owner confirmed W00 done after Search Console review (sitemap
+accepted, pages indexed).
 
 ## Work order execution (2026-09-28)
 
@@ -444,10 +446,11 @@ were visually inspected. Existing promotion tests confirm builtAt is preserved.
 
 ## Next step
 
-Published. W00 resumes with the owner's Search Console and Bing evidence
-and the sitemap submission; W07 closes when the README carries the markers
-and the heading adapter is deleted; W09's metadata and share cards follow
-from the `description` field now available; W13 still needs its
+Published; W00 (search discoverability) is closed as of 2026-10-16 after the
+owner's Search Console verification. Next open tasks: W09's page-identity,
+social metadata and share cards (issued as
+[the 2026-10-16 social-metadata work order](engineering-docs/work-orders/2026-10-16-social-metadata-and-page-identity.md));
+W07 closes when the heading adapter fallback is deleted; W13 still needs its
 measurement requirements and provider choice.
 
 Session close, 2026-09-28. Changed: six stacked branches pushed, listed at
@@ -464,7 +467,7 @@ DevCapsule under slice 2 gate the test-site deployment of everything above.
 
 Earlier recorded next steps, kept for context: review/merge this backlog
 handoff and the parent pointer update (done, PR #5); resume W00 with the owner's
-search-engine reports; W12 producer agreement (delivered as the contract
+search-engine reports (closed 2026-10-16); W12 producer agreement (delivered as the contract
 proposal of 2026-09-28); W13 measurement requirements and provider choice.
 
 ## Open threads and future maintenance
@@ -472,8 +475,9 @@ proposal of 2026-09-28); W13 measurement requirements and provider choice.
 - Experiment accepted with A−; website backlog delivery is prepared for merge.
   Its tasks, including remaining publication/recovery/browser evidence gaps,
   are authoritative in BACKLOG.md. Parent content/integration tasks stay there.
-- Search indexing is not yet established. Read the owner's current Search Console
-  and Bing reports before attributing a cause; prior live observations are dated.
+- W00 (search discoverability) is closed as of 2026-10-16. Reopen if intended
+  public pages become undiscoverable or publication changes introduce indexing
+  barriers.
 - W12 is the intended single contract definition, not a claim that a complete
   contract already exists. Content-owner approval remains necessary.
 - No content copy, database, cloud account, personal token or chat transcript

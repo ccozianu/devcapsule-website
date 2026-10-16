@@ -3,9 +3,10 @@
 Authoritative website-owned follow-up tasks, transferred from DevCapsule's
 website workstream on 2026-09-19 at the owner's explicit request. IDs W00–W13
 are preserved. Detailed website tasks are maintained here, not duplicated in
-the parent. All remain open; completed prerequisites are noted within each.
+the parent. All remain open except W00 and W14; completed prerequisites are noted within each.
 
-W00 is the owner's top priority (gating). W12 is also gating for agreeing the
+W00 (search discoverability) was the owner's top priority (gating) and is closed
+as of 2026-10-16. W12 is gating for agreeing the
 content interface. Existing P1/P2/P3 labels remain proposed sequencing, not
 release commitments; W13 is wanted second-stage functionality. W09 remains
 separate from W00 with its originally recorded scope. Evidence below is from
@@ -32,9 +33,9 @@ Future website work resumes from CURRENT-STATUS.md using this project's
 single-stream workflow. No implementation, provider purchase or deployment is
 implied by recording these tasks.
 
-### W00 — Gating, top priority: Establish and verify search discoverability
+### W00 — Delivered: Establish and verify search discoverability
 
-- [ ] Diagnose and resolve production's absence from Google and Bing search results.
+- [x] Diagnose and resolve production's absence from Google and Bing search results.
 - Evidence: the owner reports no results for
   `+site:devcapsule.mycodespace.ai github`. Direct public checks on 2026-09-19
   found homepage and `/docs/` returning HTTPS 200 with production canonicals,
@@ -71,6 +72,11 @@ implied by recording these tasks.
   Drafts and non-indexable documentation versions join the exclusion with the
   content contract. Submission in Search Console and Bing Webmaster Tools and
   the indexing evidence remain the owner's and are still open.
+- Closed (2026-10-16): the owner confirmed W00 is done following Search Console
+  verification and indexing of the published site (production sitemap known and
+  accepted, 25 pages indexed). Follow-up page-identity and social-card metadata
+  work continues under W09 and
+  [the 2026-10-16 social-metadata work order](engineering-docs/work-orders/2026-10-16-social-metadata-and-page-identity.md).
 
 ### W01 — P1: Make the test publication action hard to misuse
 
@@ -238,6 +244,10 @@ implied by recording these tasks.
 - Progress (2026-09-28): the sitemap part is delivered under W00; metadata,
   descriptions and share cards remain open and depend on the contract's
   `description` field.
+- Progress (2026-10-16): scoped in detail by
+  [the 2026-10-16 social-metadata work order](engineering-docs/work-orders/2026-10-16-social-metadata-and-page-identity.md)
+  (derived page identity tags, default raster card, optional `social` front
+  matter block, and `website:social` landing marker).
 - Producer dependency: W09-C supplies approved descriptions and social artwork.
   Website owns metadata generation, sitemap and preview rendering; agree the
   fields through W12. This split does not change the original W09 scope above.
