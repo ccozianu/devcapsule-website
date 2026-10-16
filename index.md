@@ -20,6 +20,7 @@
 ## Work orders
 
 - [The website, seen from the visitor's chair](engineering-docs/work-orders/2026-09-28-website-visitor-experience.md), issued by DevCapsule's project-management on 2026-09-28
+- [Social metadata and page identity from the producer](engineering-docs/work-orders/2026-10-16-social-metadata-and-page-identity.md), issued by DevCapsule's project-management on 2026-10-16
 
 ## Open bugs
 
