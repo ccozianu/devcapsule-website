@@ -2,6 +2,8 @@
 
 [![tests](docs/images/badge.svg)](https://example.com/tests)
 
+<!-- website:social title="Fixture — A real IDE in a capsule" description="The social card description of the fixture landing page." image="docs/images/card.png" -->
+
 <!-- website:hero -->
 ## Start working on a project right away
 

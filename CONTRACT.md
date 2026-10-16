@@ -114,6 +114,7 @@ heading remains the title.
 | `weight` | no | integer | Order within the sidebar area, lower first; unweighted pages follow in title order |
 | `updated` | no | `YYYY-MM-DD` | Shown on the page; the sitemap's `lastmod` |
 | `role` | no | one of the six roles, section 4 | This page is the version's page for that role, at most once per version |
+| `social` | no | a mapping with any of `title`, `description`, `image` | What the page says about itself to card renderers and crawlers when that differs from its title, description and the default image. `title`: at most 70 characters. `description`: at most 200 characters. `image`: a path under `docs/` to a PNG or JPEG, resolved as in 5.5. Unknown keys fail the build. |
 
 Failures, each naming the file: a missing block, a block without
 `description`, an unknown key, an invalid value. The block never appears in
@@ -163,6 +164,8 @@ asks for; additive.* The README marks the sections the site uses with HTML
 comments, which GitHub does not render:
 
 ```markdown
+<!-- website:social title="..." description="..." image="docs/images/..." -->
+
 <!-- website:hero -->
 ## Start working on a project right away!
 
@@ -179,7 +182,14 @@ One lead paragraph.
 <!-- website:end -->
 ```
 
-A marker starts a section that runs to the next marker or to
+An optional self-closing `<!-- website:social ... -->` marker before the
+first section marker gives the landing page its `social` overrides (`title`,
+`description`, `image`), with the same limits and validation as the `social`
+field of 3.3. It may appear once; its `title` becomes the landing page's
+`<title>`, `og:title` and `twitter:title`, while the `#` heading of the
+README is unchanged on the page.
+
+A section marker starts a section that runs to the next marker or to
 `<!-- website:end -->`; text outside the markers is not shown on the site.
 Within a section, the first heading is its heading and the rest its body;
 top-level list items are its items; lower headings split it into
@@ -199,10 +209,12 @@ The three pillars under the hero are not a section: they are the
 `getting-started`, `your-project` and `agents` role pages of the current
 version, with their titles and descriptions, so the producer edits them in
 the documentation. Images before the first marker are the health badges,
-shown in the footer. An unknown name, a name marked twice, a hero without a
-heading or more than four benefits fail the build naming the problem. A
-README without any marker is read by the original heading adapter as long as
-it lasts, so the site builds while the producer adopts the markers.
+shown in the footer. An unknown name, a name marked twice, a duplicate
+`website:social` marker, an unknown `website:social` attribute, a hero
+without a heading or more than four benefits fail the build naming the
+problem. A README without any marker is read by the original heading adapter
+as long as it lasts, so the site builds while the producer adopts the
+markers.
 
 ## 4. Roles
 
@@ -304,7 +316,11 @@ additive.* For every rendered page the consumer emits:
 | `twitter:card` | `summary_large_image` |
 
 Pages that are `noindex` under 5.2 still receive the tags; a shared link to a
-planned page should at least say what the page will be.
+planned page should at least say what the page will be. From the same facts,
+the landing page also emits JSON-LD `WebSite` and `SoftwareApplication`
+(name `DevCapsule`, operating system `Linux`, licence `Apache-2.0`), and
+journal entries emit JSON-LD `Article` with `datePublished` from the entry
+date (and `dateModified` when `updated` is present).
 
 ## 6. Build and caching
 

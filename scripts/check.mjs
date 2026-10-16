@@ -61,6 +61,44 @@ for (const [file, $] of documents) {
       if (!imageUrl.pathname.startsWith(base) || !fs.existsSync(imageTarget) || !fs.statSync(imageTarget).isFile())
         failures.push(`${label}: missing social card image ${ogImage}`);
     }
+    const ldScripts = $('script[type="application/ld+json"]');
+    if (ldScripts.length) {
+      let ld;
+      try {
+        ld = JSON.parse(ldScripts.first().text());
+      } catch (error) {
+        failures.push(`${label}: invalid JSON-LD: ${error.message}`);
+      }
+      if (ld) {
+        if (ld["@context"] !== "https://schema.org")
+          failures.push(`${label}: JSON-LD missing schema.org @context`);
+        if (label === "index.html") {
+          const graph = Array.isArray(ld["@graph"]) ? ld["@graph"] : [];
+          const siteNode = graph.find((n) => n["@type"] === "WebSite");
+          const appNode = graph.find((n) => n["@type"] === "SoftwareApplication");
+          if (!siteNode || siteNode.name !== "DevCapsule" || siteNode.url !== ogUrl || siteNode.image !== ogImage)
+            failures.push(`${label}: invalid WebSite JSON-LD`);
+          if (
+            !appNode ||
+            appNode.name !== "DevCapsule" ||
+            appNode.operatingSystem !== "Linux" ||
+            appNode.license !== "Apache-2.0" ||
+            appNode.url !== ogUrl ||
+            appNode.image !== ogImage
+          )
+            failures.push(`${label}: invalid SoftwareApplication JSON-LD`);
+        } else if (label.startsWith("journal/") && label !== "journal/index.html") {
+          if (
+            ld["@type"] !== "Article" ||
+            !ld.headline ||
+            !/^\d{4}-\d{2}-\d{2}$/.test(ld.datePublished || "") ||
+            ld.url !== ogUrl ||
+            ld.image !== ogImage
+          )
+            failures.push(`${label}: invalid Article JSON-LD`);
+        }
+      }
+    }
   }
   const ids = new Set();
   $("[id]").each((_, el) => {

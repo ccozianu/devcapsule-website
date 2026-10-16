@@ -244,23 +244,39 @@ implied by recording these tasks.
 - Progress (2026-09-28): the sitemap part is delivered under W00; metadata,
   descriptions and share cards remain open and depend on the contract's
   `description` field.
-- Progress (2026-10-16): scoped in detail by
+- Progress (2026-10-16): scoped in detail and delivered on the website side by
   [the 2026-10-16 social-metadata work order](engineering-docs/work-orders/2026-10-16-social-metadata-and-page-identity.md)
-  (derived page identity tags, default raster card, optional `social` front
-  matter block, and `website:social` landing marker). Slice 1 is delivered:
-  `CONTRACT.md` Section 5.7 (*Page identity*) is documented; every rendered
-  page emits `<title>`, `<meta name="description">`, `og:title`,
-  `og:description`, `og:url`, `og:type`, `og:image`, `og:site_name`,
-  `twitter:card`, `twitter:title`, `twitter:description`, and `twitter:image`
-  derived from existing fields; the landing page's `og:title` and
-  `twitter:title` equal its `<title>` (`DevCapsule`, not doubled); the default
-  1200×630 PNG card (`src/assets/social-card.png` and source
-  `src/assets/social-card.svg`) is served at `/assets/social-card.png`; and
-  `scripts/check.mjs` and `scripts/promote.mjs` verify and promote the full
-  tag set. Slices 2 and 3 remain.
-- Producer dependency: W09-C supplies approved descriptions and social artwork.
-  Website owns metadata generation, sitemap and preview rendering; agree the
-  fields through W12. This split does not change the original W09 scope above.
+  (Slices 1–4):
+  - **Slice 1 (Derived identity):** `CONTRACT.md` Section 5.7 (*Page identity*)
+    documented; every rendered page emits `<title>`, `<meta name="description">`,
+    `og:title`, `og:description`, `og:url`, `og:type`, `og:image`,
+    `og:site_name`, `twitter:card`, `twitter:title`, `twitter:description`, and
+    `twitter:image` derived from existing fields; landing-page `og:title` and
+    `twitter:title` equal `<title>` (`DevCapsule`, not doubled); default
+    1200×630 PNG card (`src/assets/social-card.png` and source
+    `src/assets/social-card.svg`) served at `/assets/social-card.png`.
+  - **Slice 2 (`social` front matter field):** `CONTRACT.md` Section 3.3 and
+    `scripts/contract.mjs` validate optional `social: { title, description, image }`
+    on versioned pages, journal entries, and release notes (`title` ≤ 70 chars,
+    `description` ≤ 200 chars, `image` a PNG/JPEG under `docs/` resolved
+    through Section 5.5), failing by name on unknown keys, over-length values,
+    non-raster or outside-`docs/` paths, and missing files.
+  - **Slice 3 (`website:social` landing marker):** `CONTRACT.md` Section 3.7
+    and `scripts/content.mjs` parse the self-closing
+    `<!-- website:social title="..." description="..." image="docs/images/..." -->`
+    marker before the first section marker in `README.md`, applying it to the
+    landing page's identity while keeping the README's `#` heading unchanged
+    on the page.
+  - **Slice 4 (Structured data):** JSON-LD `WebSite` and `SoftwareApplication`
+    (name `DevCapsule`, operating system `Linux`, licence `Apache-2.0`) on the
+    landing page, and `Article` (with `datePublished` and optional
+    `dateModified`) on journal entries; validated by `scripts/check.mjs` and
+    promoted by `scripts/promote.mjs`.
+- Producer dependency: W09-C supplies the `website:social` marker in
+  DevCapsule's `README.md`, amends `R-DOCS-003`, and advances the `website`
+  pin. Website owns metadata generation, sitemap and preview rendering; agree
+  the fields through W12. This split does not change the original W09 scope
+  above.
 
 ### W10 — P3: Help readers find answers and follow the journal
 

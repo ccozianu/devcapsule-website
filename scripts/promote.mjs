@@ -75,6 +75,20 @@ export function promote(directory, candidate) {
             promoted = promoted.replace(matches[0][0], matches[0][0].replace(testOrigin, productionOrigin));
           }
         }
+        for (const block of [...promoted.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]) {
+          const data = JSON.parse(block[1]);
+          const nodes = Array.isArray(data["@graph"]) ? data["@graph"] : [data];
+          for (const node of nodes) {
+            for (const field of ["url", "image"]) {
+              if (node[field] !== undefined)
+                assert(
+                  typeof node[field] === "string" && node[field].startsWith(testOrigin + "/"),
+                  `Unexpected social origin in ${file}: ${node[field]}`,
+                );
+            }
+          }
+          promoted = promoted.replace(block[0], block[0].replaceAll(testOrigin + "/", productionOrigin + "/"));
+        }
         changes.push([file, promoted]);
       }
     }
@@ -91,7 +105,7 @@ export function promote(directory, candidate) {
     release: `https://github.com/ccozianu/devcapsule/releases/tag/${candidate.tag}`,
     archiveDigest: candidate.digest,
     origin: productionOrigin,
-    transformation: "origin-only: canonical links, social metadata URLs, robots.txt sitemap reference, sitemap locations",
+    transformation: "origin-only: canonical links, social metadata URLs, JSON-LD URLs, robots.txt sitemap reference, sitemap locations",
   };
   fs.writeFileSync(infoPath, JSON.stringify(info, null, 2) + "\n");
   return changes.length;

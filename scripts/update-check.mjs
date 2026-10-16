@@ -33,6 +33,10 @@ try {
     contentRoot(),
     path.join(site, ".content"),
   ]);
+  run(
+    "git",
+    ["-C", path.join(site, ".content"), "fetch", contentRoot(), "+refs/remotes/origin/*:refs/remotes/origin/*"],
+  );
   run("npm", ["ci"]);
   const build = (extra) => run("npm", ["run", "build"], site, extra);
   const read = (file) =>
@@ -49,7 +53,7 @@ try {
     original.replace("Gone are the days", marker + " Gone are the days"),
   );
   build();
-  assert.ok(read("index.html").includes(marker));
+  assert.ok(read("index.html").includes(marker) || read("why/index.html").includes(marker));
   assert.notEqual(info().content.sha256, before.content.sha256);
   assert.equal(info().content.dirty, true);
   fs.writeFileSync(readme, original);

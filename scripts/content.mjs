@@ -13,6 +13,7 @@ import {
   repository,
   readManifest,
   readPage,
+  validateSocial,
   checkTypedVersions,
   renderTokens,
   tokenValues,
@@ -181,6 +182,22 @@ const excerpt = (text) => {
 const minutes = (source) => Math.max(1, Math.ceil(source.split(/\s+/).length / 220));
 export const DEFAULT_CARD = "/assets/social-card.png";
 
+function resolveSocial(social, file, context) {
+  if (!social) return null;
+  let image = null;
+  if (social.image) {
+    if (!context.exists(social.image))
+      fail(`${file}: missing social image ${social.image}`);
+    context.assets.add(social.image);
+    image = `/content-assets/${context.assetKey}/${encodePath(social.image)}`;
+  }
+  return {
+    title: social.title,
+    description: social.description,
+    image,
+  };
+}
+
 export function pageIdentity(page, origin = process.env.SITE_ORIGIN || "") {
   const rawTitle = page.social?.title || page.title;
   const title =
@@ -194,6 +211,46 @@ export function pageIdentity(page, origin = process.env.SITE_ORIGIN || "") {
   const type = kind === "post" || kind === "release" ? "article" : "website";
   const imagePath = page.social?.image ? siteUrl(page.social.image) : siteUrl(DEFAULT_CARD);
   const image = origin ? `${origin}${imagePath}` : imagePath;
+  let jsonLd = null;
+  if (page.kind === "home") {
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          name: "DevCapsule",
+          description,
+          url,
+          image,
+        },
+        {
+          "@type": "SoftwareApplication",
+          name: "DevCapsule",
+          applicationCategory: "DeveloperApplication",
+          operatingSystem: "Linux",
+          license: "Apache-2.0",
+          description,
+          url,
+          image,
+        },
+      ],
+    };
+  } else if (page.kind === "post") {
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      headline: rawTitle,
+      description,
+      datePublished: page.date,
+      ...(page.updated ? { dateModified: page.updated } : {}),
+      url,
+      image,
+      publisher: {
+        "@type": "Organization",
+        name: "DevCapsule",
+      },
+    };
+  }
   return {
     title,
     description,
@@ -202,6 +259,7 @@ export function pageIdentity(page, origin = process.env.SITE_ORIGIN || "") {
     image,
     siteName: "DevCapsule",
     card: "summary_large_image",
+    jsonLd,
   };
 }
 
@@ -212,7 +270,22 @@ export function pageIdentity(page, origin = process.env.SITE_ORIGIN || "") {
 // each one renders. A README without markers falls back to the original
 // heading adapter, so the site builds while the producer adopts the markers.
 export const LANDING_SECTIONS = ["hero", "benefits", "fit", "dogfood", "why", "comparison", "contribute"];
-const MARKER = /^\s*website:([a-z-]+)\s*$/;
+const MARKER = /^\s*website:([a-z-]+)(?:\s+([\s\S]*?))?\s*$/;
+
+function parseSocialMarker(attrText) {
+  const attrs = {};
+  const pattern = /([A-Za-z_][A-Za-z0-9_-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+  const stripped = (attrText || "").replace(pattern, (_, key, dq, sq) => {
+    if (key in attrs) fail(`README.md: duplicate attribute "${key}" in website:social`);
+    attrs[key] = dq ?? sq;
+    return "";
+  });
+  if (stripped.trim())
+    fail(`README.md: invalid attribute syntax in website:social: ${stripped.trim()}`);
+  if (Object.keys(attrs).length === 0)
+    fail('README.md: "website:social" needs at least one of title, description, image');
+  return validateSocial(attrs, "README.md");
+}
 
 function sectionModel($, nodes) {
   const heading = nodes.find((n) => /^h[1-4]$/.test(n.tagName));
@@ -239,6 +312,7 @@ function sectionModel($, nodes) {
 export function landingSections(html) {
   const $ = load(html, null, false);
   const sections = {};
+  let social = null;
   let name = null;
   let nodes = [];
   const flush = () => {
@@ -249,6 +323,15 @@ export function landingSections(html) {
     if (node.type === "comment") {
       const match = node.data.match(MARKER);
       if (!match) continue;
+      if (match[1] === "social") {
+        if (social) fail('README.md: landing marker "website:social" is marked twice');
+        if (name || Object.keys(sections).length)
+          fail('README.md: "website:social" must appear before the first section marker');
+        social = parseSocialMarker(match[2]);
+        continue;
+      }
+      if (match[2]?.trim())
+        fail(`README.md: landing section "${match[1]}" does not take attributes`);
       flush();
       name = match[1] === "end" ? null : match[1];
       if (name && !LANDING_SECTIONS.includes(name))
@@ -259,7 +342,9 @@ export function landingSections(html) {
     if (node.type === "tag" || (node.type === "text" && node.data.trim())) nodes.push(node);
   }
   flush();
-  return Object.keys(sections).length ? sections : null;
+  if (!Object.keys(sections).length && !social) return null;
+  if (social) sections.social = social;
+  return sections;
 }
 
 // An item of a card list: "**Headline.** Two lines. [Link](target)".
@@ -315,6 +400,7 @@ function landing(record, roles, rolePages) {
     : [];
   return {
     marked: Boolean(marked),
+    social: sections.social ?? null,
     badges,
     hero: {
       headline: sections.hero.heading,
@@ -408,6 +494,7 @@ export function renderVersion({ entry, tree, revision, assetKey, version, blogRo
       weight: meta.weight,
       updated: meta.updated,
       role: meta.role,
+      social: resolveSocial(meta.social, file, context),
       minutes: minutes(text),
       sourceUrl: `${repository}/blob/${revision}/${encodePath(file)}`,
       area: pagePath.includes("/") ? file.split("/")[1] : null,
@@ -556,6 +643,7 @@ export function buildContent() {
   const home = render(readme, "README.md", unversionedContext);
   const rolePages = Object.fromEntries(ROLES.map((role) => [role, current.byPath.get(docsPath(current.roles[role]))]));
   const site = landing(home, roles, rolePages);
+  site.social = resolveSocial(site.social, "README.md", unversionedContext);
   const homeDescription = load(site.hero.lead, null, false).text().replace(/\s+/g, " ").trim() || home.description;
   const pages = [
     {
@@ -565,6 +653,7 @@ export function buildContent() {
       kind: "home",
       description: excerpt(homeDescription),
       excerpt: excerpt(homeDescription),
+      social: site.social,
       indexable: production,
       canonical: "/",
       sourceUrl: `${repository}/blob/${content.revision}/README.md`,
@@ -626,6 +715,7 @@ export function buildContent() {
       minutes: minutes(body),
       description: meta.description,
       excerpt: excerpt(meta.description),
+      social: resolveSocial(meta.social, file, unversionedContext),
       draft: meta.draft,
       updated: meta.updated,
       lastmod: meta.updated || date,
@@ -683,6 +773,7 @@ export function buildContent() {
         : "",
       description: meta.description,
       excerpt: excerpt(meta.description),
+      social: resolveSocial(meta.social, file, unversionedContext),
       draft: meta.draft,
       updated: meta.updated,
       lastmod: meta.updated || released,

@@ -169,11 +169,19 @@ test("each named failure names its file, field, version or role", (t) => {
     ["alias collision", (r) => r.write("docs/platforms/linux.md", "---\ndescription: x\naliases: [/docs/current/]\n---\n# Linux\n"), /alias \/docs\/current\/ .* collides with a published page/],
     ["unknown landing section", (r) => r.write("README.md", r.read("README.md").replace("website:dogfood", "website:pitch")), /README\.md: unknown landing section "pitch"/],
     ["landing section marked twice", (r) => r.write("README.md", r.read("README.md").replace("website:why", "website:hero")), /landing section "hero" is marked twice/],
+    ["website:social marked twice", (r) => r.write("README.md", r.read("README.md").replace("<!-- website:hero -->", '<!-- website:social title="Second" -->\n\n<!-- website:hero -->')), /README\.md: landing marker "website:social" is marked twice/],
+    ["unknown website:social attribute", (r) => r.write("README.md", r.read("README.md").replace('title="Fixture', 'flavour="sweet" title="Fixture')), /README\.md: unknown social key "flavour"/],
     ["too many benefits", (r) => r.write("README.md", r.read("README.md").replace("<!-- website:fit -->", "- **Three.** t\n- **Four.** t\n- **Five.** t\n\n<!-- website:fit -->")), /benefits section lists 5 items/],
     ["hero without a heading", (r) => r.write("README.md", r.read("README.md").replace("## Start working on a project right away\n", "")), /README\.md: the landing page needs a hero section with a heading/],
     ["broken link", (r) => r.write("docs/platforms/linux.md", "---\ndescription: x\n---\n# Linux\n\n[gone](nowhere.md)\n"), /docs\/platforms\/linux\.md: broken source link nowhere\.md/],
     ["journal without front matter", (r) => r.write("engineering-docs/blog/2026-01-04-bare.md", "# Bare\n\nText.\n"), /engineering-docs\/blog\/2026-01-04-bare\.md: missing front matter block/],
     ["documentation link nowhere", (r) => r.write("engineering-docs/blog/2026-01-04-link.md", "---\ndescription: x\n---\n# Link\n\n[gone](../../docs/missing.md)\n"), /link to docs\/missing\.md: no published documentation version contains that page/],
+    ["unknown social key", (r) => r.write("docs/platforms/linux.md", "---\ndescription: x\nsocial:\n  card: large\n---\n# Linux\n"), /docs\/platforms\/linux\.md: unknown social key "card"/],
+    ["over-length social title", (r) => r.write("docs/platforms/linux.md", `---\ndescription: x\nsocial:\n  title: "${"t".repeat(71)}"\n---\n# Linux\n`), /docs\/platforms\/linux\.md: "social\.title" exceeds 70 characters/],
+    ["over-length social description", (r) => r.write("docs/platforms/linux.md", `---\ndescription: x\nsocial:\n  description: "${"d".repeat(201)}"\n---\n# Linux\n`), /docs\/platforms\/linux\.md: "social\.description" exceeds 200 characters/],
+    ["social image outside docs", (r) => r.write("docs/platforms/linux.md", "---\ndescription: x\nsocial:\n  image: outside/card.png\n---\n# Linux\n"), /docs\/platforms\/linux\.md: "social\.image" must be a path under docs\/ to a PNG or JPEG/],
+    ["social image SVG rejected", (r) => r.write("docs/platforms/linux.md", "---\ndescription: x\nsocial:\n  image: docs/images/diagram.svg\n---\n# Linux\n"), /docs\/platforms\/linux\.md: "social\.image" must be a path under docs\/ to a PNG or JPEG/],
+    ["missing social image", (r) => r.write("docs/platforms/linux.md", "---\ndescription: x\nsocial:\n  image: docs/images/missing.png\n---\n# Linux\n"), /docs\/platforms\/linux\.md: missing social image docs\/images\/missing\.png/],
   ];
   for (const [name, mutate, expected] of cases) {
     const repo = createFixtureRepo();
@@ -210,6 +218,11 @@ test("the landing page is assembled from the README's marked identities", (t) =>
   const site = build(repo);
   const landing = site.landing;
   assert.equal(landing.marked, true);
+  assert.deepEqual(landing.social, {
+    title: "Fixture — A real IDE in a capsule",
+    description: "The social card description of the fixture landing page.",
+    image: "/content-assets/main/docs/images/card.png",
+  });
   assert.equal(landing.hero.headline, "Start working on a project right away");
   assert.match(landing.hero.lead, /^<p>The lead paragraph/);
   assert.deepEqual(landing.hero.chips, ["Pre-V1", "Linux x86-64"]);
@@ -233,6 +246,7 @@ test("the landing page is assembled from the README's marked identities", (t) =>
   assert.equal(landing.comparison.heading, "But is it really needed?");
   assert.equal(landing.contribute, null);
   const home = page(site, "/");
+  assert.equal(home.title, "Fixture");
   assert.equal(home.description, "The lead paragraph of the fixture landing page, long enough to be a description.");
   assert.equal(page(site, "/why/").title, "Aim for engineering excellence");
   assert.equal(page(site, "/why/").indexable, true);
@@ -308,7 +322,7 @@ test("release notes become one page per final tag, newest first, with the curren
   assert.throws(() => build(repo), /engineering-docs\/releases\/v1\.0\.0\/notes\.md: missing front matter block/);
 });
 
-test("every page derives the Section 5.7 page identity from existing fields and the default card", (t) => {
+test("every page derives or overrides the Section 5.7 page identity and JSON-LD structured data", (t) => {
   const repo = createFixtureRepo();
   t.after(repo.remove);
   const site = withEnv(
@@ -326,17 +340,42 @@ test("every page derives the Section 5.7 page identity from existing fields and 
     assert.ok(entry.identity.title, entry.url);
     assert.ok(entry.identity.description, entry.url);
     assert.equal(entry.identity.url, `https://devcapsule.mycodespace.ai${entry.canonical}`);
-    assert.equal(entry.identity.image, "https://devcapsule.mycodespace.ai/assets/social-card.png");
     assert.equal(entry.identity.siteName, "DevCapsule");
     assert.equal(entry.identity.card, "summary_large_image");
     if (entry.kind === "home") {
-      assert.equal(entry.identity.title, entry.title);
-      assert.ok(!entry.identity.title.endsWith(" · DevCapsule"));
+      assert.equal(entry.title, "Fixture");
+      assert.equal(entry.identity.title, "Fixture — A real IDE in a capsule");
+      assert.equal(entry.identity.description, "The social card description of the fixture landing page.");
+      assert.equal(entry.identity.image, "https://devcapsule.mycodespace.ai/content-assets/main/docs/images/card.png");
       assert.equal(entry.identity.type, "website");
+      assert.equal(entry.identity.jsonLd["@context"], "https://schema.org");
+      assert.deepEqual(
+        entry.identity.jsonLd["@graph"].map((n) => n["@type"]),
+        ["WebSite", "SoftwareApplication"],
+      );
+      assert.equal(entry.identity.jsonLd["@graph"][1].operatingSystem, "Linux");
+      assert.equal(entry.identity.jsonLd["@graph"][1].license, "Apache-2.0");
+    } else if (entry.url === "/docs/devel/getting-started/new-in-devel/") {
+      assert.equal(entry.title, "New in devel");
+      assert.equal(entry.identity.title, "New in the development capsule · DevCapsule");
+      assert.equal(entry.identity.description, "The social card description for the development-only guide.");
+      assert.equal(entry.identity.image, "https://devcapsule.mycodespace.ai/content-assets/main/docs/images/card.png");
+      assert.equal(entry.identity.type, "website");
+      assert.equal(entry.identity.jsonLd, null);
     } else {
       assert.equal(entry.identity.title, `${entry.title} · DevCapsule`);
+      assert.equal(entry.identity.image, "https://devcapsule.mycodespace.ai/assets/social-card.png");
       const kind = entry.targetKind || entry.kind;
       assert.equal(entry.identity.type, kind === "post" || kind === "release" ? "article" : "website");
+      if (entry.kind === "post") {
+        assert.equal(entry.identity.jsonLd["@type"], "Article");
+        assert.equal(entry.identity.jsonLd.headline, entry.title);
+        assert.equal(entry.identity.jsonLd.datePublished, entry.date);
+        assert.equal(entry.identity.jsonLd.dateModified, entry.updated);
+      } else {
+        assert.equal(entry.identity.jsonLd, null);
+      }
     }
   }
+  assert.ok(site.versionAssets.main.files.includes("docs/images/card.png"));
 });

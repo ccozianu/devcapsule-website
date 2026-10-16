@@ -20,6 +20,7 @@
   <meta name="twitter:title" content="{{ id.title }}">
   <meta name="twitter:description" content="{{ id.description }}">
   <meta name="twitter:image" content="{{ id.image }}">
+  {% if id.jsonLd %}<script type="application/ld+json">{{ id.jsonLd | json | safe }}</script>{% endif %}
   <link rel="icon" href="{{ '/assets/favicon.svg' | url }}" type="image/svg+xml">
   <link rel="preload" href="{{ '/assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{{ '/assets/fonts/fraunces-latin-wght-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin>

@@ -9,8 +9,9 @@ producer-side companion is an amendment to DevCapsule's `R-DOCS-003` and one
 marker line in its `README.md`, both written in DevCapsule after slice 3
 ships.
 
-Status: open. Release: none; the site publishes on its own clock. This order
-is part of the SEO objective the owner set for V1 on 2026-10-16.
+Status: delivered (2026-10-16, slices 1–4). Release: none; the site publishes
+on its own clock. This order is part of the SEO objective the owner set for V1
+on 2026-10-16.
 
 ## 1. What A Crawler And A Card Renderer Get Today, And What They Should
 

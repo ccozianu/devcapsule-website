@@ -25,6 +25,8 @@ export const VERSION_STATUSES = [
   "unsupported",
 ];
 export const PAGE_STATUSES = ["current", "historical", "planned"];
+export const SOCIAL_KEYS = ["title", "description", "image"];
+const RASTER_IMAGE = /\.(?:png|jpe?g)$/i;
 const PAGE_KEYS = [
   "description",
   "draft",
@@ -33,6 +35,7 @@ const PAGE_KEYS = [
   "weight",
   "updated",
   "role",
+  "social",
 ];
 const MANIFEST_KEYS = ["contract", "current", "notice", "versions"];
 const ENTRY_KEYS = [
@@ -73,6 +76,43 @@ export function splitFrontMatter(source, file) {
   return { data, body: source.slice(match[0].length), bodyOffset };
 }
 
+export function validateSocial(social, file) {
+  if (social === undefined || social === null) return null;
+  if (typeof social !== "object" || Array.isArray(social))
+    fail(`${file}: "social" must be a mapping`);
+  for (const key of Object.keys(social))
+    if (!SOCIAL_KEYS.includes(key))
+      fail(`${file}: unknown social key "${key}"; the contract defines ${SOCIAL_KEYS.join(", ")}`);
+  const result = {
+    title: social.title ?? null,
+    description: social.description ?? null,
+    image: social.image ?? null,
+  };
+  if (result.title !== null) {
+    if (typeof result.title !== "string" || !result.title.trim())
+      fail(`${file}: "social.title" must be a non-empty string`);
+    if (result.title.length > 70)
+      fail(`${file}: "social.title" exceeds 70 characters`);
+  }
+  if (result.description !== null) {
+    if (typeof result.description !== "string" || !result.description.trim())
+      fail(`${file}: "social.description" must be a non-empty string`);
+    if (result.description.length > 200)
+      fail(`${file}: "social.description" exceeds 200 characters`);
+  }
+  if (result.image !== null) {
+    if (typeof result.image !== "string" || !result.image.trim())
+      fail(`${file}: "social.image" must be a path under docs/ to a PNG or JPEG`);
+    if (/^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(result.image))
+      fail(`${file}: "social.image" must be a path under docs/, not an external URL: ${result.image}`);
+    const normalized = path.posix.normalize(result.image.replace(/^\//, ""));
+    if (!normalized.startsWith("docs/") || normalized.includes("/../") || !RASTER_IMAGE.test(normalized))
+      fail(`${file}: "social.image" must be a path under docs/ to a PNG or JPEG: ${result.image}`);
+    result.image = normalized;
+  }
+  return result;
+}
+
 export function validatePage(data, file, { legacy = false } = {}) {
   for (const key of Object.keys(data))
     if (!PAGE_KEYS.includes(key)) fail(`${file}: unknown front matter key "${key}"`);
@@ -84,6 +124,7 @@ export function validatePage(data, file, { legacy = false } = {}) {
     weight: data.weight ?? null,
     updated: data.updated ?? null,
     role: data.role ?? null,
+    social: validateSocial(data.social, file),
   };
   if (typeof page.description !== "string" || !page.description.trim())
     fail(`${file}: front matter needs a "description"`);
@@ -127,6 +168,7 @@ export function readPage(source, file, { legacy = false, required = true } = {})
         weight: null,
         updated: null,
         role: null,
+        social: null,
       },
       body: source,
       bodyOffset: 0,

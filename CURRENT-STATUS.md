@@ -1,15 +1,55 @@
 # Website current status
 
 State: W00 (search discoverability) is closed following Search Console
-verification and indexing. Active work order:
+verification and indexing. All four slices of
 [Social metadata and page identity](engineering-docs/work-orders/2026-10-16-social-metadata-and-page-identity.md)
-(W09 / W12). Slice 1 (*Derived identity for every page*) is delivered; next
-step is Slice 2 (*Optional `social` block and landing-page identity*).
-Delivery: SSH push, owner merges PRs and runs the publication workflows.
+(W09 / W12) are delivered and validated. Next step: in DevCapsule, add the
+`<!-- website:social ... -->` marker to `README.md`, amend `R-DOCS-003` for the
+optional `social` field and marker, and advance the `website` submodule pin
+(W09-C / W12-C). Delivery: SSH push, owner merges PRs and runs the publication
+workflows.
 
 ## Social metadata work order execution (2026-10-16)
 
-### Slice 1 — derived identity for every page: delivered
+### Slices 2, 3, and 4 — `social` front matter, `website:social` landing marker, and JSON-LD structured data: delivered
+
+- **Slice 2 (`social` front matter field, [CONTRACT.md](CONTRACT.md) 3.3):**
+  Added `validateSocial()` in `scripts/contract.mjs` and `resolveSocial()` in
+  `scripts/content.mjs` for versioned documentation pages, journal entries, and
+  release notes. Validates `title` (non-empty string, ≤ 70 characters),
+  `description` (non-empty string, ≤ 200 characters), and `image` (PNG or JPEG
+  path under `docs/`, resolved to `/content-assets/<key>/docs/…` and copied by
+  the build). Fails by name on unknown keys, over-length values, external or
+  non-`docs/` paths, SVG images, and missing image files.
+- **Slice 3 (`website:social` landing marker, [CONTRACT.md](CONTRACT.md) 3.7):**
+  Extended `landingSections()` in `scripts/content.mjs` to parse the optional
+  self-closing `<!-- website:social title="..." description="..." image="docs/images/..." -->`
+  marker before the first section marker in `README.md` using the same
+  validation rules as 3.3. Applies its overrides to the landing page's
+  `<title>`, `og:title`, `twitter:title`, descriptions, and card image while
+  preserving the README's `#` heading (`entry.title`) on the page. Fails by
+  name on duplicate `website:social` markers or unknown attributes.
+- **Slice 4 (JSON-LD structured data, [CONTRACT.md](CONTRACT.md) 5.7):**
+  Emits `<script type="application/ld+json">` from `pageIdentity()` on the
+  landing page (`WebSite` and `SoftwareApplication` with `name: "DevCapsule"`,
+  `operatingSystem: "Linux"`, `license: "Apache-2.0"`) and on journal entries
+  (`Article` with `headline`, `datePublished` from the entry date, and
+  `dateModified` when `updated` is set). `scripts/check.mjs` validates the
+  JSON-LD graph and fields against `og:url` and `og:image`, and
+  `scripts/promote.mjs` validates and rewrites `testOrigin` to
+  `productionOrigin` inside JSON-LD `url` and `image` fields.
+
+Validated: 23 unit tests pass (`npm test`), including the fixture's `social`
+page (`/docs/devel/getting-started/new-in-devel/`), the fixture README's
+`website:social` marker, JSON-LD assertions, promotion tests, and 8 new named
+failure cases (unknown social key, over-length social title/description,
+outside-`docs/` image, SVG social image, missing social image, duplicate
+`website:social` marker, unknown `website:social` attribute). `npm run
+check:content`, production build + `npm run check` (180 HTML pages, 13,530
+links/assets/anchors, 50 sitemap pages), and preview build + `npm run check`
+(188 HTML pages) all pass.
+
+### Slice 1 — derived identity for every page: delivered (59b3d99)
 
 Amended [CONTRACT.md](CONTRACT.md) with Section 5.7 (*Page identity*) and
 referenced it in Sections 8 and 9. Every rendered page (including redirect

@@ -21,7 +21,7 @@ if (dirty)
   throw new Error(
     "The cached content checkout has edits; preserve them before fetching.",
   );
-git(["-C", dir, "fetch", "origin", ref]);
+git(["-C", dir, "fetch", "--tags", "origin", "+refs/heads/*:refs/remotes/origin/*", ref]);
 git(["-C", dir, "checkout", "--detach", "FETCH_HEAD"]);
 console.log(
   "Content ready. npm run dev will use .content in a standalone checkout.",
