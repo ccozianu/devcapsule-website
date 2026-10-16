@@ -1,9 +1,47 @@
 # Website current status
 
-State: the visitor-experience work order is published. The owner merged the
-seven stacked branches as PR #7 (`6759b9d`) and promoted the test candidate
-to production on 2026-09-28; the live verification is below. Delivery: SSH
-push, owner merges PRs and runs the publication workflows.
+State: W00 (search discoverability) is closed following Search Console
+verification and indexing. Active work order:
+[Social metadata and page identity](engineering-docs/work-orders/2026-10-16-social-metadata-and-page-identity.md)
+(W09 / W12). Slice 1 (*Derived identity for every page*) is delivered; next
+step is Slice 2 (*Optional `social` block and landing-page identity*).
+Delivery: SSH push, owner merges PRs and runs the publication workflows.
+
+## Social metadata work order execution (2026-10-16)
+
+### Slice 1 — derived identity for every page: delivered
+
+Amended [CONTRACT.md](CONTRACT.md) with Section 5.7 (*Page identity*) and
+referenced it in Sections 8 and 9. Every rendered page (including redirect
+aliases and standalone index/404 templates) now emits the complete Section 5.7
+tag set from existing fields via `pageIdentity()` in `scripts/content.mjs`:
+
+- `<title>`, `og:title`, and `twitter:title`: page title suffixed
+  ` · DevCapsule` except on the landing page (`DevCapsule`, fixing the
+  doubled `DevCapsule · DevCapsule` on `og:title`).
+- `<meta name="description">`, `og:description`, and `twitter:description`:
+  the page's `description` (with whitespace normalized and a non-empty
+  fallback on short legacy pages).
+- `og:url`: the canonical URL of Section 5.2.
+- `og:type`: `article` for journal entries and release notes, `website`
+  otherwise.
+- `og:image` and `twitter:image`: `/assets/social-card.png` resolved with
+  `origin` and base path.
+- `og:site_name`: `DevCapsule`; `twitter:card`: `summary_large_image`.
+- Default card: `src/assets/social-card.png` (1200×630 PNG, 79 KB) rendered
+  from `src/assets/social-card.svg` using the site's self-hosted Fraunces and
+  Atkinson Hyperlegible fonts and hero band tokens.
+- `scripts/check.mjs` verifies the Section 5.7 tags and image target on every
+  page when `assets/social-card.png` is present (preserving rollback
+  compatibility for pre-5.7 candidates), and `scripts/promote.mjs` rewrites
+  `og:url`, `og:image`, and `twitter:image` from the test origin to the
+  production origin alongside `<link rel="canonical">`.
+
+Validated: 23 unit tests pass (`npm test`), `npm run check:content` passes
+against the latest DevCapsule content checkout, production-mode build +
+`npm run check` pass (180 HTML pages, 13530 local links/assets/anchors, 50
+indexable pages), and preview-mode build + `npm run check` pass (188 HTML
+pages).
 
 ## Live verification (2026-09-28, 21:08 UTC build)
 

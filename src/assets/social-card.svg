@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="DevCapsule — reproducible IDE and coding-agent workspaces behind a boundary you control">
+  <defs>
+    <style>
+      @font-face {
+        font-family: "Fraunces";
+        font-style: normal;
+        font-weight: 100 900;
+        src: url("fonts/fraunces-latin-wght-normal.woff2") format("woff2-variations");
+      }
+      @font-face {
+        font-family: "Atkinson Hyperlegible";
+        font-style: normal;
+        font-weight: 400;
+        src: url("fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Atkinson Hyperlegible";
+        font-style: normal;
+        font-weight: 700;
+        src: url("fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2");
+      }
+      .bg { fill: #173f35; }
+      .grid-line { stroke: rgba(241, 245, 234, 0.08); stroke-width: 1; }
+      .eyebrow {
+        font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        fill: #b9cfc0;
+      }
+      .brand-name {
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 34px;
+        font-weight: 700;
+        fill: #f1f5ea;
+        letter-spacing: -0.02em;
+      }
+      .brand-dot {
+        fill: #e8825f;
+      }
+      .headline {
+        font-family: "Fraunces", Georgia, serif;
+        font-size: 56px;
+        font-weight: 600;
+        fill: #f1f5ea;
+        letter-spacing: -0.02em;
+      }
+      .lead {
+        font-family: "Atkinson Hyperlegible", system-ui, sans-serif;
+        font-size: 23px;
+        font-weight: 400;
+        fill: #b9cfc0;
+      }
+      .chip {
+        fill: rgba(241, 245, 234, 0.1);
+        stroke: rgba(241, 245, 234, 0.22);
+        stroke-width: 1.5;
+      }
+      .chip-text {
+        font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+        font-size: 15px;
+        fill: #f1f5ea;
+      }
+      .card-shell {
+        fill: #edf0e2;
+        stroke: #d4dbca;
+        stroke-width: 2;
+      }
+      .card-window {
+        fill: #121a17;
+        stroke: #2b3833;
+        stroke-width: 1.5;
+      }
+      .window-title {
+        font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        fill: #52684f;
+      }
+      .code-num {
+        font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+        font-size: 16px;
+        fill: #76a27a;
+      }
+      .code-strong {
+        font-family: "Atkinson Hyperlegible", system-ui, sans-serif;
+        font-size: 19px;
+        font-weight: 700;
+        fill: #eef3ea;
+      }
+      .code-text {
+        font-family: "Atkinson Hyperlegible", system-ui, sans-serif;
+        font-size: 19px;
+        fill: #c2ccc4;
+      }
+      .prompt {
+        font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+        font-size: 16px;
+        fill: #cfe7a8;
+      }
+      .boundary-box {
+        fill: #f7f8ef;
+        stroke: #d4dbca;
+        stroke-width: 1.5;
+      }
+      .boundary-label {
+        font-family: "Atkinson Hyperlegible", system-ui, sans-serif;
+        font-size: 16px;
+        fill: #4f5e53;
+      }
+      .boundary-strong {
+        font-family: "Atkinson Hyperlegible", system-ui, sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        fill: #173f35;
+      }
+    </style>
+  </defs>
+
+  <!-- Background band -->
+  <rect width="1200" height="630" class="bg"/>
+  <rect x="36" y="36" width="1128" height="558" rx="24" fill="none" stroke="rgba(241, 245, 234, 0.14)" stroke-width="1.5"/>
+  <line x1="36" y1="128" x2="1164" y2="128" class="grid-line"/>
+  <line x1="36" y1="518" x2="1164" y2="518" class="grid-line"/>
+
+  <!-- Top bar: Brand + Eyebrow -->
+  <g transform="translate(76, 62)">
+    <g transform="translate(0, -2)">
+      <rect x="6" y="2" width="22" height="32" rx="11" fill="none" stroke="#eef3d9" stroke-width="3.5" transform="rotate(35 17 18)"/>
+      <path d="m7 11 20 14" stroke="#eef3d9" stroke-width="3"/>
+    </g>
+    <text x="44" y="27" class="brand-name">DevCapsule<tspan class="brand-dot">.</tspan></text>
+    <text x="1048" y="24" text-anchor="end" class="eyebrow">PRE-V1 · LINUX &amp; WSL2</text>
+  </g>
+
+  <!-- Left column: Headline & Lead -->
+  <g transform="translate(76, 206)">
+    <text x="0" y="0" class="eyebrow">A WORKSPACE WITH A BOUNDARY</text>
+    <text x="0" y="64" class="headline">Start working on a</text>
+    <text x="0" y="128" class="headline">project right away.</text>
+    <text x="0" y="192" class="lead">A full IDE, your tools, and coding agents inside</text>
+    <text x="0" y="226" class="lead">a reproducible capsule whose host access you control.</text>
+  </g>
+
+  <!-- Right column: Workspace card -->
+  <g transform="translate(690, 162)">
+    <rect x="0" y="0" width="434" height="320" rx="18" class="card-shell"/>
+    <text x="24" y="34" class="window-title">WORKSPACE / DEVCAPSULE</text>
+    <circle cx="372" cy="29" r="4.5" fill="#b9c2b3"/>
+    <circle cx="388" cy="29" r="4.5" fill="#b9c2b3"/>
+    <circle cx="404" cy="29" r="4.5" fill="#b9c2b3"/>
+
+    <rect x="20" y="50" width="394" height="196" rx="12" class="card-window"/>
+    <text x="42" y="92" class="code-num">01</text>
+    <text x="80" y="92" class="code-strong">Your source &amp; full IDE</text>
+    <text x="42" y="130" class="code-num">02</text>
+    <text x="80" y="130" class="code-text">Optional AI coding agents</text>
+    <text x="42" y="168" class="code-num">03</text>
+    <text x="80" y="168" class="code-text">Durable markdown project memory</text>
+    <line x1="42" y1="190" x2="392" y2="190" stroke="#2b3833" stroke-width="1.5"/>
+    <text x="42" y="220" class="prompt">› devcapsule project run</text>
+
+    <rect x="20" y="260" width="394" height="42" rx="10" class="boundary-box"/>
+    <circle cx="42" cy="281" r="5" fill="#76a27a"/>
+    <text x="56" y="286" class="boundary-label">Host access &amp; credentials</text>
+    <text x="394" y="286" text-anchor="end" class="boundary-strong">You decide.</text>
+  </g>
+
+  <!-- Bottom bar -->
+  <g transform="translate(76, 558)">
+    <rect x="0" y="-22" width="290" height="34" rx="17" class="chip"/>
+    <text x="145" y="0" text-anchor="middle" class="chip-text">devcapsule.mycodespace.ai</text>
+    <text x="1048" y="0" text-anchor="end" class="eyebrow">BUILT IN THE OPEN · APACHE-2.0</text>
+  </g>
+</svg>

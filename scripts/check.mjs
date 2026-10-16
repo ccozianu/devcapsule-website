@@ -15,13 +15,53 @@ const documents = new Map(
   htmlFiles.map((file) => [file, load(fs.readFileSync(file, "utf8"))]),
 );
 const failures = [];
+const hasSocialCard = fs.existsSync(path.join(output, "assets/social-card.png"));
 let links = 0;
 for (const [file, $] of documents) {
   const label = path.relative(output, file);
   if ($("html").attr("lang") !== "en")
     failures.push(`${label}: missing language`);
   if ($("h1").length !== 1) failures.push(`${label}: expected one H1`);
-  if (!$("title").text().trim()) failures.push(`${label}: empty title`);
+  const title = $("title").text().trim();
+  if (!title) failures.push(`${label}: empty title`);
+  if (hasSocialCard) {
+    if (label === "index.html" && title === "DevCapsule · DevCapsule")
+      failures.push(`${label}: doubled landing page title`);
+    if (label !== "index.html" && !title.endsWith(" · DevCapsule"))
+      failures.push(`${label}: title must end with " · DevCapsule"`);
+    const description = $('meta[name="description"]').attr("content")?.trim() || "";
+    if (!description) failures.push(`${label}: missing meta description`);
+    const canonical = $("link[rel=canonical]").attr("href") || "";
+    const ogTitle = $('meta[property="og:title"]').attr("content") || "";
+    const twitterTitle = $('meta[name="twitter:title"]').attr("content") || "";
+    const ogDesc = $('meta[property="og:description"]').attr("content")?.trim() || "";
+    const twitterDesc = $('meta[name="twitter:description"]').attr("content")?.trim() || "";
+    const ogUrl = $('meta[property="og:url"]').attr("content") || "";
+    const ogType = $('meta[property="og:type"]').attr("content") || "";
+    const ogSiteName = $('meta[property="og:site_name"]').attr("content") || "";
+    const twitterCard = $('meta[name="twitter:card"]').attr("content") || "";
+    const ogImage = $('meta[property="og:image"]').attr("content") || "";
+    const twitterImage = $('meta[name="twitter:image"]').attr("content") || "";
+    if (ogTitle !== title) failures.push(`${label}: og:title does not match <title>`);
+    if (twitterTitle !== title) failures.push(`${label}: twitter:title does not match <title>`);
+    if (ogDesc !== description) failures.push(`${label}: og:description does not match meta description`);
+    if (twitterDesc !== description) failures.push(`${label}: twitter:description does not match meta description`);
+    if (!ogUrl) failures.push(`${label}: missing og:url`);
+    if (canonical && ogUrl !== canonical) failures.push(`${label}: og:url does not match canonical URL`);
+    if (ogType !== "article" && ogType !== "website") failures.push(`${label}: unexpected og:type ${ogType}`);
+    if (ogSiteName !== "DevCapsule") failures.push(`${label}: unexpected og:site_name ${ogSiteName}`);
+    if (twitterCard !== "summary_large_image") failures.push(`${label}: unexpected twitter:card ${twitterCard}`);
+    if (!ogImage) failures.push(`${label}: missing og:image`);
+    if (twitterImage !== ogImage) failures.push(`${label}: twitter:image does not match og:image`);
+    if (ogImage) {
+      if (canonical && !ogImage.startsWith(new URL(canonical).origin + base))
+        failures.push(`${label}: og:image does not use canonical origin: ${ogImage}`);
+      const imageUrl = new URL(ogImage, "https://preview.invalid");
+      const imageTarget = path.join(output, decodeURIComponent(imageUrl.pathname.slice(base.length)));
+      if (!imageUrl.pathname.startsWith(base) || !fs.existsSync(imageTarget) || !fs.statSync(imageTarget).isFile())
+        failures.push(`${label}: missing social card image ${ogImage}`);
+    }
+  }
   const ids = new Set();
   $("[id]").each((_, el) => {
     const id = $(el).attr("id");

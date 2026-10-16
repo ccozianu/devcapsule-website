@@ -5,12 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <script>(function(){var d=document.documentElement,ids=["system","devcapsule-day","devcapsule-night","solarized-light","solarized-dark","gruvbox-light","gruvbox-dark","nord","catppuccin-latte","catppuccin-mocha"];try{var p=localStorage.getItem("palette")||{light:"devcapsule-day",dark:"devcapsule-night"}[localStorage.getItem("theme")];if(p&&ids.indexOf(p)>-1)d.setAttribute("data-palette",p);}catch(e){}d.setAttribute("data-js","");})();</script>
-  <title>{{ title }}{% if title != 'DevCapsule' %} · DevCapsule{% endif %}</title>
-  <meta name="description" content="{{ entry.excerpt if entry else description or 'Development notes, decisions, and conversations from building DevCapsule.' }}">
+  {% set id = entry | identity(title, description or 'Development notes, decisions, and conversations from building DevCapsule.', page.url, origin) %}
+  <title>{{ id.title }}</title>
+  <meta name="description" content="{{ id.description }}">
   {% if preview %}<meta name="robots" content="noindex, nofollow">{% elif entry.noindex %}<meta name="robots" content="noindex">{% endif %}
-  {% if origin %}<link rel="canonical" href="{{ origin }}{{ (entry.canonical if entry else page.url) | url }}">{% endif %}
-  <meta property="og:title" content="{{ title }} · DevCapsule">
-  <meta property="og:type" content="{{ 'article' if entry.kind == 'post' else 'website' }}">
+  {% if origin %}<link rel="canonical" href="{{ id.url }}">{% endif %}
+  <meta property="og:title" content="{{ id.title }}">
+  <meta property="og:description" content="{{ id.description }}">
+  <meta property="og:url" content="{{ id.url }}">
+  <meta property="og:type" content="{{ id.type }}">
+  <meta property="og:image" content="{{ id.image }}">
+  <meta property="og:site_name" content="{{ id.siteName }}">
+  <meta name="twitter:card" content="{{ id.card }}">
+  <meta name="twitter:title" content="{{ id.title }}">
+  <meta name="twitter:description" content="{{ id.description }}">
+  <meta name="twitter:image" content="{{ id.image }}">
   <link rel="icon" href="{{ '/assets/favicon.svg' | url }}" type="image/svg+xml">
   <link rel="preload" href="{{ '/assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{{ '/assets/fonts/fraunces-latin-wght-normal.woff2' | url }}" as="font" type="font/woff2" crossorigin>

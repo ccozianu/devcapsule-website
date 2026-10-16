@@ -247,7 +247,17 @@ implied by recording these tasks.
 - Progress (2026-10-16): scoped in detail by
   [the 2026-10-16 social-metadata work order](engineering-docs/work-orders/2026-10-16-social-metadata-and-page-identity.md)
   (derived page identity tags, default raster card, optional `social` front
-  matter block, and `website:social` landing marker).
+  matter block, and `website:social` landing marker). Slice 1 is delivered:
+  `CONTRACT.md` Section 5.7 (*Page identity*) is documented; every rendered
+  page emits `<title>`, `<meta name="description">`, `og:title`,
+  `og:description`, `og:url`, `og:type`, `og:image`, `og:site_name`,
+  `twitter:card`, `twitter:title`, `twitter:description`, and `twitter:image`
+  derived from existing fields; the landing page's `og:title` and
+  `twitter:title` equal its `<title>` (`DevCapsule`, not doubled); the default
+  1200×630 PNG card (`src/assets/social-card.png` and source
+  `src/assets/social-card.svg`) is served at `/assets/social-card.png`; and
+  `scripts/check.mjs` and `scripts/promote.mjs` verify and promote the full
+  tag set. Slices 2 and 3 remain.
 - Producer dependency: W09-C supplies approved descriptions and social artwork.
   Website owns metadata generation, sitemap and preview rendering; agree the
   fields through W12. This split does not change the original W09 scope above.

@@ -92,3 +92,27 @@ test("unexpected canonical origin aborts before rewriting any page", t => {
   assert.throws(() => promote(dir, candidate), /Unexpected canonical origin/);
   assert.equal(fs.readFileSync(path.join(dir, "index.html"), "utf8"), page);
 });
+
+test("social metadata URLs move to the production origin while unexpected social origins abort promotion", t => {
+  const { dir } = fixture(t);
+  const socialPage =
+    '<!doctype html><link rel="canonical" href="https://test-devcapsule.mycodespace.ai/docs/">\n' +
+    '<meta property="og:url" content="https://test-devcapsule.mycodespace.ai/docs/">\n' +
+    '<meta property="og:image" content="https://test-devcapsule.mycodespace.ai/assets/social-card.png">\n' +
+    '<meta name="twitter:image" content="https://test-devcapsule.mycodespace.ai/assets/social-card.png">\n' +
+    "<p>Literal test-devcapsule.mycodespace.ai in authored content.</p>\n";
+  fs.writeFileSync(path.join(dir, "index.html"), socialPage);
+  assert.equal(promote(dir, candidate), 1);
+  assert.equal(
+    fs.readFileSync(path.join(dir, "index.html"), "utf8"),
+    socialPage
+      .replaceAll('"https://test-devcapsule.mycodespace.ai/', '"https://devcapsule.mycodespace.ai/'),
+  );
+  const bad = fixture(t);
+  fs.writeFileSync(
+    path.join(bad.dir, "z.html"),
+    socialPage.replace('property="og:image" content="https://test-devcapsule.mycodespace.ai/', 'property="og:image" content="https://example.com/'),
+  );
+  assert.throws(() => promote(bad.dir, candidate), /Unexpected social origin/);
+  assert.equal(fs.readFileSync(path.join(bad.dir, "index.html"), "utf8"), page);
+});

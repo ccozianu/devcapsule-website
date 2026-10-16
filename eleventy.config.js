@@ -1,10 +1,13 @@
-import { buildContent, siteUrl, prefix } from "./scripts/content.mjs";
+import { buildContent, siteUrl, prefix, pageIdentity } from "./scripts/content.mjs";
 export default function (config) {
   const site = buildContent();
   config.addGlobalData("site", site);
   config.addGlobalData("preview", site.manifest.mode !== "production");
   config.addGlobalData("origin", process.env.SITE_ORIGIN || "");
   config.addFilter("url", siteUrl);
+  config.addFilter("identity", (entry, title, description, url, origin) =>
+    pageIdentity(entry ?? { title, description, url }, origin),
+  );
   config.addFilter("shortsha", (value) => value.slice(0, 7));
   config.addFilter("buildtime", (value) =>
     new Date(value).toLocaleString("en-GB", {

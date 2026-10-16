@@ -4,8 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="refresh" content="0; url={{ entry.target | url }}">
-  <title>{{ title }} · DevCapsule</title>
-  {% if origin %}<link rel="canonical" href="{{ origin }}{{ entry.canonical | url }}">{% endif %}
+  {% set id = entry | identity(title, entry.description, page.url, origin) %}
+  <title>{{ id.title }}</title>
+  <meta name="description" content="{{ id.description }}">
+  {% if origin %}<link rel="canonical" href="{{ id.url }}">{% endif %}
+  <meta property="og:title" content="{{ id.title }}">
+  <meta property="og:description" content="{{ id.description }}">
+  <meta property="og:url" content="{{ id.url }}">
+  <meta property="og:type" content="{{ id.type }}">
+  <meta property="og:image" content="{{ id.image }}">
+  <meta property="og:site_name" content="{{ id.siteName }}">
+  <meta name="twitter:card" content="{{ id.card }}">
+  <meta name="twitter:title" content="{{ id.title }}">
+  <meta name="twitter:description" content="{{ id.description }}">
+  <meta name="twitter:image" content="{{ id.image }}">
   <link rel="stylesheet" href="{{ '/assets/site.css' | url }}">
 </head>
 <body>

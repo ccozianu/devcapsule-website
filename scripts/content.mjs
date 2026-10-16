@@ -166,17 +166,44 @@ export function render(source, file, context) {
       sub: el.tagName === "h3",
     }))
     .get();
-  const description = $("p")
-    .filter((_, el) => $(el).text().trim().length > 40)
-    .first()
+  const paragraphs = $("p");
+  const longParagraph = paragraphs.filter((_, el) => $(el).text().trim().length > 40).first();
+  const description = (longParagraph.length ? longParagraph : paragraphs.first())
     .text()
     .replace(/\s+/g, " ")
     .trim();
   return { title, titleId, html: $.html(), toc, description };
 }
-const excerpt = (text) =>
-  text.length > 210 ? text.slice(0, 207).replace(/\s+\S*$/, "") + "…" : text;
+const excerpt = (text) => {
+  const clean = text.replace(/\s+/g, " ").trim();
+  return clean.length > 210 ? clean.slice(0, 207).replace(/\s+\S*$/, "") + "…" : clean;
+};
 const minutes = (source) => Math.max(1, Math.ceil(source.split(/\s+/).length / 220));
+export const DEFAULT_CARD = "/assets/social-card.png";
+
+export function pageIdentity(page, origin = process.env.SITE_ORIGIN || "") {
+  const rawTitle = page.social?.title || page.title;
+  const title =
+    page.kind === "home" || rawTitle === "DevCapsule"
+      ? rawTitle
+      : `${rawTitle} · DevCapsule`;
+  const description = page.social?.description || page.description;
+  const canonicalPath = siteUrl(page.canonical || page.url);
+  const url = origin ? `${origin}${canonicalPath}` : canonicalPath;
+  const kind = page.targetKind || page.kind;
+  const type = kind === "post" || kind === "release" ? "article" : "website";
+  const imagePath = page.social?.image ? siteUrl(page.social.image) : siteUrl(DEFAULT_CARD);
+  const image = origin ? `${origin}${imagePath}` : imagePath;
+  return {
+    title,
+    description,
+    url,
+    type,
+    image,
+    siteName: "DevCapsule",
+    card: "summary_large_image",
+  };
+}
 
 // --- The landing page: stable section identities (W07) ---------------------
 // The README marks its sections with HTML comments, `<!-- website:NAME -->`,
@@ -372,7 +399,7 @@ export function renderVersion({ entry, tree, revision, assetKey, version, blogRo
       titleId: rendered.titleId,
       html: rendered.html,
       toc: rendered.toc,
-      description: meta.description ?? rendered.description,
+      description: meta.description || rendered.description || rendered.title,
       draft: meta.draft,
       status: meta.status,
       planned: meta.status === "planned",
@@ -609,7 +636,16 @@ export function buildContent() {
     };
     // The journal moved from /blog/; the old address of every entry keeps working.
     for (const alias of [post.url.replace("/journal/", "/blog/"), ...meta.aliases])
-      if (!aliases.has(alias)) aliases.set(alias, { url: post.url, title: post.title, from: file, priority: 0 });
+      if (!aliases.has(alias))
+        aliases.set(alias, {
+          url: post.url,
+          title: post.title,
+          description: post.description,
+          targetKind: post.kind,
+          social: post.social ?? null,
+          from: file,
+          priority: 0,
+        });
     pages.push(post);
     posts.push(post);
   }
@@ -659,7 +695,16 @@ export function buildContent() {
         : null,
     };
     for (const alias of meta.aliases)
-      if (!aliases.has(alias)) aliases.set(alias, { url: release.url, title: release.title, from: file, priority: 0 });
+      if (!aliases.has(alias))
+        aliases.set(alias, {
+          url: release.url,
+          title: release.title,
+          description: release.description,
+          targetKind: release.kind,
+          social: release.social ?? null,
+          from: file,
+          priority: 0,
+        });
     pages.push(release);
     releases.push(release);
   }
@@ -758,11 +803,27 @@ export function buildContent() {
         const target = inCurrent(page.path) ? docsUrl("current", page.path) : docsUrl(v.version, page.path);
         const known = aliases.get(alias);
         if (!known || priority < known.priority)
-          aliases.set(alias, { url: target, title: page.title, from: `${v.version}:${page.file}`, priority });
+          aliases.set(alias, {
+            url: target,
+            title: page.title,
+            description: page.description,
+            targetKind: "doc",
+            social: page.social ?? null,
+            from: `${v.version}:${page.file}`,
+            priority,
+          });
       }
     }
   }
-  aliases.set("/blog/", { url: "/journal/", title: "The development journal", from: "the journal route", priority: 0 });
+  aliases.set("/blog/", {
+    url: "/journal/",
+    title: "The development journal",
+    description: "Development notes, decisions, and conversations from building DevCapsule.",
+    targetKind: "journal",
+    social: null,
+    from: "the journal route",
+    priority: 0,
+  });
   const routes = new Set(pages.map((p) => p.url));
   routes.add("/docs/").add("/journal/").add("/releases/");
   for (const [alias, target] of aliases) {
@@ -771,8 +832,11 @@ export function buildContent() {
       fail(`alias ${alias} (from ${target.from}) collides with a published page`);
     pages.push({
       kind: "alias",
+      targetKind: target.targetKind,
       url,
       title: target.title,
+      description: target.description,
+      social: target.social ?? null,
       target: target.url,
       canonical: target.url,
       indexable: false,
@@ -782,6 +846,7 @@ export function buildContent() {
   const urls = pages.map((p) => p.url);
   const duplicate = urls.find((u, i) => urls.indexOf(u) !== i);
   if (duplicate) fail(`two pages would publish at ${duplicate}`);
+  for (const page of pages) page.identity = pageIdentity(page);
 
   for (const asset of [...assets].sort())
     hash.update(asset + "\0").update(fs.readFileSync(path.join(dir, asset)));

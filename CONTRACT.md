@@ -286,6 +286,26 @@ there, otherwise to the newest listed version that declares it. An alias that
 would shadow a published page fails the build naming both. The redirect page
 carries the target as its canonical URL.
 
+### 5.7 Page identity
+
+*Added on 2026-10-16 under
+[the social metadata work order](engineering-docs/work-orders/2026-10-16-social-metadata-and-page-identity.md);
+additive.* For every rendered page the consumer emits:
+
+| Tag | Value |
+|---|---|
+| `<title>` | `social.title` if present, else the page title; suffixed ` · DevCapsule` except on the landing page |
+| `og:title`, `twitter:title` | the same text as `<title>` |
+| `og:description`, `twitter:description` | `social.description` if present, else `description` |
+| `og:url` | the canonical URL of 5.2 |
+| `og:type` | `article` for journal entries and release notes, `website` otherwise |
+| `og:image`, `twitter:image` | `social.image` resolved to an absolute URL, else the consumer's default card (`/assets/social-card.png`) |
+| `og:site_name` | `DevCapsule` |
+| `twitter:card` | `summary_large_image` |
+
+Pages that are `noindex` under 5.2 still receive the tags; a shared link to a
+planned page should at least say what the page will be.
+
 ## 6. Build and caching
 
 A released version's rendering depends only on its source commit, its
@@ -327,6 +347,8 @@ Recorded so that version 2 starts from what is actually implemented:
 9. The landing page identities of 3.7, the pillars from role pages, and the
    `/why/` and `/contribute/` routes (5.1).
 10. The journal lives at `/journal/`; `/blog/` addresses redirect (5.1).
+11. The derived and overridden page identity tags and default raster card of
+    5.7, additive.
 
 ## 9. Acceptance
 
@@ -335,7 +357,8 @@ The contract is satisfied when, at the pinned consumer revision:
 - the fixture provokes each named failure of sections 3, 4 and 5.6 and the
   build reports it by name;
 - the build serves `/docs/`, `/docs/current/` and one directory per listed
-  version with the banners, canonicals and robots behaviour of 5.2;
+  version with the banners, canonicals, robots and page identity behaviour of
+  5.2 and 5.7;
 - every role resolves to the current version;
 - tokens render to the version of each source;
 - with three versions listed, a change to a `main` page re-renders only

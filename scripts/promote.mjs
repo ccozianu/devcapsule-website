@@ -62,7 +62,20 @@ export function promote(directory, candidate) {
         const robotsMeta = [...html.matchAll(/<meta\b[^>]*name=["']robots["'][^>]*>/gi)].map(m => m[0]);
         assert(robotsMeta.every(tag => tag === '<meta name="robots" content="noindex">'),
           `Unexpected page indexing override in ${file}`);
-        changes.push([file, html.replace(canonical[0][0], canonical[0][0].replace(testOrigin, productionOrigin))]);
+        let promoted = html.replace(canonical[0][0], canonical[0][0].replace(testOrigin, productionOrigin));
+        for (const pattern of [
+          /<meta property="og:url" content="([^"]+)">/g,
+          /<meta property="og:image" content="([^"]+)">/g,
+          /<meta name="twitter:image" content="([^"]+)">/g,
+        ]) {
+          const matches = [...promoted.matchAll(pattern)];
+          assert(matches.length <= 1, `Expected at most one ${pattern} in ${file}`);
+          if (matches.length === 1) {
+            assert(matches[0][1].startsWith(testOrigin + "/"), `Unexpected social origin in ${file}: ${matches[0][1]}`);
+            promoted = promoted.replace(matches[0][0], matches[0][0].replace(testOrigin, productionOrigin));
+          }
+        }
+        changes.push([file, promoted]);
       }
     }
   }
@@ -78,7 +91,7 @@ export function promote(directory, candidate) {
     release: `https://github.com/ccozianu/devcapsule/releases/tag/${candidate.tag}`,
     archiveDigest: candidate.digest,
     origin: productionOrigin,
-    transformation: "origin-only: canonical links, robots.txt sitemap reference, sitemap locations",
+    transformation: "origin-only: canonical links, social metadata URLs, robots.txt sitemap reference, sitemap locations",
   };
   fs.writeFileSync(infoPath, JSON.stringify(info, null, 2) + "\n");
   return changes.length;

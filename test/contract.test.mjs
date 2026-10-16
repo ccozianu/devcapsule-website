@@ -307,3 +307,36 @@ test("release notes become one page per final tag, newest first, with the curren
   repo.write("engineering-docs/releases/v1.0.0/notes.md", "# Fixture 1.0.0\n\nNo block.\n");
   assert.throws(() => build(repo), /engineering-docs\/releases\/v1\.0\.0\/notes\.md: missing front matter block/);
 });
+
+test("every page derives the Section 5.7 page identity from existing fields and the default card", (t) => {
+  const repo = createFixtureRepo();
+  t.after(repo.remove);
+  const site = withEnv(
+    {
+      CONTENT_DIR: repo.dir,
+      SITE_CACHE_DIR: repo.cache,
+      SITE_MODE: "production",
+      SITE_BASE_PATH: "/",
+      SITE_ORIGIN: "https://devcapsule.mycodespace.ai",
+    },
+    buildContent,
+  );
+  for (const entry of site.pages) {
+    assert.ok(entry.identity, entry.url);
+    assert.ok(entry.identity.title, entry.url);
+    assert.ok(entry.identity.description, entry.url);
+    assert.equal(entry.identity.url, `https://devcapsule.mycodespace.ai${entry.canonical}`);
+    assert.equal(entry.identity.image, "https://devcapsule.mycodespace.ai/assets/social-card.png");
+    assert.equal(entry.identity.siteName, "DevCapsule");
+    assert.equal(entry.identity.card, "summary_large_image");
+    if (entry.kind === "home") {
+      assert.equal(entry.identity.title, entry.title);
+      assert.ok(!entry.identity.title.endsWith(" · DevCapsule"));
+      assert.equal(entry.identity.type, "website");
+    } else {
+      assert.equal(entry.identity.title, `${entry.title} · DevCapsule`);
+      const kind = entry.targetKind || entry.kind;
+      assert.equal(entry.identity.type, kind === "post" || kind === "release" ? "article" : "website");
+    }
+  }
+});
