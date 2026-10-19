@@ -110,9 +110,8 @@ for (const [file, $] of documents) {
     if ($(el).attr("alt") === undefined)
       failures.push(`${label}: image without alt`);
   });
-  $("a[href],link[href],script[src],img[src]").each((_, el) => {
-    const href = $(el).attr("href") || $(el).attr("src");
-    if (/^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(href)) return;
+  const checkTarget = (href) => {
+    if (!href || /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(href)) return;
     links++;
     const current =
       "https://preview.invalid" + base + label.replace(/index\.html$/, "");
@@ -141,6 +140,13 @@ for (const [file, $] of documents) {
       )
         failures.push(`${label}: missing anchor ${href}`);
     }
+  };
+  $("a[href],link[href],script[src],img[src],source[src],track[src]").each((_, el) => {
+    checkTarget($(el).attr("href") || $(el).attr("src"));
+  });
+  $("video").each((_, el) => {
+    checkTarget($(el).attr("src"));
+    checkTarget($(el).attr("poster"));
   });
 }
 // The sitemap must list exactly the indexable pages: every ordinary HTML page

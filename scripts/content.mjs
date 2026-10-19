@@ -80,6 +80,7 @@ export function identity(dir) {
 }
 const encodePath = (file) => file.split("/").map(encodeURIComponent).join("/");
 const isImage = (target) => /\.(?:png|jpg|jpeg|gif|svg|webp|avif)$/i.test(target);
+const isVideo = (target) => /\.(?:webm|mp4)$/i.test(target);
 
 // Routes of the unversioned pages, always built from the checkout.
 export function route(file) {
@@ -125,6 +126,11 @@ export function resolveTarget(href, file, context) {
     context.assets.add(target);
     return siteUrl(`/content-assets/${context.assetKey}/${encodePath(target)}`) + suffix;
   }
+  if (isVideo(target)) {
+    if (!context.exists(target)) fail(`${file}: missing video ${target}`);
+    context.assets.add(target);
+    return siteUrl(`/content-assets/${context.assetKey}/${encodePath(target)}`) + suffix;
+  }
   if (!context.exists(target)) fail(`${file}: broken source link ${href}`);
   return `${repository}/blob/${context.revision}/${encodePath(target)}${suffix}`;
 }
@@ -145,9 +151,14 @@ export function render(source, file, context) {
     const el = $(element);
     el.attr("id", slugger.slug(el.text()));
   });
-  $("a[href], img[src]").each((_, element) => {
+  $("a[href], img[src], video[src], video[poster], source[src]").each((_, element) => {
     const el = $(element);
-    const attr = element.tagName === "img" ? "src" : "href";
+    if (element.tagName === "video") {
+      if (el.attr("src")) el.attr("src", resolveTarget(el.attr("src"), file, context));
+      if (el.attr("poster")) el.attr("poster", resolveTarget(el.attr("poster"), file, context));
+      return;
+    }
+    const attr = element.tagName === "img" || element.tagName === "source" ? "src" : "href";
     el.attr(attr, resolveTarget(el.attr(attr), file, context));
   });
   $("table").each((i, el) =>
@@ -269,7 +280,7 @@ export function pageIdentity(page, origin = process.env.SITE_ORIGIN || "") {
 // `<!-- website:end -->`. CONTRACT.md section 3.6 lists the names and what
 // each one renders. A README without markers falls back to the original
 // heading adapter, so the site builds while the producer adopts the markers.
-export const LANDING_SECTIONS = ["hero", "benefits", "fit", "dogfood", "why", "comparison", "contribute"];
+export const LANDING_SECTIONS = ["hero", "demo", "benefits", "continuity", "fit", "dogfood", "why", "comparison", "contribute"];
 const MARKER = /^\s*website:([a-z-]+)(?:\s+([\s\S]*?))?\s*$/;
 
 function parseSocialMarker(attrText) {
@@ -315,8 +326,10 @@ export function landingSections(html) {
   let social = null;
   let name = null;
   let nodes = [];
+  let preHtml = null;
   const flush = () => {
     if (name) sections[name] = sectionModel($, nodes);
+    else if (preHtml === null) preHtml = nodes.map((n) => $.html(n)).join("\n");
     nodes = [];
   };
   for (const node of $.root().contents().toArray()) {
@@ -344,6 +357,7 @@ export function landingSections(html) {
   flush();
   if (!Object.keys(sections).length && !social) return null;
   if (social) sections.social = social;
+  sections.preHtml = preHtml || "";
   return sections;
 }
 
@@ -357,6 +371,46 @@ function cardOf(itemHtml) {
   const label = link.text() || null;
   if (url) link.remove();
   return { headline: headline || null, html: $.html().trim(), url, label };
+}
+
+function demoOf(section) {
+  if (!section) return null;
+  const $ = load(section.html, null, false);
+  const videoEl = $("video").first();
+  const imgEl = $("img").first();
+  const poster = (videoEl.attr("poster") || imgEl.attr("src") || "").trim() || null;
+  const alt = (imgEl.attr("alt") || videoEl.attr("aria-label") || "").trim() || null;
+  const linkedVideo = imgEl.closest("a").attr("href") || "";
+  const videoSrc =
+    videoEl.attr("src") ||
+    videoEl.find("source").first().attr("src") ||
+    (/\.(?:webm|mp4)(?:[?#].*)?$/i.test(linkedVideo) ? linkedVideo : "") ||
+    $("a")
+      .toArray()
+      .map((a) => $(a).attr("href") || "")
+      .find((href) => /\.(?:webm|mp4)(?:[?#].*)?$/i.test(href)) ||
+    null;
+  if (!videoSrc)
+    fail("README.md: the demo section needs a video asset (.webm or .mp4)");
+  if (!poster)
+    fail("README.md: the demo section needs a poster image");
+  if (!alt)
+    fail("README.md: the demo section poster needs alt text");
+  const captionParagraphs = section.paragraphs.filter((p) => {
+    const p$ = load(p, null, false);
+    if (p$("video").length) return false;
+    if (p$("img").length && !p$("p").clone().find("img, a:has(img)").remove().end().text().trim()) return false;
+    return true;
+  });
+  return {
+    heading: section.heading || "Watch a real session inside a capsule",
+    id: section.id || "session-demo",
+    video: videoSrc,
+    poster,
+    alt,
+    caption: captionParagraphs.join("\n"),
+    steps: section.items,
+  };
 }
 
 // The original adapter, kept only for a README without markers.
@@ -387,12 +441,16 @@ function legacyLanding(html) {
 }
 
 function landing(record, roles, rolePages) {
-  const $ = load(record.html, null, false);
-  const badges = $("img").toArray().map((el) => $.html($(el).closest("a").length ? $(el).closest("a") : $(el))).join(" ");
   const marked = landingSections(record.html);
+  const badgeRoot = marked ? load(marked.preHtml || "", null, false) : load(record.html, null, false);
+  const badges = badgeRoot("img")
+    .toArray()
+    .map((el) => badgeRoot.html(badgeRoot(el).closest("a").length ? badgeRoot(el).closest("a") : badgeRoot(el)))
+    .join(" ");
   const sections = marked || legacyLanding(record.html);
   if (!sections.hero || !sections.hero.heading)
     fail("README.md: the landing page needs a hero section with a heading; mark it with <!-- website:hero --> (CONTRACT.md 3.6)");
+  const demo = demoOf(sections.demo);
   const benefits = (sections.benefits?.items ?? []).map(cardOf);
   if (benefits.length > 4) fail(`README.md: the benefits section lists ${benefits.length} items; the home page shows at most four`);
   const fit = sections.fit
@@ -406,8 +464,10 @@ function landing(record, roles, rolePages) {
       headline: sections.hero.heading,
       id: sections.hero.id || "hero",
       lead: sections.hero.paragraphs[0] || "",
+      paragraphs: sections.hero.paragraphs,
       chips: sections.hero.items.map((item) => load(item, null, false).text().trim()),
     },
+    demo,
     pillars: ["getting-started", "your-project", "agents"].map((role) => ({
       role,
       title: rolePages[role].title,
@@ -415,6 +475,8 @@ function landing(record, roles, rolePages) {
       url: roles[role],
     })),
     benefits,
+    benefitsHeading: sections.benefits?.heading ?? null,
+    continuity: sections.continuity ?? null,
     fit: { heading: sections.fit?.heading ?? null, id: sections.fit?.id ?? null, columns: fit },
     dogfood: sections.dogfood?.html ?? "",
     why: sections.why ?? null,

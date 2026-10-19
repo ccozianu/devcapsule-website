@@ -197,8 +197,10 @@ subsections. The names, and what each renders:
 
 | Name | Renders | Shape |
 |---|---|---|
-| `hero` | the headline, the lead and the eyebrow chips | required: a heading and a paragraph; optional: a list, one chip per item |
+| `hero` | the headline, the lead and supporting paragraphs, and the eyebrow chips | required: a heading and one or more paragraphs (the first is `hero.lead`); optional: a list, one chip per item |
+| `demo` | the right-hand hero demonstration (`figure.workspace-figure`), replacing the schematic illustration when present | optional heading; a linked poster image `[![alt](poster.png)](video.webm)` (or `<video>` with `poster`); provenance/caption paragraphs; optional list of step summaries |
 | `benefits` | the "What you get" cards | at most four items: `**Headline.** text [link](docs/…)` |
+| `continuity` | the "Engineering continuity" section after `benefits` | a heading and prose (for example a session handoff excerpt and how the next session uses it) |
 | `fit` | the "Is it for you?" columns, also shown on `/why/` | a heading and two subsections, each with a list |
 | `dogfood` | the line above the journal cards | one paragraph |
 | `why` | `/why/`, the long answer | a heading and prose |
@@ -211,7 +213,8 @@ version, with their titles and descriptions, so the producer edits them in
 the documentation. Images before the first marker are the health badges,
 shown in the footer. An unknown name, a name marked twice, a duplicate
 `website:social` marker, an unknown `website:social` attribute, a hero
-without a heading or more than four benefits fail the build naming the
+without a heading, a `demo` section missing its video or poster image (or
+poster `alt` text), or more than four benefits fail the build naming the
 problem. A README without any marker is read by the original heading adapter
 as long as it lasts, so the site builds while the producer adopts the
 markers.
@@ -246,7 +249,7 @@ documentation only by role, resolved to `/docs/current/<path>/`.
 | `/docs/<version>/…` | that version's documentation, `docs/README.md` at the version root, `docs/a/b.md` at `a/b/` |
 | `/docs/current/…` | a full copy of the current version; the canonical URL of every page that exists in it |
 | each alias | a redirect page to the page that declares it |
-| `/content-assets/<key>/docs/…` | images a version references, keyed `main` for the checkout or the source's short commit |
+| `/content-assets/<key>/…` | images and self-hosted videos (`.webm`, `.mp4`) a version or unversioned page references, keyed `main` for the checkout or the source's short commit |
 
 ### 5.2 Canonical and robots behaviour by status
 
@@ -286,10 +289,10 @@ explicit.
 Links to pages of the same version stay inside the copy they are read in
 (`/docs/current/…` in the current copy, `/docs/<version>/…` otherwise);
 `README.md` leads to the landing page; journal entries published from the
-checkout lead to the journal; any other existing file becomes a GitHub
-permalink at the version's source revision; a missing target fails the build
-naming the file and link. Images under `docs/` are copied from the version's
-source.
+checkout lead to the journal; images and self-hosted videos (`.webm`, `.mp4`)
+are copied from the source into `/content-assets/<key>/…`; any other existing
+file becomes a GitHub permalink at the version's source revision; a missing
+target fails the build naming the file and link.
 
 ### 5.6 Aliases
 
@@ -365,6 +368,9 @@ Recorded so that version 2 starts from what is actually implemented:
 10. The journal lives at `/journal/`; `/blog/` addresses redirect (5.1).
 11. The derived and overridden page identity tags and default raster card of
     5.7, additive.
+12. `website:demo` and `website:continuity` landing section markers, multiple
+    explanatory paragraphs in `website:hero`, and self-hosted `.webm`/`.mp4`
+    media assets under `/content-assets/<key>/…` (3.7, 5.1, 5.5), additive.
 
 ## 9. Acceptance
 
