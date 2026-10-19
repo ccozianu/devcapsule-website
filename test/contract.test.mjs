@@ -182,6 +182,9 @@ test("each named failure names its file, field, version or role", (t) => {
     ["social image outside docs", (r) => r.write("docs/platforms/linux.md", "---\ndescription: x\nsocial:\n  image: outside/card.png\n---\n# Linux\n"), /docs\/platforms\/linux\.md: "social\.image" must be a path under docs\/ to a PNG or JPEG/],
     ["social image SVG rejected", (r) => r.write("docs/platforms/linux.md", "---\ndescription: x\nsocial:\n  image: docs/images/diagram.svg\n---\n# Linux\n"), /docs\/platforms\/linux\.md: "social\.image" must be a path under docs\/ to a PNG or JPEG/],
     ["missing social image", (r) => r.write("docs/platforms/linux.md", "---\ndescription: x\nsocial:\n  image: docs/images/missing.png\n---\n# Linux\n"), /docs\/platforms\/linux\.md: missing social image docs\/images\/missing\.png/],
+    ["demo without video", (r) => r.write("README.md", r.read("README.md").replace("<!-- website:benefits -->", "<!-- website:demo -->\n### Demo\n\n![Poster](docs/images/card.png)\n\n<!-- website:benefits -->")), /README\.md: the demo section needs a video asset/],
+    ["demo without poster", (r) => { r.write("docs/images/demo.webm", "video"); r.write("README.md", r.read("README.md").replace("<!-- website:benefits -->", "<!-- website:demo -->\n### Demo\n\n[Watch](docs/images/demo.webm)\n\n<!-- website:benefits -->")); }, /README\.md: the demo section needs a poster image/],
+    ["demo poster without alt", (r) => { r.write("docs/images/demo.webm", "video"); r.write("README.md", r.read("README.md").replace("<!-- website:benefits -->", "<!-- website:demo -->\n### Demo\n\n[![](docs/images/card.png)](docs/images/demo.webm)\n\n<!-- website:benefits -->")); }, /README\.md: the demo section poster needs alt text/],
   ];
   for (const [name, mutate, expected] of cases) {
     const repo = createFixtureRepo();
@@ -256,12 +259,36 @@ test("the landing page is assembled from the README's marked identities", (t) =>
   assert.ok(!site.sitemap.some((e) => e.loc === "/contribute/"));
   assert.ok(site.sitemap.some((e) => e.loc === "/why/"));
   assert.ok(site.sitemap.some((e) => e.loc === "/journal/"));
-  // A contribute section makes the page real and indexable.
-  repo.write("README.md", repo.read("README.md").replace("<!-- website:end -->", "<!-- website:contribute -->\n## Contribute\n\nPick a bug.\n\n<!-- website:end -->"));
+  // A contribute, demo, and continuity section populate the landing model and copy video assets.
+  repo.write("docs/images/demo.webm", "video-bytes");
+  repo.write(
+    "README.md",
+    repo
+      .read("README.md")
+      .replace(
+        "<!-- website:benefits -->",
+        "<!-- website:demo -->\n### Watch a real session\n\n[![Capsule desktop poster](docs/images/card.png)](docs/images/demo.webm)\n\nRecorded in a real capsule.\n\n1. **0:00 — Start.** Opens IDE.\n\n<!-- website:benefits -->",
+      )
+      .replace(
+        "<!-- website:fit -->",
+        "<!-- website:continuity -->\n## Pick up where the last session stopped\n\n- **What changed:** Fixed tests.\n- **Next action:** Ship it.\n\n<!-- website:fit -->",
+      )
+      .replace("<!-- website:end -->", "<!-- website:contribute -->\n## Contribute\n\nPick a bug.\n\n<!-- website:end -->"),
+  );
   const authored = build(repo);
   assert.equal(page(authored, "/contribute/").planned, false);
   assert.match(authored.landing.contribute.html, /Pick a bug/);
   assert.ok(authored.sitemap.some((e) => e.loc === "/contribute/"));
+  assert.equal(authored.landing.demo.heading, "Watch a real session");
+  assert.equal(authored.landing.demo.video, "/content-assets/main/docs/images/demo.webm");
+  assert.equal(authored.landing.demo.poster, "/content-assets/main/docs/images/card.png");
+  assert.equal(authored.landing.demo.alt, "Capsule desktop poster");
+  assert.match(authored.landing.demo.caption, /Recorded in a real capsule/);
+  assert.equal(authored.landing.demo.steps.length, 1);
+  assert.ok(!authored.landing.badges.includes("card.png"), "demo poster must not leak into footer badges");
+  assert.ok(authored.versionAssets.main.files.includes("docs/images/demo.webm"));
+  assert.equal(authored.landing.continuity.heading, "Pick up where the last session stopped");
+  assert.match(authored.landing.continuity.html, /What changed:/);
 });
 
 test("a README without markers still builds through the heading adapter", (t) => {

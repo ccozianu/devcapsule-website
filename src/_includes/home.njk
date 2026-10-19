@@ -5,12 +5,84 @@
     <div class="hero-copy">
       {% if landing.hero.chips.length %}<div class="eyebrow">{% for chip in landing.hero.chips %}{% if not loop.first %}<span aria-hidden="true"> · </span>{% endif %}{{ chip }}{% endfor %}</div>{% endif %}
       <h1 id="{{ landing.hero.id }}">{{ landing.hero.headline }}</h1>
-      <div class="hero-lead">{{ landing.hero.lead | safe }}</div>
+      <div class="hero-lead">{% if landing.hero.paragraphs and landing.hero.paragraphs.length %}{{ landing.hero.paragraphs.join('\n') | safe }}{% else %}{{ landing.hero.lead | safe }}{% endif %}</div>
       <div class="hero-actions">
         <a class="button" href="{{ site.roles['getting-started'] | url }}">Open your first workspace <span class="button-version">{{ site.current.label }}</span></a>
+        {% if landing.demo %}
+        <a class="button secondary" href="#{{ landing.demo.id }}">Watch a session <span aria-hidden="true">↓</span></a>
+        {% else %}
         <a class="text-link" href="#what-you-get">See what you get ↓</a>
+        {% endif %}
       </div>
     </div>
+    {% if landing.demo %}
+    <div class="workspace-figure workspace-figure--video" id="{{ landing.demo.id }}" role="region" aria-labelledby="{{ landing.demo.id }}-title">
+      <div class="figure-top figure-top--video">
+        <span class="tiny-caps" id="{{ landing.demo.id }}-title">{{ landing.demo.heading }}</span>
+        <button type="button" class="figure-expand" data-video-expand="{{ landing.demo.id }}-dialog" aria-haspopup="dialog" hidden>Expand ⤢</button>
+      </div>
+      <div class="workspace-video-frame">
+        <video
+          class="workspace-video"
+          controls
+          preload="none"
+          playsinline
+          width="1152"
+          height="720"
+          poster="{{ landing.demo.poster }}"
+          aria-label="{{ landing.demo.alt }}"
+        >
+          <source src="{{ landing.demo.video }}" type="video/webm">
+          <track kind="captions" src="{{ '/assets/session-demo.vtt' | url }}" srclang="en" label="English" default>
+          <p><a href="{{ landing.demo.video }}">Download the session recording (WebM)</a>.</p>
+        </video>
+      </div>
+      {% if landing.demo.caption %}
+      <div class="workspace-video-caption prose">{{ landing.demo.caption | safe }}</div>
+      {% endif %}
+      {% if landing.demo.steps.length %}
+      <details class="workspace-video-steps">
+        <summary>Session steps &amp; transcript ({{ landing.demo.steps.length }} steps)</summary>
+        <ol>
+          {% for step in landing.demo.steps %}
+          <li>{{ step | safe }}</li>
+          {% endfor %}
+        </ol>
+      </details>
+      {% endif %}
+      <dialog class="video-modal" id="{{ landing.demo.id }}-dialog" aria-labelledby="{{ landing.demo.id }}-modal-title">
+        <div class="video-modal-inner">
+          <div class="video-modal-header">
+            <span class="tiny-caps" id="{{ landing.demo.id }}-modal-title">{{ landing.demo.heading }}</span>
+            <button type="button" class="figure-expand video-modal-close" data-video-close>Close ✕</button>
+          </div>
+          <video
+            class="workspace-video video-modal-video"
+            controls
+            preload="none"
+            playsinline
+            width="1152"
+            height="720"
+            poster="{{ landing.demo.poster }}"
+            aria-label="{{ landing.demo.alt }}"
+          >
+            <source src="{{ landing.demo.video }}" type="video/webm">
+            <track kind="captions" src="{{ '/assets/session-demo.vtt' | url }}" srclang="en" label="English" default>
+          </video>
+          {% if landing.demo.caption %}
+          <div class="video-modal-caption prose">{{ landing.demo.caption | safe }}</div>
+          {% endif %}
+          {% if landing.demo.steps.length %}
+          <ol class="video-modal-steps">
+            {% for step in landing.demo.steps %}
+            <li>{{ step | safe }}</li>
+            {% endfor %}
+          </ol>
+          {% endif %}
+        </div>
+      </dialog>
+    </div>
+    {% else %}
     <div class="workspace-figure" role="img" aria-label="A project workspace brings together your source, a full IDE, optional AI agents, and persistent project context. Access to host resources is your choice.">
       <div class="figure-top"><span class="tiny-caps">Workspace / DevCapsule</span><span class="figure-dots">● ● ●</span></div>
       <div class="workspace-scene">
@@ -22,6 +94,7 @@
       <div class="boundary-line"><span>Host access</span><span class="boundary-switch" aria-hidden="true"></span><strong>You decide.</strong></div>
       <div class="figure-caption">01 / A workspace with a boundary.</div>
     </div>
+    {% endif %}
   </div>
 </section>
 
@@ -43,7 +116,7 @@
 {% if landing.benefits.length %}
 <section class="section section--alt" id="what-you-get" aria-labelledby="what-you-get-heading">
   <div class="wrap">
-    <div class="section-heading"><div><span class="eyebrow">What you get</span><h2 id="what-you-get-heading">What changes how a day of work feels</h2></div></div>
+    <div class="section-heading"><div><span class="eyebrow">Why switch</span><h2 id="what-you-get-heading">{{ landing.benefitsHeading or 'What changes how a day of work feels' }}</h2></div></div>
     <div class="cards cards--{{ landing.benefits.length }}">
       {% for card in landing.benefits %}
       <div class="card">
@@ -52,6 +125,20 @@
         {% if card.url %}<a class="card-link" href="{{ card.url }}">{{ card.label }} <span aria-hidden="true">→</span></a>{% endif %}
       </div>
       {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if landing.continuity %}
+<section class="section" id="{{ landing.continuity.id or 'continuity' }}" aria-labelledby="{{ landing.continuity.id or 'continuity' }}-heading">
+  <div class="wrap">
+    <div class="continuity-section">
+      <div class="continuity-header">
+        <span class="eyebrow">Engineering continuity</span>
+        <h2 id="{{ landing.continuity.id or 'continuity' }}-heading">{{ landing.continuity.heading or 'Pick up where the last session stopped' }}</h2>
+      </div>
+      <div class="continuity-prose prose">{{ landing.continuity.html | safe }}</div>
     </div>
   </div>
 </section>

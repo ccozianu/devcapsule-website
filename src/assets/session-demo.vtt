@@ -1,0 +1,13 @@
+WEBVTT
+
+00:00.000 --> 00:07.000
+Contained Linux desktop opens after container stop and relaunch; IntelliJ IDEA 2026.2.3 starts in the workspace.
+
+00:07.000 --> 00:14.000
+Project tree opens /workspace with smoke.txt and the first session's saved marker already present at font size 17.
+
+00:14.000 --> 00:21.000
+OpenAI Codex drives the editor through the contained display and appends the second session marker.
+
+00:21.000 --> 00:28.000
+The file is saved inside the persistent project workspace, preserving both session markers and IDE preferences.

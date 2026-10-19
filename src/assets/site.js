@@ -51,3 +51,33 @@ if ('IntersectionObserver' in window && toc.length) {
   }, { rootMargin: '-15% 0px -65% 0px' });
   document.querySelectorAll('.prose h2,.prose h3').forEach(el => observer.observe(el));
 }
+for (const btn of document.querySelectorAll('[data-video-expand]')) {
+  const dialog = document.getElementById(btn.getAttribute('data-video-expand'));
+  if (!dialog || typeof dialog.showModal !== 'function') continue;
+  btn.hidden = false;
+  const inlineVideo = btn.closest('.workspace-figure--video')?.querySelector('.workspace-video');
+  const modalVideo = dialog.querySelector('.workspace-video--modal');
+  btn.addEventListener('click', () => {
+    if (inlineVideo && !inlineVideo.paused) inlineVideo.pause();
+    if (modalVideo && inlineVideo && inlineVideo.currentTime > 0) {
+      try { modalVideo.currentTime = inlineVideo.currentTime; } catch {}
+    }
+    dialog.showModal();
+  });
+  dialog.addEventListener('close', () => {
+    if (modalVideo && !modalVideo.paused) modalVideo.pause();
+  });
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) dialog.close();
+  });
+  for (const closeBtn of dialog.querySelectorAll('[data-video-close]')) {
+    closeBtn.addEventListener('click', () => dialog.close());
+  }
+}
+for (const link of document.querySelectorAll('.hero-actions a[href^="#"]')) {
+  link.addEventListener('click', () => {
+    const target = document.getElementById(link.getAttribute('href').slice(1));
+    const video = target?.querySelector('video');
+    if (video) video.focus({ preventScroll: true });
+  });
+}
