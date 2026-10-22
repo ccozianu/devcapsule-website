@@ -3,11 +3,21 @@
 State: W00 (search discoverability) is closed following Search Console
 verification and indexing. All four slices of
 [Social metadata and page identity](engineering-docs/work-orders/2026-10-16-social-metadata-and-page-identity.md)
-(W09 / W12) are delivered and validated. Next step: in DevCapsule, add the
-`<!-- website:social ... -->` marker to `README.md`, amend `R-DOCS-003` for the
-optional `social` field and marker, and advance the `website` submodule pin
-(W09-C / W12-C). Delivery: SSH push, owner merges PRs and runs the publication
-workflows.
+(W09 / W12) and the landing-page demonstration extensions are delivered and
+validated. On 2026-10-22, updated `src/assets/session-demo.vtt` so the WebVTT
+caption track on the landing-page `<video>` matches the 27.4-second Eclipse Java
+debugger recording (`eclipse-hello-time-debug.webm`) instead of the earlier
+IntelliJ persistence session. Delivery: SSH push, owner merges PRs and runs the
+publication workflows.
+
+## Landing-page WebVTT caption alignment (2026-10-22)
+
+- Replaced the leftover 4-cue IntelliJ IDEA persistence captions in
+  `src/assets/session-demo.vtt` with 5 timed cues (`00:00.000` to `00:27.420`)
+  matching the Eclipse IDE for Java Developers `HelloTime.java` debugging
+  recording (`eclipse-hello-time-debug.webm`).
+- Validated with `npm test` (`23 passed`), `npm run check:content`, `npm run build`,
+  and `npm run check` (`191 HTML pages, 13876 local links/assets/anchors`).
 
 ## Social metadata work order execution (2026-10-16)
 
